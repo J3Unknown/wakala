@@ -7,6 +7,8 @@ import 'package:wakala/home/presentation/view/screens/commercial_screen.dart';
 import 'package:wakala/home/presentation/view/screens/home_screen.dart';
 import 'package:wakala/home/presentation/view/screens/more_screen.dart';
 import 'package:wakala/home/presentation/view/screens/post_screen.dart';
+import 'package:wakala/utilities/resources/components.dart';
+import 'package:wakala/utilities/resources/icons_manager.dart';
 
 class MainCubit extends Cubit<MainCubitStates>{
   MainCubit() : super(MainInitialState());
@@ -21,38 +23,32 @@ class MainCubit extends Cubit<MainCubitStates>{
     MoreScreen()
   ];
 
-  //TODO: These are only place holders values till we change it with proper values
+  //TODO: These are only place holders values till we change it with its proper values
   List<PreferredSizeWidget> appBars = [
-    AppBar(
-      title: Text('Wikala'),
+    appBar(
       actions: [
-        IconButton(onPressed: (){}, icon: Icon(CupertinoIcons.chat_bubble_2_fill)),
-        IconButton(onPressed: (){}, icon: Icon(Icons.notifications)),
+        IconButton(onPressed: (){}, icon: Icon(IconsManager.chatIcon)),
+        IconButton(onPressed: (){}, icon: Icon(IconsManager.notificationIcon)),
+      ]
+    ),
+    appBar(
+      actions: [
+        IconButton(onPressed: (){}, icon: Icon(IconsManager.chatIcon)),
+        IconButton(onPressed: (){}, icon: Icon(IconsManager.notificationIcon)),
       ],
     ),
-    AppBar(
-      title: Text('Wikala'),
+    appBar(),
+    appBar(
       actions: [
-        IconButton(onPressed: (){}, icon: Icon(CupertinoIcons.chat_bubble_2_fill)),
-        IconButton(onPressed: (){}, icon: Icon(Icons.notifications)),
-      ],
+        IconButton(onPressed: (){}, icon: Icon(IconsManager.chatIcon)),
+        IconButton(onPressed: (){}, icon: Icon(IconsManager.notificationIcon)),
+      ]
     ),
-    AppBar(
-      title: Text('Wikala'),
-    ),
-    AppBar(
-      title: Text('Wikala'),
-      actions: [
-        IconButton(onPressed: (){}, icon: Icon(CupertinoIcons.chat_bubble_2_fill)),
-        IconButton(onPressed: (){}, icon: Icon(Icons.notifications)),
-      ],
-    ),
-    AppBar(
-      title: Text('Wikala'),
-      actions: [
-        IconButton(onPressed: (){}, icon: Icon(CupertinoIcons.chat_bubble_2_fill)),
-        IconButton(onPressed: (){}, icon: Icon(Icons.notifications)),
-      ],
+    appBar(
+      actions:[
+        IconButton(onPressed: (){}, icon: Icon(IconsManager.chatIcon)),
+        IconButton(onPressed: (){}, icon: Icon(IconsManager.notificationIcon)),
+      ]
     ),
   ];
 

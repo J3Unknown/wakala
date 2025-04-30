@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+import '../../../../utilities/resources/components.dart';
+import '../widgets/search_button.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Home Screen'));
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          CategoriesScroll(),
+          SearchButton(),
+          
+        ],
+      ),
+    );
   }
 }
