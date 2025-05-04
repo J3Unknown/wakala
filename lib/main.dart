@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wakala/utilities/network/dio.dart';
 import 'package:wakala/utilities/network/observer.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
+import 'package:wakala/utilities/resources/themes_manager.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       onGenerateRoute: RoutesGenerator.getRoute,
-      initialRoute: Routes.home,
+      theme: lightTheme(),
+      initialRoute: Routes.splashScreen,
     );
   }
 }

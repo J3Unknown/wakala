@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
+import 'package:wakala/utilities/resources/values_manager.dart';
 
 class BottomNavBar extends StatelessWidget {
   late MainCubit cubit;
@@ -9,15 +10,8 @@ class BottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
         currentIndex: cubit.currentIndex,
-        selectedLabelStyle: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-        selectedItemColor: Colors.blue,
-        unselectedLabelStyle: TextStyle(color: Colors.black),
-        unselectedItemColor: Colors.black,
-        type: BottomNavigationBarType.fixed,
-        selectedFontSize: 14,
-        selectedIconTheme: IconThemeData(
-            size: 30
-        ),
+        selectedFontSize: AppSizesDouble.s14,
+        unselectedFontSize: AppSizesDouble.s14,
         onTap: (newIndex){
           cubit.changeBottomSheetIndex(newIndex);
         },
