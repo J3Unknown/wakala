@@ -43,6 +43,9 @@ class AppMargins{
 }
 
 class AppPaddings{
+  static const double p0 = 0;
   static const double p3 = 3;
+  static const double p5 = 5;
   static const double p10 = 10;
+  static const double p20 = 20;
 }

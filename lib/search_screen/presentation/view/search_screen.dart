@@ -45,7 +45,7 @@ class _SearchScreenState extends State<SearchScreen> {
         },
       ),
       FilterDropDown(
-        title: StringsManager.filter,
+        title: StringsManager.location,
         selectedItem: _locationFilterSelection,
         items: _items,
         icon: Icons.filter_alt_rounded,
