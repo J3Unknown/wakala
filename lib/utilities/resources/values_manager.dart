@@ -12,11 +12,14 @@ class AppSizes{
 
 class AppSizesDouble{
   static const double s0 = 0;
+  static const double s1_5 = 1.5;
+  static const double s1 = 1;
   static const double s2 = 2;
   static const double s5 = 5;
   static const double s10 = 10;
   static const double s15 = 15;
   static const double s14 = 14;
+  static const double s17 = 17;
   static const double s20 = 20;
   static const double s25 = 25;
   static const double s30 = 30;
@@ -40,6 +43,7 @@ class AppSizesDouble{
 class AppMargins{
   static const double m10 = 10;
   static const double m15 = 15;
+  static const double m20 = 20;
 }
 
 class AppPaddings{
@@ -47,5 +51,6 @@ class AppPaddings{
   static const double p3 = 3;
   static const double p5 = 5;
   static const double p10 = 10;
+  static const double p15 = 15;
   static const double p20 = 20;
 }

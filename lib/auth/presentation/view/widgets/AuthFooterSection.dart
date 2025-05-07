@@ -26,14 +26,14 @@ class AuthFooterSection extends StatelessWidget {
           SizedBox(
             height: AppSizesDouble.s25,
             child: TextButton(
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: AppPaddings.p5),
-                ),
-                onPressed: _onPressed,
-                child: Text(
-                    _buttonTitle,
-                    style: _textStyle?.copyWith(color: ColorsManager.darkBlue)??Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.darkBlue)
-                )
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: AppPaddings.p5),
+              ),
+              onPressed: _onPressed,
+              child: Text(
+                _buttonTitle,
+                style: _textStyle?.copyWith(color: ColorsManager.primaryColor)??Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor)
+              )
             ),
           )
         ],

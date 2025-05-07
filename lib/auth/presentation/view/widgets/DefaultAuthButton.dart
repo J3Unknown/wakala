@@ -1,4 +1,5 @@
-  import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/values_manager.dart';
@@ -9,7 +10,7 @@ class DefaultAuthButton extends StatelessWidget {
     required VoidCallback onPressed,
     Color foregroundColor = ColorsManager.black,
     Color backgroundColor = ColorsManager.loginButtonBackgroundColor,
-    IconData? icon,
+    String? icon,
     required String title,
     bool hasBorder = true
   }) : _onPressed=onPressed,
@@ -23,7 +24,7 @@ class DefaultAuthButton extends StatelessWidget {
   final Color _backgroundColor;
   final Color _foregroundColor;
   final String _title;
-  final IconData? _icon;
+  final String? _icon;
   final bool _hasBorder;
 
   @override
@@ -32,9 +33,9 @@ class DefaultAuthButton extends StatelessWidget {
       width: double.infinity,
       height: AppSizesDouble.s70,
       child: ElevatedButton.icon(
+        label: FittedBox(child: Text(_title, style: Theme.of(context).textTheme.titleLarge!.copyWith(color: _foregroundColor),)),
+        icon: SvgPicture.asset(_icon??''),
         onPressed: _onPressed,
-        label: FittedBox(child: Text(_title, style: Theme.of(context).textTheme.titleLarge,)),
-        icon: Icon(_icon, size: AppSizesDouble.s30,),
         style: ElevatedButton.styleFrom(
           foregroundColor: _foregroundColor,
           backgroundColor: _backgroundColor,

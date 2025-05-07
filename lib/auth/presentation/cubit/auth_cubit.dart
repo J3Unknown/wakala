@@ -4,6 +4,13 @@ import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 class AuthCubit extends Cubit<AuthStates>{
 
   AuthCubit() : super(AuthInitialState());
-
+  
   static AuthCubit get(context) => BlocProvider.of(context);
+  
+  bool isObscured = true;
+  
+  void changeObscured(){
+    isObscured = !isObscured;
+    emit(AuthChangeObscureState());
+  }
 }

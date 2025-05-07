@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wakala/auth/presentation/cubit/auth_cubit.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthFooterSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
-import 'package:wakala/utilities/resources/colors_manager.dart';
+import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
@@ -14,72 +15,66 @@ class AuthLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthCubit(),
-      child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pushAndRemoveUntil(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.home)), (route) => false),
-              child: Text(StringsManager.skip, style: Theme.of(context).textTheme.titleLarge,)
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pushAndRemoveUntil(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.home)), (route) => false),
+            child: Text(StringsManager.skip, style: Theme.of(context).textTheme.titleLarge,)
+          )
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: AppPaddings.p20),
+        child: Column(
+          children: [
+            AuthSection(
+              children: [
+                SvgPicture.asset(AssetsManager.appIcon,),
+                SizedBox(height: AppSizesDouble.s10,),
+                Text(StringsManager.welcomeToWikala, style: Theme.of(context).textTheme.headlineMedium,),
+              ],
+            ),
+            AuthSection(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                DefaultAuthButton(
+                  onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.login))),
+                  icon: AssetsManager.phoneIcon,
+                  title: StringsManager.signInWithPhone,
+                ),
+                DefaultAuthButton(
+                  onPressed: (){},
+                  icon: AssetsManager.googleIcon,
+                  title: StringsManager.signInWithGoogle,
+                ),
+             ]
+            ),
+            AuthSection(
+              flex: AppSizes.s2,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(bottom: AppPaddings.p20),
+                  child: AuthFooterSection(
+                    title: StringsManager.notAMemberYet,
+                    buttonTitle: StringsManager.signUp,
+                    onPressed: (){},
+                    textStyle: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                AuthFooterSection(
+                  title: StringsManager.byContinueYouAgree,
+                  buttonTitle: StringsManager.termsOfService,
+                  onPressed: (){},
+                ),
+                AuthFooterSection(
+                  title: StringsManager.andOur,
+                  buttonTitle: StringsManager.privacyPolicy,
+                  onPressed: (){},
+                ),
+              ]
             )
           ],
-        ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppPaddings.p20),
-          child: Column(
-            children: [
-              AuthSection(
-                children: [
-                  Text(StringsManager.wikala, style: Theme.of(context).textTheme.displayLarge!.copyWith(color: ColorsManager.grey),),
-                  Text(StringsManager.welcomeToWikala, style: Theme.of(context).textTheme.headlineMedium,),
-                ],
-              ),
-              AuthSection(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  DefaultAuthButton(
-                    onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.login))),
-                    icon: Icons.call,
-                    title: StringsManager.signInWithPhone,
-                  ),
-                  DefaultAuthButton(
-                    onPressed: (){},
-                    icon: Icons.account_circle_rounded,
-                    title: StringsManager.signInWithGoogle,
-                  ),
-                  DefaultAuthButton(
-                    onPressed: (){},
-                    icon: Icons.facebook,
-                    title: StringsManager.signInWithFacebook,
-                  ),
-               ]
-              ),
-              AuthSection(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(bottom: AppPaddings.p20),
-                    child: AuthFooterSection(
-                      title: StringsManager.notAMemberYet,
-                      buttonTitle: StringsManager.signUp,
-                      onPressed: (){},
-                      textStyle: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                  AuthFooterSection(
-                    title: StringsManager.byContinueYouAgree,
-                    buttonTitle: StringsManager.termsOfService,
-                    onPressed: (){},
-                  ),
-                  AuthFooterSection(
-                    title: StringsManager.andOur,
-                    buttonTitle: StringsManager.privacyPolicy,
-                    onPressed: (){},
-                  ),
-                ]
-              )
-            ],
-          ),
         ),
       ),
     );
