@@ -6,6 +6,7 @@ import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/utilities/resources/icons_manager.dart';
+import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
 import '../../../../utilities/resources/assets_manager.dart';
@@ -23,71 +24,102 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthCubit>(
-      create: (context) => AuthCubit(),
-      child: BlocConsumer<AuthCubit, AuthStates>(
-        listener: (context, state){},
-        builder: (context, state) {
-          AuthCubit cubit = AuthCubit.get(context);
-          return Scaffold(
-            appBar: AppBar(),
-            body: Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppPaddings.p20),
-              child: Column(
-                children: [
-                  AuthSection(
-                    children: [
-                      SvgPicture.asset(AssetsManager.appIcon,),
-                      SizedBox(height: AppSizesDouble.s10,),
-                      Text(StringsManager.welcomeToWikala, style: Theme.of(context).textTheme.headlineMedium,),
-                    ]
-                  ),
-                  AuthSection(
-                    children: [
-                      Form(
-                        key: _formKey,
-                        child: Column(
+    return BlocConsumer<AuthCubit, AuthStates>(
+      listener: (context, state){},
+      builder: (context, state) {
+        AuthCubit cubit = AuthCubit.get(context);
+        return Scaffold(
+          resizeToAvoidBottomInset: true,
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            leading: IconButton(
+              onPressed: (){
+                bool authLayoutFound = false;
+                Navigator.popUntil(context, (route) {
+                  if (route.settings.name == Routes.authLayout) {
+                    authLayoutFound = true;
+                    return true;
+                  }
+                  return false;
+                });
+
+                if (!authLayoutFound) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    Routes.authLayout, (route) => false,
+                  );
+                }
+              },
+              icon: Icon(IconsManager.backButton)
+            )
+          ),
+          body: LayoutBuilder(
+            builder: (context, constrains) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constrains.maxHeight
+                ),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppPaddings.p20),
+                    child: Column(
+                      children: [
+                        AuthSection(
                           children: [
-                            DefaultPhoneInputField(phoneNumberController: _phoneNumberController),
-                            DefaultPasswordInputField(passwordController: _passwordController, cubit: cubit)
-                          ],
+                            SvgPicture.asset(AssetsManager.appIcon,),
+                            SizedBox(height: AppSizesDouble.s10,),
+                            Text(StringsManager.loginToWikala, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
+                          ]
                         ),
-                      )
-                    ]
-                  ),
-                  AuthSection(
-                    flex: AppSizes.s2,
-                    children: [
-                      DefaultAuthButton(onPressed: (){}, title: StringsManager.login, backgroundColor: ColorsManager.primaryColor, foregroundColor: ColorsManager.white, hasBorder: false,),
-                      SizedBox(height: AppSizesDouble.s30,),
-                      TextButton(
-                        onPressed: (){},
-                        style: TextButton.styleFrom(
-                          foregroundColor: ColorsManager.primaryColor,
+                        AuthSection(
+                          children: [
+                            Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  DefaultPhoneInputField(phoneNumberController: _phoneNumberController),
+                                  DefaultPasswordInputField(passwordController: _passwordController, cubit: cubit)
+                                ],
+                              ),
+                            )
+                          ]
                         ),
-                        child: Text(StringsManager.forgotPassword, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(StringsManager.dontHaveAccount, style: Theme.of(context).textTheme.titleMedium,),
-                          TextButton(
-                            onPressed: (){},
-                            style: TextButton.styleFrom(
-                              foregroundColor: ColorsManager.primaryColor,
+                        AuthSection(
+                          flex: AppSizes.s2,
+                          children: [
+                            DefaultAuthButton(onPressed: (){}, title: StringsManager.login, backgroundColor: ColorsManager.primaryColor, foregroundColor: ColorsManager.white, hasBorder: false,),
+                            SizedBox(height: AppSizesDouble.s30,),
+                            TextButton(
+                              onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.forgotPassword))),
+                              style: TextButton.styleFrom(
+                                foregroundColor: ColorsManager.primaryColor,
+                              ),
+                              child: Text(StringsManager.forgotPassword, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
                             ),
-                            child: Text(StringsManager.signUp, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
-                          )
-                        ],
-                      )
-                    ]
-                  )
-                ],
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(StringsManager.dontHaveAccount, style: Theme.of(context).textTheme.titleMedium,),
+                                TextButton(
+                                  onPressed: () => Navigator.pushReplacementNamed(context,  Routes.signUp),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: ColorsManager.primaryColor,
+                                  ),
+                                  child: Text(StringsManager.signUp, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
+                                )
+                              ],
+                            )
+                          ]
+                        )
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

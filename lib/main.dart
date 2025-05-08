@@ -1,6 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakala/auth/presentation/cubit/auth_cubit.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/utilities/network/dio.dart';
 import 'package:wakala/utilities/network/observer.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
@@ -18,11 +21,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      onGenerateRoute: RoutesGenerator.getRoute,
-      theme: lightTheme(),
-      initialRoute: Routes.splashScreen,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthCubit()),
+        BlocProvider(create: (context) => MainCubit()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        onGenerateRoute: RoutesGenerator.getRoute,
+        theme: lightTheme(),
+        initialRoute: Routes.splashScreen,
+      ),
     );
   }
 }

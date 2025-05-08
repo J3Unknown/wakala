@@ -7,4 +7,5 @@ class IconsManager{
   static const IconData searchIcon = Icons.search;
   static const IconData obscuredIcon = Icons.visibility_off_outlined;
   static const IconData nonObscuredIcon = Icons.visibility;
+  static IconData backButton = Icons.adaptive.arrow_back_outlined;
 }

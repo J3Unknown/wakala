@@ -2,11 +2,17 @@ class AppSizes{
   static const int s0 = 0;
   static const int s1 = 1;
   static const int s2 = 2;
+  static const int s3 = 3;
+  static const int s4 = 4;
+  static const int s5 = 5;
+  static const int s6 = 6;
   static const int s10 = 10;
+  static const int s11 = 11;
   static const int s20 = 20;
   static const int s30 = 30;
   static const int s40 = 40;
   static const int s50 = 50;
+  static const int s60 = 60;
   static const int s500 = 500;
 }
 

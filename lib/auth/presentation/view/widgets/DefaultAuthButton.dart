@@ -34,7 +34,7 @@ class DefaultAuthButton extends StatelessWidget {
       height: AppSizesDouble.s70,
       child: ElevatedButton.icon(
         label: FittedBox(child: Text(_title, style: Theme.of(context).textTheme.titleLarge!.copyWith(color: _foregroundColor),)),
-        icon: SvgPicture.asset(_icon??''),
+        icon: _icon!=null? SvgPicture.asset(_icon):SizedBox(),
         onPressed: _onPressed,
         style: ElevatedButton.styleFrom(
           foregroundColor: _foregroundColor,

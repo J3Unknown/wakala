@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+
+import '../../../../utilities/resources/colors_manager.dart';
+import '../../../../utilities/resources/strings_manager.dart';
+import '../../../../utilities/resources/values_manager.dart';
+
+class DefaultInputField extends StatelessWidget {
+  const DefaultInputField({
+    super.key,
+    required TextEditingController controller,
+    required String title,
+    String? hint,
+    TextInputType keyboardType = TextInputType.text,
+  }) : _controller = controller, _keyboardType = keyboardType, _title = title, _hint = hint;
+
+  final TextEditingController _controller;
+  final TextInputType _keyboardType;
+  final String _title;
+  final String? _hint;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$_title *'),
+        TextFormField(
+          controller: _controller,
+          keyboardType: _keyboardType,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: ColorsManager.loginButtonBackgroundColor,
+            hintText: _hint,
+            enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSizesDouble.s10),
+                borderSide: BorderSide(color: ColorsManager.grey3, width: AppSizesDouble.s2)
+            ),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSizesDouble.s10),
+                borderSide: BorderSide(color: ColorsManager.primaryColor)
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

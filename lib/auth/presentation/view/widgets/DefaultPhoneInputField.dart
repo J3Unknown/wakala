@@ -20,7 +20,7 @@ class DefaultPhoneInputField extends StatelessWidget {
         Text('${StringsManager.phoneNumber} *'),
         TextFormField(
           controller: _phoneNumberController,
-          maxLength: 11,
+          maxLength: AppSizes.s11,
           keyboardType: TextInputType.phone,
           decoration: InputDecoration(
             filled: true,
