@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wakala/search_screen/presentation/view/widgets/filter_dialog.dart';
+import 'package:wakala/utilities/resources/assets_manager.dart';
+import 'package:wakala/utilities/resources/colors_manager.dart';
 import 'package:wakala/utilities/resources/components.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
@@ -12,86 +16,60 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  List<DropdownMenuItem<String>> items = [
+    DropdownMenuItem(value: 'property0', child: Text('property1', style: TextStyle(color: ColorsManager.black))),
+    DropdownMenuItem(value: 'property1', child: Text('property2', style: TextStyle(color: ColorsManager.black))),
+    DropdownMenuItem(value: 'property2', child: Text('property3', style: TextStyle(color: ColorsManager.black))),
+    DropdownMenuItem(value: 'property3', child: Text('property4', style: TextStyle(color: ColorsManager.black))),
+    DropdownMenuItem(value: 'property4', child: Text('property5', style: TextStyle(color: ColorsManager.black))),
+  ];
   @override
   void initState() {
     super.initState();
   }
 
-  final List<DropdownMenuItem<String>> _items = [
-    DropdownMenuItem(value: 'nigga1',child: Text('data1')),
-    DropdownMenuItem(value: 'nigga2',child: Text('data2'),),
-    DropdownMenuItem(value: 'nigga3',child: Text('data3'),),
-    DropdownMenuItem(value: 'nigga4',child: Text('data4'),),
-  ];
-
-  String? _filterSelection;
-  String? _locationFilterSelection;
-  String? _priceFilterSelection;
-  String? _conditionFilterSelection;
-  List<FilterDropDown> _filterItems = [];
+  bool isSelected = false;
+  final DeBouncer _deBouncer = DeBouncer();
 
   @override
   Widget build(BuildContext context) {
-    _filterItems = [
-      FilterDropDown(
-        title: StringsManager.filter,
-        selectedItem: _filterSelection,
-        items: _items,
-        icon: Icons.filter_alt_rounded,
-        onChange: (value){
-          setState(() {
-            _filterSelection = value;
-          });
-        },
-      ),
-      FilterDropDown(
-        title: StringsManager.location,
-        selectedItem: _locationFilterSelection,
-        items: _items,
-        icon: Icons.filter_alt_rounded,
-        onChange: (value){
-          setState(() {
-            _locationFilterSelection = value;
-          });
-        },
-      ),
-      FilterDropDown(
-        title: StringsManager.filter,
-        selectedItem: _priceFilterSelection,
-        items: _items,
-        icon: Icons.filter_alt_rounded,
-        onChange: (value){
-          setState(() {
-            _priceFilterSelection = value;
-          });
-        },
-      ),
-      FilterDropDown(
-        title: StringsManager.filter,
-        selectedItem: _conditionFilterSelection,
-        items: _items,
-        icon: Icons.filter_alt_rounded,
-        onChange: (value){
-          setState(() {
-            _conditionFilterSelection = value;
-          });
-        },
-      ),
-    ];
     return Hero(
       tag: KeysManager.searchBarHeroTag,
       child: Scaffold(
-        appBar: appBar(
-          titleSectionList: CustomSearchBar(searchController: _searchController, onChange: (){}) //TODO: implement the search Method in the Cubit
+        appBar: AppBar(
+          leadingWidth: AppSizesDouble.s30,
+          title: CustomSearchBar(searchController: _searchController, onChange: () => _deBouncer.run((){})),
         ),
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CategoriesScroll(),
-              //TODO: implement on changed and add all the filtration fields
-              FilterList(filterItems: _filterItems),
-
+              if(isSelected)
+              ElevatedButton.icon(
+                onPressed: (){
+                  showDialog(
+                    context: context,
+                    builder: (context) => FilterDialog(
+                      firstDropdownItems: items,
+                      secondDropdownItems: items,
+                    )
+                  );
+                },
+                label: Text(StringsManager.filter, style: Theme.of(context).textTheme.titleMedium,),
+                icon: SvgPicture.asset(AssetsManager.filter),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorsManager.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+                    side: BorderSide(color: ColorsManager.grey)
+                  ),
+                  padding: EdgeInsets.all(AppPaddings.p10)
+                ),
+              ),
+              AdsBannerSection(imgSrc: 'https://www.mouthmatters.com/wp-content/uploads/2024/07/placeholder-wide.jpg'),
+              Expanded(child: VerticalProductsList(isRecentlyViewed: true))
             ],
           ),
         ) 

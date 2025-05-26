@@ -46,6 +46,17 @@ class AuthCubit extends Cubit<AuthStates>{
     emit(AuthStartTimerState(initialTime: counter));
   }
 
+  @override
+  Future<void> close(){
+    if(_timer!.isActive){
+      _timer?.cancel();
+    }
+    if (!_timerStreamController.isClosed) {
+      _timerStreamController.close();
+    }
+    return super.close();
+  }
+
   void sendVerificationCode(){
     _counter();
   }

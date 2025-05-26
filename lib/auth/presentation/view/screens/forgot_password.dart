@@ -6,6 +6,7 @@ import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultPhoneInputField.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/colors_manager.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
@@ -33,7 +34,7 @@ class ForgotPassword extends StatelessWidget {
                 children: [
                   SvgPicture.asset(AssetsManager.appIcon,),
                   SizedBox(height: AppSizesDouble.s10,),
-                  Text(StringsManager.enterYourPhone, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
+                  Text(LocalizationService.translate(StringsManager.enterYourPhone), style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
                 ]
               ),
               AuthSection(
@@ -45,10 +46,10 @@ class ForgotPassword extends StatelessWidget {
                   DefaultAuthButton(
                     onPressed: (){
                       if(_formKey.currentState!.validate()){
-                        Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.otp)));
+                        Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.otp, arguments: _phoneController.text)));
                       }
                     },
-                    title: StringsManager.submit,
+                    title: LocalizationService.translate(StringsManager.submit),
                     backgroundColor: ColorsManager.primaryColor,
                     foregroundColor: ColorsManager.white,
                     hasBorder: false,

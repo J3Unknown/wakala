@@ -7,6 +7,20 @@ class StringsManager{
   static const String welcomeToWikala = 'Welcome To Wikala';
   static const String submit = 'Submit';
   static const String confirm = 'Confirm';
+  static const String cancel = 'Cancel';
+  static const String home = 'Home';
+  static const String categories = 'Categories';
+  static const String post = 'Post';
+  static const String commercial = 'Commercial';
+  static const String commercialAdDetails = 'Commercial Ad Details';
+  static const String more = 'More';
+  static const String report = 'Report';
+  static const String hide = 'Hide';
+  static const String save = 'Save';
+  static const String share = 'Share';
+  static const String productDetails = 'Product Details';
+  static const String english = 'English'; //! not translated
+  static const String arabic = 'عربي'; //! not translated
 
   //*searching
   static const String searchHint = 'what are you looking for?';
@@ -26,7 +40,7 @@ class StringsManager{
   static const String notAMemberYet = 'Not a member?';
   static const String byContinueYouAgree = 'By continue you agree to our';
   static const String signUp = 'Sign Up';
-  static const String login = 'login';
+  static const String login = 'Login';
   static const String termsOfService = 'Terms of service';
   static const String andOur = 'and our';
   static const String privacyPolicy = 'Privacy Policy';
@@ -42,9 +56,36 @@ class StringsManager{
   static const String nameHintText = 'First And Last Name';
   static const String egy = 'Egy';
   static const String skip = 'Skip';
+  static const String validOtpMessage = 'Please enter a valid OTP';
+  static const String enterReceivedOTP = 'Enter Received OTP';
+  static const String validFieldMessage = 'This field is required!';
+  static const String phoneLengthMessage = 'Phone number must be 11 digits';
+
+  //* more Screen
+  static const String notificationsSettings = 'Notifications Settings';
+  static const String myAds = 'My Ads';
+  static const String recentlyViewed = 'Recently Viewed';
+  static const String saved = 'Saved';
+  static const String language = 'Language';
+  static const String support = 'Support';
+  static const String aboutUs = 'About Us';
+  static const String termsAndConditions = 'Terms & Conditions';
+  static const String logout = 'Logout';
+  static const String notifications = 'Notifications';
+  static const String chat = 'Chat';
+  static const String profile = 'Profile';
+  static const String editProfile = 'Edit My Profile';
 
 }
 
 class KeysManager{
   static const String searchBarHeroTag = 'Search-Bar';
+  static const String en = 'en';
+  static const String ar = 'ar';
+
+  //?caches
+  static String isGuest = 'guest';
+  static const String isAuthenticated = 'isAuthenticated';
+  static const String finishedOnBoarding = 'finishedOnBoarding';
+  static const String locale = 'language';
 }

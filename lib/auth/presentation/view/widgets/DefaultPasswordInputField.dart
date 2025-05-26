@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../utilities/local/localization_services.dart';
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/icons_manager.dart';
 import '../../../../utilities/resources/strings_manager.dart';
@@ -21,11 +22,17 @@ class DefaultPasswordInputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${StringsManager.password} *'),
+        Text('${LocalizationService.translate(StringsManager.password)} *'),
         TextFormField(
           controller: _passwordController,
           obscureText: cubit.isObscured,
           keyboardType: TextInputType.visiblePassword,
+          validator: (value){
+            if(value!.isEmpty){
+              return LocalizationService.translate(StringsManager.validFieldMessage);
+            }
+            return null;
+          },
           decoration: InputDecoration(
             filled: true,
             fillColor: ColorsManager.loginButtonBackgroundColor,

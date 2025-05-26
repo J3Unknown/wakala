@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/strings_manager.dart';
@@ -27,6 +28,12 @@ class DefaultInputField extends StatelessWidget {
         TextFormField(
           controller: _controller,
           keyboardType: _keyboardType,
+          validator: (value){
+            if(value!.isEmpty){
+              return LocalizationService.translate(StringsManager.validFieldMessage);
+            }
+            return null;
+          },
           decoration: InputDecoration(
             filled: true,
             fillColor: ColorsManager.loginButtonBackgroundColor,

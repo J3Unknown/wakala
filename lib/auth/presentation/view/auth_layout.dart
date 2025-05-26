@@ -6,13 +6,16 @@ import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthFooterSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/local/shared_preferences.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
 class AuthLayout extends StatelessWidget {
-  const AuthLayout({super.key});
+  AuthLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +25,13 @@ class AuthLayout extends StatelessWidget {
         appBar: AppBar(
           actions: [
             TextButton(
-              onPressed: () => Navigator.pushAndRemoveUntil(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.home)), (route) => false),
-              child: Text(StringsManager.skip, style: Theme.of(context).textTheme.titleLarge,)
+              onPressed: () async{
+                AppConstants.isGuest = true;
+                await CacheHelper.saveData(key: KeysManager.isGuest, value: true).then((value){
+                  Navigator.pushReplacement(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.home)));
+                });
+              },
+              child: Text(LocalizationService.translate(StringsManager.skip), style: Theme.of(context).textTheme.titleLarge,)
             )
           ],
         ),
@@ -35,7 +43,7 @@ class AuthLayout extends StatelessWidget {
                 children: [
                   SvgPicture.asset(AssetsManager.appIcon,),
                   SizedBox(height: AppSizesDouble.s10,),
-                  Text(StringsManager.welcomeToWikala, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
+                  Text(LocalizationService.translate(StringsManager.welcomeToWikala), style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
                 ],
               ),
               AuthSection(
@@ -44,12 +52,12 @@ class AuthLayout extends StatelessWidget {
                   DefaultAuthButton(
                     onPressed: () => Navigator.push(context,RoutesGenerator.getRoute(RouteSettings(name: Routes.login))),
                     icon: AssetsManager.phoneIcon,
-                    title: StringsManager.signInWithPhone,
+                    title: LocalizationService.translate(StringsManager.signInWithPhone),
                   ),
                   DefaultAuthButton(
                     onPressed: (){},
                     icon: AssetsManager.googleIcon,
-                    title: StringsManager.signInWithGoogle,
+                    title: LocalizationService.translate(StringsManager.signInWithGoogle),
                   ),
                ]
               ),
@@ -59,20 +67,20 @@ class AuthLayout extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(bottom: AppPaddings.p20),
                     child: AuthFooterSection(
-                      title: StringsManager.notAMemberYet,
-                      buttonTitle: StringsManager.signUp,
+                      title: LocalizationService.translate(StringsManager.notAMemberYet),
+                      buttonTitle: LocalizationService.translate(StringsManager.signUp),
                       onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.signUp))),
                       textStyle: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                   AuthFooterSection(
-                    title: StringsManager.byContinueYouAgree,
-                    buttonTitle: StringsManager.termsOfService,
+                    title: LocalizationService.translate(StringsManager.byContinueYouAgree),
+                    buttonTitle: LocalizationService.translate(StringsManager.termsOfService),
                     onPressed: (){},
                   ),
                   AuthFooterSection(
-                    title: StringsManager.andOur,
-                    buttonTitle: StringsManager.privacyPolicy,
+                    title: LocalizationService.translate(StringsManager.andOur),
+                    buttonTitle: LocalizationService.translate(StringsManager.privacyPolicy),
                     onPressed: (){},
                   ),
                 ]

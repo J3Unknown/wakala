@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/icons_manager.dart';
@@ -20,7 +21,7 @@ class SearchButton extends StatelessWidget {
           width: double.infinity,
           height: AppSizesDouble.s60,
           child: Card(
-            elevation: 0,
+            elevation: AppSizesDouble.s0,
             color: ColorsManager.grey1,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizesDouble.s10),
@@ -32,7 +33,7 @@ class SearchButton extends StatelessWidget {
                 children: [
                   Icon(IconsManager.searchIcon, color: ColorsManager.grey,),
                   SizedBox(width: AppSizesDouble.s20,),
-                  Text(StringsManager.searchHint, style: TextStyle(color: ColorsManager.grey),)
+                  Text(LocalizationService.translate(StringsManager.searchHint), style: TextStyle(color: ColorsManager.grey),)
                 ],
               ),
             ),

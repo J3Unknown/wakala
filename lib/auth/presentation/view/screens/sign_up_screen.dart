@@ -8,11 +8,12 @@ import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultInputField.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultPasswordInputField.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultPhoneInputField.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/resources/components.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
 import '../../../../utilities/resources/assets_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
-import '../../../../utilities/resources/icons_manager.dart';
 import '../../../../utilities/resources/routes_manager.dart';
 import '../../../../utilities/resources/strings_manager.dart';
 
@@ -30,26 +31,7 @@ class SignUpScreen extends StatelessWidget {
       builder: (context, state) => Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          leading: IconButton(
-            onPressed: (){
-              bool authLayoutFound = false;
-              Navigator.popUntil(context, (route) {
-                if (route.settings.name == Routes.authLayout) {
-                  authLayoutFound = true;
-                  return true;
-                }
-                return false;
-              });
-
-              if (!authLayoutFound) {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  Routes.authLayout, (route) => false,
-                );
-              }
-            },
-            icon: Icon(IconsManager.backButton)
-          )
+          leading: BackButtonUntil(rootLayout: Routes.authLayout)
         ),
         body: LayoutBuilder(
           builder: (context, constrains) => SingleChildScrollView(
@@ -67,7 +49,7 @@ class SignUpScreen extends StatelessWidget {
                         children: [
                           SvgPicture.asset(AssetsManager.appIcon,),
                           SizedBox(height: AppSizesDouble.s10,),
-                          Text(StringsManager.signUpToWikala, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
+                          Text(LocalizationService.translate(StringsManager.signUpToWikala), style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
                         ]
                       ),
                       AuthSection(
@@ -77,7 +59,7 @@ class SignUpScreen extends StatelessWidget {
                             key: _formKey,
                             child: Column(
                               children: [
-                                DefaultInputField(controller: _nameController, title: StringsManager.fullName, hint: StringsManager.nameHintText,),
+                                DefaultInputField(controller: _nameController, title: LocalizationService.translate(StringsManager.fullName), hint: LocalizationService.translate(StringsManager.nameHintText),),
                                 SizedBox(height: AppSizesDouble.s20,),
                                 DefaultPhoneInputField(phoneNumberController: _phoneController),
                                 DefaultPasswordInputField(passwordController: _passwordController, cubit: AuthCubit.get(context)),
@@ -90,18 +72,18 @@ class SignUpScreen extends StatelessWidget {
                         flex: AppSizes.s5,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          DefaultAuthButton(onPressed: (){}, title: StringsManager.signUp, hasBorder: false, foregroundColor: ColorsManager.white, backgroundColor: ColorsManager.primaryColor,),
+                          DefaultAuthButton(onPressed: (){}, title: LocalizationService.translate(StringsManager.signUp), hasBorder: false, foregroundColor: ColorsManager.white, backgroundColor: ColorsManager.primaryColor,),
                           SizedBox(height: AppSizesDouble.s15,),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(StringsManager.alreadyHaveAccount, style: Theme.of(context).textTheme.titleMedium,),
+                              Text(LocalizationService.translate(StringsManager.alreadyHaveAccount), style: Theme.of(context).textTheme.titleMedium,),
                               TextButton(
                                 onPressed: () => Navigator.pushReplacementNamed(context,  Routes.login),
                                 style: TextButton.styleFrom(
                                   foregroundColor: ColorsManager.primaryColor,
                                 ),
-                                child: Text(StringsManager.login, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
+                                child: Text(LocalizationService.translate(StringsManager.login), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
                               )
                             ],
                           )

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wakala/utilities/resources/colors_manager.dart';
-import 'package:wakala/utilities/resources/strings_manager.dart';
 import '../../../../utilities/resources/components.dart';
 import '../../../../utilities/resources/values_manager.dart';
 import '../widgets/search_button.dart';

@@ -5,12 +5,13 @@ import 'package:wakala/auth/presentation/cubit/auth_cubit.dart';
 import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
-import 'package:wakala/utilities/resources/icons_manager.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
 import '../../../../utilities/resources/assets_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
+import '../../../../utilities/resources/components.dart';
 import '../../../../utilities/resources/strings_manager.dart';
 import '../widgets/DefaultPasswordInputField.dart';
 import '../widgets/DefaultPhoneInputField.dart';
@@ -21,7 +22,6 @@ class LoginScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthStates>(
@@ -32,25 +32,8 @@ class LoginScreen extends StatelessWidget {
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            leading: IconButton(
-              onPressed: (){
-                bool authLayoutFound = false;
-                Navigator.popUntil(context, (route) {
-                  if (route.settings.name == Routes.authLayout) {
-                    authLayoutFound = true;
-                    return true;
-                  }
-                  return false;
-                });
-
-                if (!authLayoutFound) {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    Routes.authLayout, (route) => false,
-                  );
-                }
-              },
-              icon: Icon(IconsManager.backButton)
+            leading: BackButtonUntil(
+              rootLayout: Routes.authLayout,
             )
           ),
           body: LayoutBuilder(
@@ -68,7 +51,7 @@ class LoginScreen extends StatelessWidget {
                           children: [
                             SvgPicture.asset(AssetsManager.appIcon,),
                             SizedBox(height: AppSizesDouble.s10,),
-                            Text(StringsManager.loginToWikala, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
+                            Text(LocalizationService.translate(StringsManager.loginToWikala), style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold),),
                           ]
                         ),
                         AuthSection(
@@ -87,25 +70,25 @@ class LoginScreen extends StatelessWidget {
                         AuthSection(
                           flex: AppSizes.s2,
                           children: [
-                            DefaultAuthButton(onPressed: (){}, title: StringsManager.login, backgroundColor: ColorsManager.primaryColor, foregroundColor: ColorsManager.white, hasBorder: false,),
+                            DefaultAuthButton(onPressed: (){}, title: LocalizationService.translate(StringsManager.login), backgroundColor: ColorsManager.primaryColor, foregroundColor: ColorsManager.white, hasBorder: false,),
                             SizedBox(height: AppSizesDouble.s30,),
                             TextButton(
                               onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.forgotPassword))),
                               style: TextButton.styleFrom(
                                 foregroundColor: ColorsManager.primaryColor,
                               ),
-                              child: Text(StringsManager.forgotPassword, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
+                              child: Text(LocalizationService.translate(StringsManager.forgotPassword), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(StringsManager.dontHaveAccount, style: Theme.of(context).textTheme.titleMedium,),
+                                Text(LocalizationService.translate(StringsManager.dontHaveAccount), style: Theme.of(context).textTheme.titleMedium,),
                                 TextButton(
                                   onPressed: () => Navigator.pushReplacementNamed(context,  Routes.signUp),
                                   style: TextButton.styleFrom(
                                     foregroundColor: ColorsManager.primaryColor,
                                   ),
-                                  child: Text(StringsManager.signUp, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
+                                  child: Text(LocalizationService.translate(StringsManager.signUp), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
                                 )
                               ],
                             )

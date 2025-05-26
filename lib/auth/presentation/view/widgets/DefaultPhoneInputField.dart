@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/strings_manager.dart';
@@ -17,11 +18,21 @@ class DefaultPhoneInputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${StringsManager.phoneNumber} *'),
+        Text('${LocalizationService.translate(StringsManager.phoneNumber)} *'),
         TextFormField(
           controller: _phoneNumberController,
           maxLength: AppSizes.s11,
           keyboardType: TextInputType.phone,
+          validator: (value){
+            if(value!.isEmpty || value.length < AppSizes.s11){
+              if(value.isEmpty){
+                return LocalizationService.translate(StringsManager.validFieldMessage);
+              } else if(value.length < AppSizes.s11){
+                return LocalizationService.translate(StringsManager.phoneLengthMessage);
+              }
+            }
+              return null;
+          },
           decoration: InputDecoration(
             filled: true,
             fillColor: ColorsManager.loginButtonBackgroundColor,
@@ -30,7 +41,7 @@ class DefaultPhoneInputField extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(StringsManager.egy, style: TextStyle(fontSize: AppSizesDouble.s17, fontWeight: FontWeight.bold),),
+                  Text(LocalizationService.translate(StringsManager.egy), style: TextStyle(fontSize: AppSizesDouble.s17, fontWeight: FontWeight.bold),),
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: AppMargins.m20),
                     color: ColorsManager.grey3,
