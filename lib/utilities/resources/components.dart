@@ -96,7 +96,7 @@ class _CategoryButtonState extends State<CategoryButton> {
                   borderRadius: BorderRadius.circular(AppSizesDouble.s10),
                   side: BorderSide(color: widget.selectedCategory == widget.index? ColorsManager.grey:ColorsManager.black, width: AppSizesDouble.s2)
                 ),
-                child: Image.network(widget.image, fit: BoxFit.cover, width: AppSizesDouble.s60, height: AppSizesDouble.s60,),
+                child: SvgPicture.asset(AssetsManager.productPlaceHolder, fit: BoxFit.cover, height: AppSizesDouble.s60, width: AppSizesDouble.s60,,)/*Image.network(widget.image, fit: BoxFit.cover, width: AppSizesDouble.s60, height: AppSizesDouble.s60,)*/,
               ),
               Text(
                 widget.title,
