@@ -11,6 +11,7 @@ class AssetsManager{
   static const String defaultAvatar = '${AppConstants.iconsImagePath}defaultAvatar.svg';
   static const String libraryAdd = '${AppConstants.iconsImagePath}libraryAdd.svg';
   static const String eyeVisibilityOff = '${AppConstants.iconsImagePath}eyeVisibilityOff.svg';
+  static const String eyeVisibility = '${AppConstants.iconsImagePath}eyeVisibility.svg';
   static const String saved = '${AppConstants.iconsImagePath}bookmark.svg';
   static const String savedFilled = '${AppConstants.iconsImagePath}bookmarkFilled.svg';
   static const String language = '${AppConstants.iconsImagePath}globe.svg';
@@ -29,4 +30,7 @@ class AssetsManager{
   static const String hide = '${AppConstants.iconsImagePath}eyeVisibilityOff.svg';
   static const String addImage = '${AppConstants.iconsImagePath}addPhoto.svg';
   static const String filter = '${AppConstants.iconsImagePath}filter.svg';
+  static const String call = '${AppConstants.iconsImagePath}call.svg';
+  static const String add = '${AppConstants.iconsImagePath}add.svg';
+  static const String trash = '${AppConstants.iconsImagePath}trash.svg';
 }

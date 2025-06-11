@@ -23,6 +23,10 @@ dependencies:
   flutter_localization: ^0.3.2
   provider: ^6.1.5
   dotted_border: ^2.1.0
+  smooth_page_indicator: ^1.2.1
+  conditional_builder_null_safety: ^0.0.6
+  flutter_svg_provider: ^1.0.7
+
 
 
 dev_dependencies:

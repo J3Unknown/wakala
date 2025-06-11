@@ -33,6 +33,9 @@ class EndPoints{
   static const String following = 'follow/following/68';
   static const String followers = 'follow/followers/69';
 
+  //*home
+  static const String home = 'home';
+
   //*adds
   static const String saveAdd = 'ads';
 
@@ -49,5 +52,12 @@ class EndPoints{
 
   //*notifications
   static const String notifications = 'favorite-ads';
+
+  //*categories
+  static const String categories = 'categories';
+  static const String subCategories = 'get_sub_categories';
+
+  //*commercial
+  static const String getCommercialAd = 'ads';
 
 }

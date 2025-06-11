@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/auth/data/otp_screen_arguments.dart';
 import 'package:wakala/auth/presentation/view/auth_layout.dart';
 import 'package:wakala/auth/presentation/view/screens/forgot_password.dart';
 import 'package:wakala/auth/presentation/view/screens/login_screen.dart';
@@ -13,11 +14,16 @@ import 'package:wakala/my_ads/presentation/view/my_ads_screen.dart';
 import 'package:wakala/notifications/presentation/view/notifications_screen.dart';
 import 'package:wakala/on_boarding/presentation/view/on_boarding.dart';
 import 'package:wakala/product_details/presentation/view/product_details_screen.dart';
+import 'package:wakala/profile/presentation/view/add_address_screen.dart';
+import 'package:wakala/profile/presentation/view/addresses_list_screen.dart';
+import 'package:wakala/profile/presentation/view/create_password_screen.dart';
+import 'package:wakala/profile/presentation/view/edit_profile_screen.dart';
 import 'package:wakala/profile/presentation/view/profile_screen.dart';
 import 'package:wakala/recently_viewed/presentation/view/recently_viewed_screen.dart';
 import 'package:wakala/saved/presentation/view/saved_screen.dart';
 import 'package:wakala/search_screen/presentation/view/search_screen.dart';
 import 'package:wakala/splash_screen/presentation/view/splash_screen.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 
 class Routes{
@@ -37,6 +43,10 @@ class Routes{
   static const String recentlyViewing = '/recentlyViewing';
   static const String saved = '/saved';
   static const String profile = '/profile';
+  static const String editProfile = '/profile/edit';
+  static const String createPassword = '/profile/edit/createPassword';
+  static const String addressesList = '/profile/edit/addressesList';
+  static const String addAddress = '/profile/edit/addressesList/addAddress';
   static const String commercialDetails = '/commercialDetails';
   static const String fullPost = '/fullPost';
   static const String productDetails = '/productDetails';
@@ -58,7 +68,7 @@ class RoutesGenerator{
       case Routes.forgotPassword:
         return MaterialPageRoute(builder: (_) => ForgotPassword());
       case Routes.otp:
-        return MaterialPageRoute(builder: (_) => OtpScreen(phone: settings.arguments! as String));
+        return MaterialPageRoute(builder: (_) => OtpScreen(), settings: settings);
       case Routes.home:
         return MaterialPageRoute(builder: (_) => HomeLayout());
       case Routes.fullPost:
@@ -78,11 +88,19 @@ class RoutesGenerator{
       case Routes.saved:
         return MaterialPageRoute(builder: (_) => SavedScreen());
       case Routes.profile:
-        return MaterialPageRoute(builder: (_) => ProfileScreen());
+        return MaterialPageRoute(builder: (_) => ProfileScreen(), settings: settings);
+      case Routes.editProfile:
+        return MaterialPageRoute(builder: (_) => EditProfileScreen());
+      case Routes.createPassword:
+        return MaterialPageRoute(builder: (_) => CreatePasswordScreen());
+      case Routes.addressesList:
+        return MaterialPageRoute(builder: (_) => AddressesListScreen());
+      case Routes.addAddress:
+        return MaterialPageRoute(builder: (_) => AddAddressScreen());
       case Routes.commercialDetails:
-        return MaterialPageRoute(builder: (_) => CommercialDetails());
+        return MaterialPageRoute(builder: (_) => CommercialDetails(id: settings.arguments! as int,));
       case Routes.productDetails:
-        return MaterialPageRoute(builder: (_) => ProductDetailsScreen());
+        return MaterialPageRoute(builder: (_) => ProductDetailsScreen(typeData: settings.arguments! as ProductTypeData,));
       default:
         return unDefinedRoute();
     }

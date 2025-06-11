@@ -1,7 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
+import 'package:wakala/home/data/categories_data_model.dart';
 import 'package:wakala/search_screen/presentation/view/widgets/horizontal_category_button.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
@@ -12,9 +12,8 @@ import 'package:wakala/utilities/resources/values_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
 
 class FilterDialog extends StatefulWidget {
-  const FilterDialog({super.key, this.firstDropdownItems = const [], this.secondDropdownItems = const []});
-  final List<DropdownMenuItem<String>> firstDropdownItems;
-  final List<DropdownMenuItem<String>> secondDropdownItems;
+  const FilterDialog({super.key, required this.categories});
+  final CategoriesDataModel categories;
   @override
   State<FilterDialog> createState() => _FilterDialogState();
 }
@@ -22,8 +21,7 @@ class FilterDialog extends StatefulWidget {
 class _FilterDialogState extends State<FilterDialog> {
   final TextEditingController _minPriceController = TextEditingController();
   final TextEditingController _maxPriceController = TextEditingController();
-  String? firstPropertySelection;
-  String? secondPropertySelection;
+  int? firstPropertySelection;
   int selectedTypeIndex = 0;
   int selectedCashOptionIndex = 0;
   int selectedWarrantyOptionsIndex = 0;
@@ -50,6 +48,7 @@ class _FilterDialogState extends State<FilterDialog> {
 
   @override
   Widget build(BuildContext context) {
+    var currentCategory = widget.categories.result!.categories[MainCubit.get(context).categoryIndex];
     return Dialog(
       backgroundColor: ColorsManager.white,
       elevation: 10,
@@ -64,28 +63,17 @@ class _FilterDialogState extends State<FilterDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              HorizontalCategoryButton(title: 'Mobile', image: AssetsManager.productPlaceHolder,),
+              HorizontalCategoryButton(title: currentCategory.name, image: currentCategory.image,),
               SizedBox(height: AppSizesDouble.s15,),
               ItemsDropDownMenu(
-                title: 'Brand',
-                items: widget.firstDropdownItems,
+                title: currentCategory.subCategories[0].name,
+                items: currentCategory.subCategories,
                 selectedItem: firstPropertySelection,
                 onChange: (value){
                   setState(() {
                     firstPropertySelection = value;
                   });
                 }
-              ),
-              SizedBox(height: AppSizesDouble.s15,),
-              ItemsDropDownMenu(
-                  title: 'Location',
-                  items: widget.secondDropdownItems,
-                  selectedItem: secondPropertySelection,
-                  onChange: (value){
-                    setState(() {
-                      secondPropertySelection = value;
-                    });
-                  }
               ),
               SizedBox(height: AppSizesDouble.s20,),
               Text('Price', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
@@ -129,6 +117,9 @@ class _FilterDialogState extends State<FilterDialog> {
               ),
               SizedBox(height: AppSizesDouble.s15,),
               DefaultSwitch(
+                isOutlined: false,
+                backgroundColor: ColorsManager.transparent,
+                title: StringsManager.showVerifiedAccountsFirst,
                 isActivated: isActivated,
                 onChanged: (value){
                   setState(() {
@@ -137,19 +128,15 @@ class _FilterDialogState extends State<FilterDialog> {
                 }
               ),
               SizedBox(height: AppSizesDouble.s15,),
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: SizedBox(
-                  height: AppSizesDouble.s50,
-                  width: AppSizesDouble.s150,
-                  child: DefaultAuthButton(
-                    onPressed: (){},
-                    title: LocalizationService.translate(StringsManager.confirm),
-                    backgroundColor: ColorsManager.primaryColor,
-                    hasBorder: false,
-                    foregroundColor: ColorsManager.white,
-                  ),
-                ),
+              DefaultAuthButton(
+                height: AppSizesDouble.s50,
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                title: LocalizationService.translate(StringsManager.confirm),
+                backgroundColor: ColorsManager.primaryColor,
+                hasBorder: false,
+                foregroundColor: ColorsManager.white,
               ),
             ],
           ),

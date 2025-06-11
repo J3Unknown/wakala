@@ -30,7 +30,13 @@ void main() async{
   //* Localization Init
   LocaleChanger localeChanger = LocaleChanger();
   await loadLocalizations(localeChanger);
-
+  // CacheHelper.saveData(key: KeysManager.isGuest, value: false);
+  // CacheHelper.saveData(key: KeysManager.isNotificationsActive, value: true);
+  // CacheHelper.saveData(key: KeysManager.finishedOnBoarding, value: true);
+  // CacheHelper.saveData(key: KeysManager.isAuthenticated, value: false);
+  // CacheHelper.saveData(key: KeysManager.token, value: '');
+  // AppConstants.isAuthenticated = false;
+  // AppConstants.token = '';
   //* loading caches
   await loadCaches();
 
@@ -43,7 +49,7 @@ void main() async{
 
 }
 
-//* initialization helper methods
+//* Caches and Localization Initialization helper methods
 Future<void> loadLocalizations(LocaleChanger localeChanger)async{
   await localeChanger.initializeLocale();
   await LocalizationService().init();
@@ -52,6 +58,8 @@ Future<void> loadCaches() async{
   AppConstants.isGuest = await CacheHelper.getData(key: KeysManager.isGuest)??false;
   AppConstants.isAuthenticated = await CacheHelper.getData(key: KeysManager.isAuthenticated)??false;
   AppConstants.finishedOnBoarding = await CacheHelper.getData(key: KeysManager.finishedOnBoarding)??false;
+  AppConstants.isNotificationsActive = await CacheHelper.getData(key: KeysManager.isNotificationsActive)??true;
+  AppConstants.token = await CacheHelper.getData(key: KeysManager.token)??'';
 }
 
 class MyApp extends StatelessWidget {
@@ -62,13 +70,12 @@ class MyApp extends StatelessWidget {
   final LocaleChanger localeChanger;
   @override
   Widget build(BuildContext context) {
-    log(localeChanger.getLanguage);
     return ListenableBuilder(
       listenable: localeChanger,
       builder: (context, _) => MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => AuthCubit()),
-          BlocProvider(create: (context) => MainCubit()),
+          BlocProvider(create: (context) => MainCubit()..getProfile()..getCategories()),
         ],
         child: Directionality(
           textDirection: localeChanger.getLanguage == 'ar'? TextDirection.rtl:TextDirection.ltr,
@@ -76,10 +83,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             onGenerateRoute: RoutesGenerator.getRoute,
             locale: Locale(localeChanger.getLanguage),
-            supportedLocales: const [
-              Locale('en'),
-              Locale('ar'),
-            ],
+            supportedLocales: const [Locale('en'), Locale('ar'),],
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
@@ -88,9 +92,9 @@ class MyApp extends StatelessWidget {
             theme: lightTheme(),
             initialRoute: Routes.splashScreen,
           ),
-        ),
+        ), //? To determine which interface direction to set based on the current locale
       ),
-    );
+    ); //? To reflect the direction change and translation once language is changed
   }
 }
 

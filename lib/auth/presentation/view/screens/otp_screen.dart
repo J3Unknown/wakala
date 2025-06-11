@@ -4,11 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:wakala/auth/data/create_password_screen_arguments.dart';
+import 'package:wakala/auth/data/otp_screen_arguments.dart';
 import 'package:wakala/auth/presentation/cubit/auth_cubit.dart';
 import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/resources/components.dart';
+import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
 import '../../../../utilities/resources/assets_manager.dart';
@@ -16,9 +20,7 @@ import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/strings_manager.dart';
 
 class OtpScreen extends StatefulWidget {
-  const OtpScreen({required this.phone, super.key});
-
-  final String phone;
+  const OtpScreen({super.key});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -28,19 +30,46 @@ class _OtpScreenState extends State<OtpScreen> {
   final TextEditingController _otpController = TextEditingController();
   late AuthCubit _authCubit;
   late String _phoneNumber;
+  late bool _isResetPassword;
+  late String _name;
+  late String _password;
+
+  @override
+  void didChangeDependencies() {
+    final OtpScreenArguments args = ModalRoute.of(context)!.settings.arguments as OtpScreenArguments;
+    _phoneNumber = args.phone;
+    _isResetPassword = args.isResetPassword;
+    _name = args.name;
+    _password = args.password;
+    super.didChangeDependencies();
+  }
+
+  void _sendVerificationCode(){
+    _authCubit.timer();
+    if(_isResetPassword){
+      _authCubit.sendForgotPasswordOtp(_phoneNumber);
+    } else {
+      _authCubit.sendVerificationCode(_phoneNumber);
+    }
+  }
 
   @override
   void initState() {
-    _phoneNumber = widget.phone;
     _authCubit = AuthCubit.get(context);
     _authCubit.initializeStream();
+    _authCubit.timer();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthStates>(
-      listener: (context, state){},
+      listener: (context, state){
+        if(state is AuthSignUpSuccessState){
+          showToastMessage(msg: "login Success", toastState: ToastState.success);
+          Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.home)));
+        }
+      },
       builder: (context, state) => Scaffold(
         appBar: AppBar(),
         body: LayoutBuilder(
@@ -92,7 +121,36 @@ class _OtpScreenState extends State<OtpScreen> {
                             ),
                           ),
                           DefaultAuthButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              if(int.parse(_otpController.text) != _authCubit.otpCode){
+                                showToastMessage(
+                                  msg: StringsManager.invalidOtp,
+                                  toastState: ToastState.info
+                                );
+                              } else {
+                                if(_isResetPassword){
+                                  Navigator.push(
+                                    context,
+                                    RoutesGenerator.getRoute(
+                                      RouteSettings(
+                                        name: Routes.createPassword,
+                                        arguments: CreatePasswordScreenArguments(
+                                          phone: _phoneNumber,
+                                          otpCode: _authCubit.otpCode!,
+                                        )
+                                      )
+                                    )
+                                  );
+                                } else {
+                                  _authCubit.register(
+                                    phone: _phoneNumber,
+                                    name: _name,
+                                    otpCode: _authCubit.otpCode!,
+                                    password: _password
+                                  );
+                                }
+                              }
+                            },
                             title: LocalizationService.translate(StringsManager.confirm),
                             hasBorder: false,
                             foregroundColor: ColorsManager.white,
@@ -130,10 +188,5 @@ class _OtpScreenState extends State<OtpScreen> {
         ),
       ),
     );
-  }
-
-
-  void _sendVerificationCode(){
-    _authCubit.sendVerificationCode();
   }
 }

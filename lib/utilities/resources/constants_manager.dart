@@ -4,19 +4,26 @@ import 'package:wakala/utilities/resources/colors_manager.dart';
 class AppConstants{
   static const String imagePath = 'assets/images/';
   static const String iconsImagePath = 'assets/images/icons/';
-  static const String baseUrl = 'https://wikala.org/api/';
+  static const String baseUrl = 'https://wikala.org/wikala/api/';
 
   //!caches
+  //*Authentication
   static bool isGuest = false;
-  static bool finishedOnBoarding = false;
   static bool isAuthenticated = false;
+
+  //*system
   static String locale = 'en';
+  static bool isNotificationsActive = true;
+
+  //*UX
+  static bool finishedOnBoarding = false;
+  static String token = '';
+
 }
 
 class ProductTypeData{
   String type = "sale";
   Color color = ColorsManager.amber;
-
   ProductTypeData(this.type, this.color);
 }
 

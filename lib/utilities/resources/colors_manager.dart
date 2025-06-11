@@ -15,5 +15,8 @@ class ColorsManager{
   static const Color transparent = Color(0x00000000);
   static const Color amber = Color(0xffFACC15);
   static const Color cyan = Color(0xff22D3EE);
+  static const Color blue = Color(0xff96F3FF);
   static const Color red = Color(0xffEF4444);
+  static const Color deepRed = Color(0xffD51C1C);
+  static const Color green = Color(0xff339900);
 }

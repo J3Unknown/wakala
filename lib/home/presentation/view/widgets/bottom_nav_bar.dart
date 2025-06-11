@@ -21,7 +21,7 @@ class BottomNavBar extends StatelessWidget {
       unselectedFontSize: AppSizesDouble.s14,
       selectedItemColor: cubit.isChatsScreen || cubit.isNotificationsScreen? ColorsManager.black: ColorsManager.primaryColor,
       onTap: (index) {
-        if(index == AppSizes.s2 && AppConstants.isAuthenticated){
+        if(index == AppSizes.s2 && !AppConstants.isAuthenticated){
           showDialog(context: context, builder: (context) => LoginAlert());
         } else {
           cubit.changeBottomNavBarIndex(index);

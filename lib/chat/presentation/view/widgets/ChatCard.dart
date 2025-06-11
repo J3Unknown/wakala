@@ -18,8 +18,8 @@ class ChatCard extends StatelessWidget {
         elevation: AppSizesDouble.s2,
         color: ColorsManager.white,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizesDouble.s8),
-            side: BorderSide(color: ColorsManager.grey4)
+          borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+          side: BorderSide(color: ColorsManager.grey4)
         ),
         child: Padding(
           padding: EdgeInsets.all(AppPaddings.p5),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/values_manager.dart';
@@ -12,29 +13,35 @@ class DefaultAuthButton extends StatelessWidget {
     Color backgroundColor = ColorsManager.loginButtonBackgroundColor,
     String? icon,
     required String title,
-    bool hasBorder = true
+    bool hasBorder = true,
+    double height = 70,
+    Color? iconColor
   }) : _onPressed=onPressed,
         _foregroundColor=foregroundColor,
         _backgroundColor=backgroundColor,
         _icon=icon,
         _hasBorder=hasBorder,
-        _title=title;
+        _title=title,
+        _height=height,
+        _iconColor=iconColor;
 
   final VoidCallback _onPressed;
   final Color _backgroundColor;
   final Color _foregroundColor;
   final String _title;
   final String? _icon;
+  final Color? _iconColor;
+  final double _height;
   final bool _hasBorder;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: AppSizesDouble.s70,
+      height: _height,
       child: ElevatedButton.icon(
-        label: FittedBox(child: Text(_title, style: Theme.of(context).textTheme.titleLarge!.copyWith(color: _foregroundColor),)),
-        icon: _icon!=null? SvgPicture.asset(_icon):SizedBox(),
+        label: FittedBox(child: Text(LocalizationService.translate(_title), style: Theme.of(context).textTheme.titleLarge!.copyWith(color: _foregroundColor),)),
+        icon: _icon!=null? SvgPicture.asset(_icon, colorFilter: _iconColor != null?ColorFilter.mode(_iconColor, BlendMode.srcIn):null,):SizedBox(),
         onPressed: _onPressed,
         style: ElevatedButton.styleFrom(
           foregroundColor: _foregroundColor,

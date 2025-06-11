@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/utilities/local/locale_changer.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/local/shared_preferences.dart';
 import 'package:wakala/utilities/resources/components.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
@@ -21,11 +25,11 @@ class LoginAlert extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizesDouble.s20)
       ),
-      title: Text(StringsManager.login, style: Theme.of(context).textTheme.displaySmall, textAlign: TextAlign.center,),
+      title: Text(LocalizationService.translate(StringsManager.login), style: Theme.of(context).textTheme.displaySmall, textAlign: TextAlign.center,),
       content: IntrinsicHeight(
         child: Column(
           children: [
-            Text('Please Login First To Proceed into this action', style: Theme.of(context).textTheme.headlineSmall,),
+            Text(LocalizationService.translate(StringsManager.loginMessage), style: Theme.of(context).textTheme.headlineSmall,),
           ],
         ),
       ),
@@ -47,6 +51,7 @@ class LoginAlert extends StatelessWidget {
   }
 }
 
+/// This Widget is Already done and ready to use
 class LanguageAlert extends StatelessWidget {
   const LanguageAlert({
     super.key,
@@ -66,22 +71,24 @@ class LanguageAlert extends StatelessWidget {
       content: IntrinsicHeight(
         child: Column(
           children: [
-            DefaultRadioGroupButton(
-                value: KeysManager.en,
+            DefaultLocaleRadioGroupButton(
+              value: KeysManager.en,
               title: StringsManager.english,
               currentLocale: currentLocale,
-              onChanged: (value) {
+              onChanged: (value) async {
+                await MainCubit.get(context).updateLang(KeysManager.en);
                 localeModel.changeLocale(KeysManager.en);
               }
             ),
             SizedBox(
               height: AppSizesDouble.s15,
             ),
-           DefaultRadioGroupButton(
+           DefaultLocaleRadioGroupButton(
              value: KeysManager.ar,
              title: StringsManager.arabic,
              currentLocale: currentLocale,
-             onChanged: (value) {
+             onChanged: (value) async {
+               await MainCubit.get(context).updateLang(KeysManager.ar);
                localeModel.changeLocale(KeysManager.ar);
              }
            )
@@ -91,9 +98,9 @@ class LanguageAlert extends StatelessWidget {
     );
   }
 }
-
-class DefaultRadioGroupButton extends StatelessWidget {
-  const DefaultRadioGroupButton({super.key, required this.value, required this.title, required this.currentLocale, required this.onChanged});
+/// This Widget is Already done and ready to use
+class DefaultLocaleRadioGroupButton extends StatelessWidget {
+  const DefaultLocaleRadioGroupButton({super.key, required this.value, required this.title, required this.currentLocale, required this.onChanged});
   final String title;
   final String currentLocale;
   final String value;
@@ -147,13 +154,51 @@ class _NotificationsAlertState extends State<NotificationsAlert> {
         borderRadius: BorderRadius.circular(AppSizesDouble.s20)
       ),
       content: DefaultSwitch(
-        isActivated: isActivated,
-        onChanged: (value){
-          setState(() {
-            isActivated = value;
-          });
+        isActivated: AppConstants.isNotificationsActive,
+        title: StringsManager.notifications,
+        onChanged: (value) async{
+          await CacheHelper.saveData(key: KeysManager.isNotificationsActive, value: value);
+          setState(() => AppConstants.isNotificationsActive = value);
         }
       ),
+    );
+  }
+}
+
+class DeleteAccountAlert extends StatelessWidget {
+  const DeleteAccountAlert({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: ColorsManager.white,
+      insetPadding: EdgeInsets.all(AppPaddings.p10),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSizesDouble.s20)
+      ),
+      content: IntrinsicHeight(
+        child: Column(
+          children: [
+            Text(LocalizationService.translate(StringsManager.deleteAccountWarning), style: Theme.of(context).textTheme.headlineSmall, textAlign: TextAlign.center,),
+          ],
+        ),
+      ),
+      actions: [
+        DefaultAuthButton(
+          onPressed: () {},
+          title: LocalizationService.translate(StringsManager.deleteAccount),
+          backgroundColor: ColorsManager.deepRed,
+          foregroundColor: ColorsManager.white,
+          hasBorder: false,
+        ),
+        SizedBox(height: AppSizesDouble.s20,),
+        DefaultAuthButton(
+          onPressed: () => Navigator.of(context).pop(),
+          title: LocalizationService.translate(StringsManager.cancel),
+        ),
+      ],
     );
   }
 }

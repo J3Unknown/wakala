@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakala/auth/data/otp_screen_arguments.dart';
 import 'package:wakala/auth/presentation/cubit/auth_cubit.dart';
 import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
@@ -22,7 +23,19 @@ class ForgotPassword extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthStates>(
-      listener: (context, state){},
+      listener: (context, state){
+        if(state is AuthSendingOtpCodeSuccessState){
+          Navigator.push(
+            context,
+            RoutesGenerator.getRoute(
+              RouteSettings(
+                name: Routes.otp,
+                arguments: OtpScreenArguments(_phoneController.text, true)
+              )
+            )
+          );
+        }
+      },
       builder: (context, state) => Scaffold(
         appBar: AppBar(),
         body: Padding(
@@ -46,7 +59,7 @@ class ForgotPassword extends StatelessWidget {
                   DefaultAuthButton(
                     onPressed: (){
                       if(_formKey.currentState!.validate()){
-                        Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.otp, arguments: _phoneController.text)));
+                        AuthCubit.get(context).sendForgotPasswordOtp(_phoneController.text);
                       }
                     },
                     title: LocalizationService.translate(StringsManager.submit),

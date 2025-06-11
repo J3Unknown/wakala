@@ -1,0 +1,106 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:wakala/auth/data/profile_data_model.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
+import 'package:wakala/profile/presentation/view/widgets/profile_screen_arguments.dart';
+
+import '../../../../auth/presentation/view/widgets/DefaultAuthButton.dart';
+import '../../../../auth/presentation/view/widgets/DefaultMoreTile.dart';
+import '../../../../utilities/local/localization_services.dart';
+import '../../../../utilities/resources/alerts.dart';
+import '../../../../utilities/resources/assets_manager.dart';
+import '../../../../utilities/resources/colors_manager.dart';
+import '../../../../utilities/resources/components.dart';
+import '../../../../utilities/resources/repo.dart';
+import '../../../../utilities/resources/routes_manager.dart';
+import '../../../../utilities/resources/strings_manager.dart';
+import '../../../../utilities/resources/values_manager.dart';
+
+class DefaultAuthenticatedMoreScreen extends StatelessWidget {
+  const DefaultAuthenticatedMoreScreen({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          width: AppSizesDouble.s100,
+          height: AppSizesDouble.s100,
+          child: InkWell(
+            onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.profile, arguments: ProfileScreenArguments(isOthers: false, profileDataModel: Repo.profileDataModel!)))) ,
+            child: ClipOval(
+              child: Repo.profileDataModel!.result!.image != null?
+              Image.network(Repo.profileDataModel!.result!.image!, fit: BoxFit.cover,):
+              SvgPicture.asset(AssetsManager.defaultAvatar, fit: BoxFit.cover,),
+            ),
+          ),
+        ),
+        Text('${LocalizationService.translate(StringsManager.welcome)} ${Repo.profileDataModel!.result!.name}', style: Theme.of(context).textTheme.titleLarge,),
+        SizedBox(height: AppSizesDouble.s10,),
+        DefaultMoreTile(
+          onTap: () => showDialog(context: context, builder: (context) => NotificationsAlert()),
+          iconPath: AssetsManager.notificationsIcon,
+          title: LocalizationService.translate(StringsManager.notificationsSettings),
+          hasRightIcon: false,
+        ),
+        DefaultMoreTile(
+          onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.myAds))),
+          iconPath: AssetsManager.libraryAdd,
+          title: LocalizationService.translate(StringsManager.myAds),
+        ),
+        DefaultMoreTile(
+          onTap: (){
+            Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.recentlyViewing)));
+          },
+          iconPath: AssetsManager.eyeVisibilityOff,
+          title: LocalizationService.translate(StringsManager.recentlyViewed),
+        ),
+        DefaultMoreTile(
+          onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.saved))),
+          iconPath: AssetsManager.saved,
+          title: LocalizationService.translate(StringsManager.saved),
+        ),
+        DefaultMoreTile(
+          onTap: (){
+            showDialog(
+                context: context,
+                builder: (context) => LanguageAlert()
+            );
+          },
+          iconPath: AssetsManager.language,
+          title: LocalizationService.translate(StringsManager.language),
+          hasRightIcon: false,
+        ),
+        DefaultMoreTile(
+          onTap: (){},
+          iconPath: AssetsManager.supportAgent,
+          title: LocalizationService.translate(StringsManager.support),
+        ),
+        DefaultMoreTile(
+          onTap: (){},
+          iconPath: AssetsManager.aboutUs,
+          title: LocalizationService.translate(StringsManager.aboutUs),
+        ),
+        DefaultMoreTile(
+          onTap: (){},
+          iconPath: AssetsManager.termsAndConditions,
+          title: LocalizationService.translate(StringsManager.termsAndConditions),
+        ),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: IntrinsicWidth(
+            child: DefaultAuthButton(
+              onPressed: () => navigateToAuthLayout (context),
+              title: LocalizationService.translate(StringsManager.logout),
+              backgroundColor: ColorsManager.transparent,
+              icon: AssetsManager.logout,
+              hasBorder: false,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}

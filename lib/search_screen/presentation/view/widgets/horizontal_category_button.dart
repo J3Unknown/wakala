@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-
-import '../../../../utilities/resources/assets_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/values_manager.dart';
 
@@ -31,7 +28,7 @@ class HorizontalCategoryButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppSizesDouble.s10),
                 side: BorderSide(color: ColorsManager.black, width: AppSizesDouble.s2)
               ),
-              child: SvgPicture.asset(AssetsManager.productPlaceHolder, fit: BoxFit.cover, width: AppSizesDouble.s60, height: AppSizesDouble.s60,),
+              child: Image.network(image, fit: BoxFit.cover, width: AppSizesDouble.s60, height: AppSizesDouble.s60,),
             ),
             SizedBox(width: AppSizesDouble.s5,),
             Text(

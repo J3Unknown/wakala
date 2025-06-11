@@ -1,11 +1,21 @@
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart' as svg_provider;
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
+import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 
+import '../../home/data/categories_data_model.dart';
+import '../../home/data/commercial_ad_data_model.dart';
+import '../../search_screen/presentation/view/widgets/filter_dialog.dart';
 import '../local/shared_preferences.dart';
 import 'constants_manager.dart';
 import 'strings_manager.dart';
@@ -15,41 +25,31 @@ import 'colors_manager.dart';
 import 'icons_manager.dart';
 
 //* Categories Scroll
-class CategoriesScroll extends StatefulWidget {
-  const CategoriesScroll({
-    super.key,
-
-  });
-
-  @override
-  State<CategoriesScroll> createState() => _CategoriesScrollState();
-}
-class _CategoriesScrollState extends State<CategoriesScroll> {
-  int _selectedCategory = -1;
+class CategoriesScroll extends StatelessWidget {
+  const CategoriesScroll({super.key,});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    MainCubit cubit = MainCubit.get(context);
+    return BlocBuilder<MainCubit, MainCubitStates>(
+      builder: (context, state) => Padding(
       padding: EdgeInsets.symmetric(vertical: AppPaddings.p10),
-      child: SizedBox(
-        height: AppSizesDouble.s100,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          children: List.generate(10, (index) => CategoryButton(
-            title: StringsManager.category,
-            image: AssetsManager.productPlaceHolder,
-            onPress: (){
-              setState(() {
-                if(_selectedCategory == index){
-                  _selectedCategory = -1;
-                } else{
-                  _selectedCategory = index;
-                }
-              });
-            },
-            index: index,
-            selectedCategory: _selectedCategory,
-          ))
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: AppSizesDouble.s120,
+            minHeight: AppSizesDouble.s100
+          ),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: cubit.categoriesDataModel!.result!.categories.length,
+            itemBuilder: (context, index) => CategoryButton(
+              title: cubit.categoriesDataModel!.result!.categories[index].name,
+              image: cubit.categoriesDataModel!.result!.categories[index].image,
+              onPress: () => cubit.changeCategorySelection(index),
+              index: index,
+              selectedCategory: cubit.categoryIndex,
+            )
+          )
         ),
       ),
     );
@@ -85,7 +85,6 @@ class _CategoryButtonState extends State<CategoryButton> {
       child: InkWell(
         onTap: widget.onPress,
         child: SizedBox(
-          height: AppSizesDouble.s60,
           width: AppSizesDouble.s80,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -97,7 +96,7 @@ class _CategoryButtonState extends State<CategoryButton> {
                   borderRadius: BorderRadius.circular(AppSizesDouble.s10),
                   side: BorderSide(color: widget.selectedCategory == widget.index? ColorsManager.grey:ColorsManager.black, width: AppSizesDouble.s2)
                 ),
-                child: SvgPicture.asset(AssetsManager.productPlaceHolder, fit: BoxFit.cover, width: AppSizesDouble.s60, height: AppSizesDouble.s60,),
+                child: Image.network(widget.image, fit: BoxFit.cover, width: AppSizesDouble.s60, height: AppSizesDouble.s60,),
               ),
               Text(
                 widget.title,
@@ -201,11 +200,12 @@ class CustomSearchBar extends StatelessWidget {
 //* Dropdowns
 //? This Dropdown is a full extended dropdown menu
 class ItemsDropDownMenu extends StatefulWidget {
-  const ItemsDropDownMenu({super.key, required this.title, required this.items, required this.selectedItem, required this.onChange});
-  final List<DropdownMenuItem<String>> items;
-  final String? selectedItem;
+  const ItemsDropDownMenu({super.key, this.isExpanded = true, required this.title, required this.items, required this.selectedItem, required this.onChange});
+  final List<SubCategories> items;
+  final int? selectedItem;
   final ValueChanged onChange;
   final String title;
+  final bool isExpanded;
   @override
   State<ItemsDropDownMenu> createState() => _ItemsDropDownMenuState();
 }
@@ -215,7 +215,7 @@ class _ItemsDropDownMenuState extends State<ItemsDropDownMenu> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
-      width: double.infinity,
+      width: widget.isExpanded? double.infinity:null,
       height: AppSizesDouble.s50,
       decoration: BoxDecoration(
         color: ColorsManager.loginButtonBackgroundColor,
@@ -227,11 +227,17 @@ class _ItemsDropDownMenuState extends State<ItemsDropDownMenu> {
       child: DropdownButton(
         underline: SizedBox(),
         value: widget.selectedItem,
-        items: widget.items,
-        isExpanded: true,
+        items: List.generate(
+          widget.items.length,
+          (index) => DropdownMenuItem(
+            value: widget.items[index].id,
+            child: Text(widget.items[index].name),
+          )
+        ),
+        isExpanded: widget.isExpanded,
         hint: Text(widget.title, style: Theme.of(context).textTheme.bodyLarge,),
         dropdownColor: ColorsManager.white,
-        selectedItemBuilder: (value) => widget.items.map((element) => DropdownMenuItem(value: element.value,child: element.child,)).toList(),
+        selectedItemBuilder: (value) => widget.items.map((element) => DropdownMenuItem(value: element.id,child: Text(element.name),)).toList(),
         onChanged: (value) => widget.onChange(value)
       ),
     );
@@ -335,7 +341,9 @@ class HorizontalProductList extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: 10, //!Keep it 10 for now till adjusting the real item count
-        itemBuilder: (context, index) => VerticalProductCard(),
+        itemBuilder: (context, index) => VerticalProductCard(
+          type: 'Auction',
+        ),
         separatorBuilder: (context, index) => SizedBox(width: AppSizesDouble.s10,),
       ),
     );
@@ -344,15 +352,29 @@ class HorizontalProductList extends StatelessWidget {
 
 //* Vertical Product Card
 //? This is used in the Horizontal Product List
-class VerticalProductCard extends StatelessWidget {
+class VerticalProductCard extends StatefulWidget {
   const VerticalProductCard({
     super.key,
+    required this.type
   });
+  final String type;
+
+  @override
+  State<VerticalProductCard> createState() => _VerticalProductCardState();
+}
+class _VerticalProductCardState extends State<VerticalProductCard> {
+
+  late ProductTypeData _typeData;
+  @override
+  void initState() {
+    _typeData = getProductType(widget.type);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails))),
+      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: _typeData))),
       child: Container(
         height: AppSizesDouble.s370,
         width: AppSizesDouble.s230,
@@ -364,9 +386,24 @@ class VerticalProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: AppSizesDouble.s200,
-              child: Image.network('https://www.mouthmatters.com/wp-content/uploads/2024/07/placeholder-wide.jpg', fit: BoxFit.cover,),
+            Stack(
+              children: [
+                SizedBox(
+                  height: AppSizesDouble.s200,
+                  child: Image.network('https://www.mouthmatters.com/wp-content/uploads/2024/07/placeholder-wide.jpg', fit: BoxFit.cover,),
+                ),
+                IntrinsicWidth(
+                  child: Container(
+                    margin: EdgeInsets.all(AppPaddings.p10),
+                    padding: EdgeInsets.symmetric(horizontal: AppSizesDouble.s15, vertical: AppSizesDouble.s5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+                      color: _typeData.color
+                    ),
+                    child: Text(_typeData.type),
+                  ),
+                ),
+              ],
             ),
             Padding(
               padding: EdgeInsets.all(AppPaddings.p10),
@@ -417,7 +454,8 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (){
-        Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails)));
+        log(typeData.toString());
+        Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: typeData)));
       },
       child: Container(
         margin: EdgeInsets.all(AppSizesDouble.s10),
@@ -482,12 +520,15 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
 }
 
 class VerticalProductsList extends StatelessWidget {
-const VerticalProductsList({super.key, required this.isRecentlyViewed, this.isSaved = false});
+const VerticalProductsList({super.key, required this.isRecentlyViewed, this.isSaved = false, this.scrollable = true});
   final bool isRecentlyViewed;
   final bool isSaved;
+  final bool scrollable;
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      shrinkWrap: !scrollable,
+      physics: !scrollable?NeverScrollableScrollPhysics():null,
       itemCount: 10,
       itemBuilder: (context, index) =>  HorizontalProductCard(type: 'Sale', isRecentlyViewing: isRecentlyViewed, isSaved: isSaved)
     );
@@ -498,8 +539,11 @@ const VerticalProductsList({super.key, required this.isRecentlyViewed, this.isSa
 void navigateToAuthLayout(context) async{
   AppConstants.isGuest = false;
   AppConstants.isAuthenticated = false;
+  AppConstants.token = '';
   await CacheHelper.saveData(key: KeysManager.isGuest, value: false);
   await CacheHelper.saveData(key: KeysManager.isAuthenticated, value: false);
+  await CacheHelper.saveData(key: KeysManager.token, value: '');
+  await MainCubit.get(context).logOut();
   Navigator.pushAndRemoveUntil(context,RoutesGenerator.getRoute(RouteSettings(name: Routes.authLayout)), (root) => false);
 }
 
@@ -544,9 +588,21 @@ class DefaultFilterInputField extends StatelessWidget {
 
 
 class DefaultSwitch extends StatefulWidget {
-  const DefaultSwitch({super.key, required this.isActivated, required this.onChanged});
+  const DefaultSwitch({
+    super.key,
+    required this.isActivated,
+    required this.onChanged,
+    required this.title,
+    this.isOutlined = true,
+    this.backgroundColor = ColorsManager.loginButtonBackgroundColor
+
+  });
+  final bool isOutlined;
   final bool isActivated;
   final ValueChanged<bool> onChanged;
+  final Color backgroundColor;
+  final String title;
+
   @override
   State<DefaultSwitch> createState() => _DefaultSwitchState();
 }
@@ -561,13 +617,13 @@ class _DefaultSwitchState extends State<DefaultSwitch> {
             height: AppSizesDouble.s50,
             padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
             decoration: BoxDecoration(
-              color: ColorsManager.loginButtonBackgroundColor,
-              border: Border.all(color: ColorsManager.grey),
+              color: widget.backgroundColor,
+              border: Border.all(color: widget.isOutlined?ColorsManager.grey:ColorsManager.transparent),
               borderRadius: BorderRadius.circular(AppSizesDouble.s8),
             ),
             child: Row(
               children: [
-                Text(StringsManager.notifications),
+                FittedBox(child: Text(LocalizationService.translate(widget.title))),
                 Spacer(),
                 Switch(
                   value: widget.isActivated,
@@ -581,6 +637,307 @@ class _DefaultSwitchState extends State<DefaultSwitch> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+class ExpandableList extends StatefulWidget {
+  const ExpandableList({super.key, required this.title, required this.previewObject, required this.fullContent, this.isExpandable = true, this.padding = 15, this.titleHasHeader = true});
+
+  final String title;
+  final List<Widget> previewObject;
+  final List<Widget> fullContent;
+  final bool isExpandable;
+  final double padding;
+  final bool titleHasHeader;
+  @override
+  State<ExpandableList> createState() => _ExpandableListState();
+}
+class _ExpandableListState extends State<ExpandableList> {
+  bool isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: widget.padding, vertical: AppPaddings.p5),
+          width: double.infinity,
+          color: widget.titleHasHeader? ColorsManager.grey4:ColorsManager.transparent,
+          child: Text(widget.title, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
+        ),
+        ConditionalBuilder(
+          condition: isExpanded,
+          builder: (context) => Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15, vertical: AppPaddings.p10),
+            child: Column(
+              children: widget.fullContent,
+            ),
+          ),
+          fallback: (context) => Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15, vertical: AppPaddings.p10),
+            child: Column(
+              children: widget.previewObject,
+            ),
+          ),
+        ),
+        if(widget.isExpandable)
+        Center(
+          child: IconButton(
+            onPressed: (){
+              setState(() {
+                isExpanded = !isExpanded;
+              });
+            },
+            icon: Icon(!isExpanded?IconsManager.downIcon:IconsManager.upIcon, color: ColorsManager.primaryColor,)
+          ),
+        )
+      ],
+    );
+  }
+}
+
+
+class DefaultActionsRow extends StatelessWidget {
+  const DefaultActionsRow({
+    super.key,
+    required this.children
+  });
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: ColorsManager.grey4,
+      width: double.infinity,
+      height: AppSizesDouble.s70,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: children
+      ),
+    );
+  }
+}
+class DefaultTitledIconButton extends StatelessWidget {
+  const DefaultTitledIconButton({
+    super.key,
+    required this.title,
+    required this.imagePath,
+    required this.onPressed
+  });
+  final VoidCallback onPressed;
+  final String title;
+  final String imagePath;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      splashColor: ColorsManager.transparent,
+      onPressed: (){},
+      alignment: Alignment.center,
+      icon: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(imagePath,),
+          Text(title),
+        ],
+      ),
+    );
+  }
+}
+
+
+class DefaultTextInputField extends StatelessWidget {
+   const DefaultTextInputField({
+    super.key,
+    required this.controller,
+    this.keyboardType = TextInputType.text,
+    this.validator,
+    this.maxLines = 1,
+    this.isOutlined = false,
+    this.obscured = true,
+    this.hintText,
+    this.onSuffixPressed,
+    this.suffixIcon = '',
+    this.borderColor = ColorsManager.grey2
+  });
+
+  final TextEditingController controller;
+  final TextInputType keyboardType;
+  final FormFieldValidator<String>? validator;
+  final int maxLines;
+  final bool isOutlined;
+  final bool obscured;
+  final String? hintText;
+  final VoidCallback? onSuffixPressed;
+  final String suffixIcon;
+  final Color borderColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      validator: validator,
+      maxLines: maxLines,
+      obscureText: obscured,
+      maxLength: keyboardType == TextInputType.phone? AppSizes.s11:null,
+      inputFormatters: keyboardType == TextInputType.number?[FilteringTextInputFormatter.digitsOnly]:null,
+      cursorColor: ColorsManager.primaryColor,
+      decoration: InputDecoration(
+        fillColor: ColorsManager.loginButtonBackgroundColor,
+        filled: true,
+        hintText: LocalizationService.translate(hintText??''),
+        suffixIcon: IconButton(
+          onPressed: onSuffixPressed,
+          icon: SvgPicture.asset(suffixIcon)
+        ),
+        prefixIcon: keyboardType == TextInputType.phone?Padding(
+          padding: EdgeInsets.only(left: AppPaddings.p15),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(LocalizationService.translate(StringsManager.egy), style: TextStyle(fontSize: AppSizesDouble.s17, fontWeight: FontWeight.bold),),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: AppMargins.m20),
+                color: ColorsManager.grey3,
+                width: AppSizesDouble.s1_5,
+                height: AppSizesDouble.s40,
+              )
+            ],
+          ),
+        ):null,
+        hintStyle: TextStyle(color: ColorsManager.grey3),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+            borderSide: BorderSide(color: isOutlined?borderColor:ColorsManager.transparent)
+        ),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+            borderSide: BorderSide(color: ColorsManager.primaryColor)
+        )
+      ),
+    );
+  }
+}
+
+
+class DefaultFilterButton extends StatelessWidget {
+  const DefaultFilterButton({
+    super.key,
+    required this.categories,
+  });
+
+  final CategoriesDataModel categories;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: (){
+        showDialog(
+          context: context,
+          builder: (context) => FilterDialog(
+            categories: categories,
+          )
+        );
+      },
+      label: Text(StringsManager.filter, style: Theme.of(context).textTheme.titleMedium,),
+      icon: SvgPicture.asset(AssetsManager.filter),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: ColorsManager.white,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+            side: BorderSide(color: ColorsManager.grey)
+        ),
+        padding: EdgeInsets.all(AppPaddings.p10)
+      ),
+    );
+  }
+}
+
+enum ToastState{
+  info,
+  success,
+  warning,
+  error
+}
+
+Color _getToastStateColor(ToastState state){
+  switch(state){
+    case ToastState.info:
+      return ColorsManager.grey;
+    case ToastState.warning:
+      return ColorsManager.amber;
+    case ToastState.success:
+      return ColorsManager.green;
+    case ToastState.error:
+      return ColorsManager.deepRed;
+  }
+}
+
+showToastMessage({
+  required msg,
+  ToastState toastState = ToastState.info
+}){
+  return Fluttertoast.showToast(
+    msg: LocalizationService.translate(msg),
+    backgroundColor: _getToastStateColor(toastState),
+    gravity: ToastGravity.BOTTOM,
+    fontSize: 18,
+    textColor: toastState == ToastState.error || toastState == ToastState.success?ColorsManager.white:ColorsManager.black,
+    toastLength: Toast.LENGTH_LONG,
+  );
+}
+
+
+class DefaultCheckBox extends StatefulWidget {
+  const DefaultCheckBox({super.key, required this.value, required this.title, required this.onChanged});
+  final bool value;
+  final ValueChanged onChanged;
+  final String title;
+  @override
+  State<DefaultCheckBox> createState() => _DefaultCheckBoxState();
+}
+class _DefaultCheckBoxState extends State<DefaultCheckBox> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Checkbox(
+            value: widget.value,
+            fillColor: WidgetStatePropertyAll(ColorsManager.white),
+            checkColor: ColorsManager.primaryColor,
+            side: BorderSide(color: ColorsManager.primaryColor, width: 2),
+            onChanged: widget.onChanged
+        ),
+        Text(widget.title, style: Theme.of(context).textTheme.titleMedium,)
+      ],
+    );
+  }
+}
+
+class DefaultCommercialGridItem extends StatelessWidget {
+  const DefaultCommercialGridItem({
+    super.key,
+    required this.item
+  });
+  final CommercialAdItem item;
+  @override
+  Widget build(BuildContext context) {
+    log(item.mainImage.toString());
+    return InkWell(
+      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.commercialDetails, arguments: item.id))),
+      child: Container(
+          margin: EdgeInsets.all(AppSizesDouble.s5),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+              image: DecorationImage(image: /*NetworkImage(item.mainImage!,)*/svg_provider.Svg(AssetsManager.productPlaceHolder), fit: BoxFit.cover,)
+          )
       ),
     );
   }

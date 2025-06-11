@@ -7,6 +7,7 @@ class StringsManager{
   static const String welcomeToWikala = 'Welcome To Wikala';
   static const String submit = 'Submit';
   static const String confirm = 'Confirm';
+  static const String confirmPassword = 'Confirm Password';
   static const String cancel = 'Cancel';
   static const String home = 'Home';
   static const String categories = 'Categories';
@@ -21,6 +22,12 @@ class StringsManager{
   static const String productDetails = 'Product Details';
   static const String english = 'English'; //! not translated
   static const String arabic = 'عربي'; //! not translated
+  static const String emptyFieldMessage = 'This field can not be empty';
+  static const String passwordMismatchMessage = 'Password Mismatch';
+  static const String showVerifiedAccountsFirst = 'Show Verified Accounts First';
+  static const String welcome = 'Welcome';
+  static const String welcomeGuest = 'Welcome, Guest';
+  static const String editProduct = 'Edit Product';
 
   //*searching
   static const String searchHint = 'what are you looking for?';
@@ -60,6 +67,10 @@ class StringsManager{
   static const String enterReceivedOTP = 'Enter Received OTP';
   static const String validFieldMessage = 'This field is required!';
   static const String phoneLengthMessage = 'Phone number must be 11 digits';
+  static const String lessThanEightDigitsWarning = 'Password must be at least 8 digits';
+  static const String oneSpecialCharacterWarning = 'Password must contain at least 1 special character';
+  static const String oneUppercaseCharacterWarning = 'Password must have at least 1 Uppercase character';
+  static const String invalidOtp = 'Invalid OTP';
 
   //* more Screen
   static const String notificationsSettings = 'Notifications Settings';
@@ -75,6 +86,22 @@ class StringsManager{
   static const String chat = 'Chat';
   static const String profile = 'Profile';
   static const String editProfile = 'Edit My Profile';
+  static const String loginMessage = 'Please Login First To Proceed into this action';
+
+  //*Profile
+  static const String follow = 'Follow';
+  static const String message = 'Message';
+  static const String call = 'Call';
+  static const String bio = 'Bio';
+  static const String dateOfBirth = 'Date of birth';
+  static const String email = 'Email';
+  static const String deleteAccount = 'Delete Account';
+  static const String deleteMyAccount = 'Delete My Account';
+  static const String deleteAccountWarning = 'Do You want to DELETE your account?';
+  static const String addAddress = 'Add Address Information';
+  static const String addressList = 'Address List';
+  static const String addressInformation = 'Address Information';
+  static const String createPassword = 'Create Password';
 
 }
 
@@ -88,4 +115,8 @@ class KeysManager{
   static const String isAuthenticated = 'isAuthenticated';
   static const String finishedOnBoarding = 'finishedOnBoarding';
   static const String locale = 'language';
+  static const String isNotificationsActive = 'isNotificationsActive';
+  static const String token = 'token';
+  static const String phone = 'phone';
+  static const String password = 'password';
 }

@@ -11,4 +11,6 @@ class IconsManager{
   static IconData backButton = Icons.adaptive.arrow_back_outlined;
   static const IconData rightArrow = CupertinoIcons.right_chevron;
   static const IconData closeIcon = Icons.close;
+  static const IconData downIcon = Icons.keyboard_arrow_down_outlined;
+  static const IconData upIcon = Icons.keyboard_arrow_up_outlined;
 }

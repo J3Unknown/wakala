@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 
 import '../../../../utilities/local/localization_services.dart';
 import '../../../../utilities/resources/colors_manager.dart';
@@ -30,6 +31,12 @@ class DefaultPasswordInputField extends StatelessWidget {
           validator: (value){
             if(value!.isEmpty){
               return LocalizationService.translate(StringsManager.validFieldMessage);
+            } else if(value.length < AppSizes.s8) {
+              return LocalizationService.translate(StringsManager.lessThanEightDigitsWarning);
+            } else if(!value.contains(RegExp(r'[A-Z]'))){
+              return LocalizationService.translate(StringsManager.oneUppercaseCharacterWarning);
+            } else if(!value.contains(RegExp(r'[!@#$%^&*(),.?:{}|<>]'))){
+              return LocalizationService.translate(StringsManager.oneSpecialCharacterWarning);
             }
             return null;
           },

@@ -1,8 +1,18 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/cubit/auth_states.dart';
+import 'package:wakala/utilities/local/locale_changer.dart';
+import 'package:wakala/utilities/local/shared_preferences.dart';
+import 'package:wakala/utilities/network/dio.dart';
+import 'package:wakala/utilities/network/end_points.dart';
+import 'package:wakala/utilities/resources/components.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
+import 'package:wakala/utilities/resources/strings_manager.dart';
 
+import '../../../utilities/resources/repo.dart';
 import '../../../utilities/resources/values_manager.dart';
 
 class AuthCubit extends Cubit<AuthStates>{
@@ -13,6 +23,8 @@ class AuthCubit extends Cubit<AuthStates>{
   
   bool isObscured = true;
   late bool canResendCode;
+
+  int? otpCode;
 
   int counter = AppSizes.s60;
   late Stream<int> _timerStream;
@@ -25,10 +37,9 @@ class AuthCubit extends Cubit<AuthStates>{
     _timerStreamController = StreamController<int>.broadcast();
     _timerStream = _timerStreamController.stream;
     canResendCode = false;
-    _counter();
   }
 
-  void _counter() {
+  void timer() {
     _timer?.cancel();
     canResendCode = false;
     counter = AppSizes.s60;
@@ -57,8 +68,99 @@ class AuthCubit extends Cubit<AuthStates>{
     return super.close();
   }
 
-  void sendVerificationCode(){
-    _counter();
+  void sendVerificationCode(String phoneNumber) {
+    emit(AuthSendingOtpCodeLoadingState());
+    DioHelper.postData(url: EndPoints.sendOtpRegister, data: {'phone':phoneNumber}).then((value){
+      if(value.data['success']){
+        otpCode = value.data['result']['otpCode'];
+        emit(AuthSendingOtpCodeSuccessState());
+      } else {
+        emit(AuthSendingOtpCodeErrorState());
+        showToastMessage(
+          msg: value.data['msg'],
+          toastState: ToastState.warning,
+        );
+      }
+    });
+  }
+
+  void sendForgotPasswordOtp(String phone){
+    emit(AuthSendingOtpCodeLoadingState());
+    DioHelper.postData(
+      url: EndPoints.sendOtp,
+      data: {
+        'phone': phone
+      }
+    ).then((value){
+      otpCode = value.data['result']['otp_code'];
+      emit(AuthSendingOtpCodeSuccessState());
+    });
+  }
+  
+  void resetPassword({required String phone, required int otpCode, required String password, required String passwordConfirmation}){
+    emit(AuthResetPasswordLoadingState());
+    DioHelper.postData(
+      url: EndPoints.resetPassword,
+      data: {
+        'phone':phone,
+        'password':password,
+        'password_confirmation':passwordConfirmation,
+        'otpCode':otpCode
+      }
+    ).then((value){
+      showToastMessage(
+        msg: 'Password Was set Successfully!',
+        toastState: ToastState.success
+      );
+    });
+  }
+
+  void register({required String phone, required String name, required int otpCode, required String password}){
+    emit(AuthSignUpLoadingState());
+    DioHelper.postData(
+      url: EndPoints.register,
+      data: {
+        'phone': phone,
+        'password': password,
+        'name': name,
+        'otpCode':otpCode
+      }
+    ).then((value){
+      Repo.profileDataModel = ProfileDataModel.fromJson(value.data);
+      CacheHelper.saveData(key: KeysManager.isAuthenticated, value: true);
+      AppConstants.isAuthenticated = true;
+      CacheHelper.saveData(key: KeysManager.token, value: Repo.profileDataModel!.result!.token);
+      AppConstants.token = Repo.profileDataModel!.result!.token!;
+      emit(AuthSignUpSuccessState());
+    });
+  }
+
+  void login(String phone, String password) {
+   var parsedPhone = int.parse(phone);
+    emit(AuthLoginLoadingState());
+    DioHelper.postData(
+      url: EndPoints.login,
+      data: {
+        'phone': parsedPhone,
+        'password': password
+      }
+    ).then((value){
+      if(value.data['success']){
+        Repo.profileDataModel = ProfileDataModel.fromJson(value.data);
+        CacheHelper.saveData(key: KeysManager.isAuthenticated, value: true);
+        AppConstants.isAuthenticated = true;
+        CacheHelper.saveData(key: KeysManager.token, value: Repo.profileDataModel!.result!.token);
+        AppConstants.token = Repo.profileDataModel!.result!.token!;
+        emit(AuthLoginSuccessState());
+      } else {
+        showToastMessage(msg: "couldn't login", toastState: ToastState.error);
+        emit(AuthLoginErrorState());
+      }
+    }).catchError((e){
+      log(e.toString());
+        showToastMessage(msg: "An Error occurred, Check you credentials again!!", toastState: ToastState.error);
+        emit(AuthLoginErrorState());
+    });
   }
 
   void changeObscured(){

@@ -24,8 +24,13 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    AuthCubit.get(context).isObscured = true;
     return BlocConsumer<AuthCubit, AuthStates>(
-      listener: (context, state){},
+      listener: (context, state){
+        if(state is AuthLoginSuccessState){
+          Navigator.pushAndRemoveUntil(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.home)), (route) => false);
+        }
+      },
       builder: (context, state) {
         AuthCubit cubit = AuthCubit.get(context);
         return Scaffold(
@@ -70,7 +75,17 @@ class LoginScreen extends StatelessWidget {
                         AuthSection(
                           flex: AppSizes.s2,
                           children: [
-                            DefaultAuthButton(onPressed: (){}, title: LocalizationService.translate(StringsManager.login), backgroundColor: ColorsManager.primaryColor, foregroundColor: ColorsManager.white, hasBorder: false,),
+                            DefaultAuthButton(
+                              onPressed: (){
+                                if(_formKey.currentState!.validate()){
+                                  cubit.login(_phoneNumberController.text, _passwordController.text);
+                                }
+                              },
+                              title: LocalizationService.translate(StringsManager.login),
+                              backgroundColor: ColorsManager.primaryColor,
+                              foregroundColor: ColorsManager.white,
+                              hasBorder: false,
+                            ),
                             SizedBox(height: AppSizesDouble.s30,),
                             TextButton(
                               onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.forgotPassword))),

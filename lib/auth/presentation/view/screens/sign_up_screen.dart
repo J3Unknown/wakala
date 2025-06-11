@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakala/auth/data/otp_screen_arguments.dart';
 import 'package:wakala/auth/presentation/cubit/auth_cubit.dart';
 import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
@@ -26,8 +27,13 @@ class SignUpScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
+    AuthCubit.get(context).isObscured = true;
     return BlocConsumer<AuthCubit, AuthStates>(
-      listener: (context, state){},
+      listener: (context, state){
+        if(state is AuthSendingOtpCodeSuccessState){
+          Navigator.pushAndRemoveUntil(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.otp, arguments: OtpScreenArguments(_phoneController.text, false, name: _nameController.text, password: _passwordController.text))), (route) =>false);
+        }
+      },
       builder: (context, state) => Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -72,7 +78,17 @@ class SignUpScreen extends StatelessWidget {
                         flex: AppSizes.s5,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          DefaultAuthButton(onPressed: (){}, title: LocalizationService.translate(StringsManager.signUp), hasBorder: false, foregroundColor: ColorsManager.white, backgroundColor: ColorsManager.primaryColor,),
+                          DefaultAuthButton(
+                            onPressed: () async{
+                              if(_formKey.currentState!.validate()){
+                                AuthCubit.get(context).sendVerificationCode(_phoneController.text);
+                              }
+                            },
+                            title: LocalizationService.translate(StringsManager.signUp),
+                            hasBorder: false,
+                            foregroundColor: ColorsManager.white,
+                            backgroundColor: ColorsManager.primaryColor,
+                          ),
                           SizedBox(height: AppSizesDouble.s15,),
                           Row(
                             mainAxisSize: MainAxisSize.min,

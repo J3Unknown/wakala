@@ -15,7 +15,7 @@ import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
 class AuthLayout extends StatelessWidget {
-  AuthLayout({super.key});
+  const AuthLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
