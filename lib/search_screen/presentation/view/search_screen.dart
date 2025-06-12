@@ -40,7 +40,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 CategoriesScroll(),
                 if(MainCubit.get(context).isCategorySelected)
                 DefaultFilterButton(categories: MainCubit.get(context).categoriesDataModel!),
-                AdsBannerSection(imgSrc: 'https://www.mouthmatters.com/wp-content/uploads/2024/07/placeholder-wide.jpg'),
+                AdsBannerSection(slider: MainCubit.get(context).homePageDataModel!.result!.sliders![0]),
                 Expanded(child: VerticalProductsList(isRecentlyViewed: true))
               ],
             ),

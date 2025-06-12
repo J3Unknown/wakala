@@ -100,7 +100,7 @@ class RoutesGenerator{
       case Routes.commercialDetails:
         return MaterialPageRoute(builder: (_) => CommercialDetails(id: settings.arguments! as int,));
       case Routes.productDetails:
-        return MaterialPageRoute(builder: (_) => ProductDetailsScreen(typeData: settings.arguments! as ProductTypeData,));
+        return MaterialPageRoute(builder: (_) => ProductDetailsScreen(id: settings.arguments! as int,));
       default:
         return unDefinedRoute();
     }

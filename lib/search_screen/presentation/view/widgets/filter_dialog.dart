@@ -4,12 +4,12 @@ import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/data/categories_data_model.dart';
 import 'package:wakala/search_screen/presentation/view/widgets/horizontal_category_button.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
-import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/components.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
 import '../../../../utilities/resources/colors_manager.dart';
+import '../../../../utilities/resources/constants_manager.dart';
 
 class FilterDialog extends StatefulWidget {
   const FilterDialog({super.key, required this.categories});
@@ -63,7 +63,7 @@ class _FilterDialogState extends State<FilterDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              HorizontalCategoryButton(title: currentCategory.name, image: currentCategory.image,),
+              HorizontalCategoryButton(title: currentCategory.name, image: AppConstants.baseImageUrl + currentCategory.image,),
               SizedBox(height: AppSizesDouble.s15,),
               ItemsDropDownMenu(
                 title: currentCategory.subCategories[0].name,

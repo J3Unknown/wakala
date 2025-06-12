@@ -19,9 +19,6 @@ class _CommercialScreenState extends State<CommercialScreen> {
   final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
-    if(MainCubit.get(context).commercialAdDataModel == null){
-      MainCubit.get(context).getCommercialAds();
-    }
     _scrollController.addListener(scrollListener);
     super.initState();
   }

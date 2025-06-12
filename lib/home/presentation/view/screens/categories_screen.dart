@@ -84,7 +84,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       child: ListView.builder(
                         itemCount: 9,
                         itemBuilder: (context, index) => ListTile(
-                          title: Text('Choice${index + 1}'),
+                          title: Text('Choice ${index + 1}'),
                           onTap: (){},
                         ),
                       ),

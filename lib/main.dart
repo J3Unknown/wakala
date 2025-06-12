@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
       builder: (context, _) => MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => AuthCubit()),
-          BlocProvider(create: (context) => MainCubit()..getProfile()..getCategories()),
+          BlocProvider(create: (context) => MainCubit()..getProfile()..getHomeScreen()..getCommercialAds()..getCategories()),
         ],
         child: Directionality(
           textDirection: localeChanger.getLanguage == 'ar'? TextDirection.rtl:TextDirection.ltr,

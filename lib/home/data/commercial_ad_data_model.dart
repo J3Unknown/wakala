@@ -51,42 +51,28 @@ class Result {
 }
 
 class CommercialAdItem {
-  int? id;
-  int? categoryId;
-  int? userId;
-  int? typeId;
-  int? cityId;
-  int? regionId;
+  late int id;
+  late int categoryId;
+  late int userId;
+  late int typeId;
+  late int cityId;
+  late int regionId;
   String? adNumber;
-  String? title;
+  int? price;
+  late String title;
   String? description;
   String? contactMethod;
-  int? negotiable;
+  late int negotiable;
   String? status;
   String? startDate;
   String? endDate;
   String? mainImage;
   String? createdAt;
   String? updatedAt;
-
-  CommercialAdItem(
-      {id,
-        categoryId,
-        userId,
-        typeId,
-        cityId,
-        regionId,
-        adNumber,
-        title,
-        description,
-        contactMethod,
-        negotiable,
-        status,
-        startDate,
-        endDate,
-        mainImage,
-        createdAt,
-        updatedAt});
+  PairOfIdAndName? adsType;
+  PairOfIdAndName? city;
+  PairOfIdAndName? region;
+  PairOfIdAndName? category;
 
   CommercialAdItem.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -101,11 +87,25 @@ class CommercialAdItem {
     contactMethod = json['contact_method'];
     negotiable = json['negotiable'];
     status = json['status'];
+    price = json['price'];
     startDate = json['start_date'];
     endDate = json['end_date'];
     mainImage = json['main_image'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    if(json['ads_type'] != null) {
+      adsType = PairOfIdAndName.fromJson(json['ads_type']);
+    }
+    if(json['city'] != null){
+      city = PairOfIdAndName.fromJson(json['city']);
+    }
+    if(json['region'] != null){
+      region = PairOfIdAndName.fromJson(json['region']);
+    }
+    if(json['category'] != null){
+      category = PairOfIdAndName.fromJson(json['category']);
+    }
+
   }
 
   Map<String, dynamic> toJson() {
@@ -127,8 +127,23 @@ class CommercialAdItem {
     data['main_image'] = mainImage;
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
+    data['ads_type'] = adsType;
+    data['category'] = category;
+    data['city'] = city;
+    data['region'] = updatedAt;
     return data;
   }
+}
+
+class PairOfIdAndName{
+  int? id;
+  String? name;
+
+  PairOfIdAndName.fromJson(Map<String, dynamic> json){
+    id = json['id'];
+    name = json['name'];
+  }
+
 }
 
 class Pagination {

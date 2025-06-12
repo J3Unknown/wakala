@@ -4,6 +4,7 @@ class StringsManager{
 
   //*Core
   static const String wikala = 'Wikala';
+  static const String egp = 'EGP';
   static const String welcomeToWikala = 'Welcome To Wikala';
   static const String submit = 'Submit';
   static const String confirm = 'Confirm';

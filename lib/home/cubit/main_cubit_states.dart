@@ -1,3 +1,5 @@
+import 'package:wakala/home/data/specific_ad_data_model.dart';
+
 abstract class MainCubitStates{}
 
 class MainInitialState extends MainCubitStates{}
@@ -48,7 +50,11 @@ class MainGetCommercialAdErrorState extends MainCubitStates{}
 
 class MainGetCommercialAdByIDLoadingState extends MainCubitStates{}
 
-class MainGetCommercialAdByIDSuccessState extends MainCubitStates{}
+class MainGetCommercialAdByIDSuccessState extends MainCubitStates{
+  final SpecificAdDataModel specificAdDataModel;
+  MainGetCommercialAdByIDSuccessState(this.specificAdDataModel);
+
+}
 
 class MainGetCommercialAdByIDErrorState extends MainCubitStates{}
 
@@ -57,4 +63,10 @@ class MainLogOutLoadingState extends MainCubitStates{}
 class MainLogOutSuccessState extends MainCubitStates{}
 
 class MainLogOutErrorState extends MainCubitStates{}
+
+class MainCreatePasswordLoadingState extends MainCubitStates{}
+
+class MainCreatePasswordSuccessState extends MainCubitStates{}
+
+class MainCreatePasswordErrorState extends MainCubitStates{}
 

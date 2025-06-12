@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
+import 'package:wakala/utilities/resources/strings_manager.dart';
 
+import '../../../../home/data/specific_ad_data_model.dart';
 import '../../../../utilities/resources/assets_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/values_manager.dart';
-import '../product_details_screen.dart';
 
 class DefaultProductDetailsHeaderSection extends StatelessWidget {
   DefaultProductDetailsHeaderSection({
     super.key,
     required this.previewImages,
-    required this.widget,
+    required this.typeData,
+    required this.ad
   });
   final PageController _pageController = PageController();
-  final List<Image> previewImages;
-  final ProductDetailsScreen widget;
-
+  final List<AdImage> previewImages;
+  final ProductTypeData typeData;
+  final Ad ad;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -30,7 +35,7 @@ class DefaultProductDetailsHeaderSection extends StatelessWidget {
               child: PageView(
                 pageSnapping: true,
                 controller: _pageController,
-                children: previewImages,
+                children: List.generate(previewImages.length, (index) => Image.network(AppConstants.baseImageUrl + previewImages[index].image)),
               ),
             ),
             Positioned(
@@ -46,9 +51,9 @@ class DefaultProductDetailsHeaderSection extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: AppSizesDouble.s15, vertical: AppSizesDouble.s5),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(AppSizesDouble.s8),
-                          color: widget.typeData.color
+                          color: typeData.color
                       ),
-                      child: Text(widget.typeData.type),
+                      child: Text(typeData.type),
                     ),
                   ),
                   IconButton.filled(
@@ -86,11 +91,11 @@ class DefaultProductDetailsHeaderSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Product Title', style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600),),
-              Text('Product Glance Description', style: Theme.of(context).textTheme.titleMedium,),
-              if(widget.typeData.type == 'Sale')
-                Text('500 EGP', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.bold)),
-              Text('22 Hour', style: Theme.of(context).textTheme.titleMedium,),
+              Text(ad.title!, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600),),
+              Text(ad.description!, style: Theme.of(context).textTheme.titleMedium,),
+              if(typeData.type == 'Sale')
+                Text('${ad.price!} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.bold)),
+              Text(DateFormat('dd - MM - yyyy').format(DateTime.parse(ad.createdAt!)), style: Theme.of(context).textTheme.titleMedium,),
             ],
           ),
         )

@@ -8,10 +8,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart' as svg_provider;
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
+import 'package:wakala/home/data/home_screen_data_model.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../home/data/categories_data_model.dart';
 import '../../home/data/commercial_ad_data_model.dart';
@@ -37,14 +40,12 @@ class CategoriesScroll extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: AppSizesDouble.s120,
-            minHeight: AppSizesDouble.s100
           ),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: cubit.categoriesDataModel!.result!.categories.length,
+            itemCount: cubit.homePageDataModel!.result!.categories!.length,
             itemBuilder: (context, index) => CategoryButton(
-              title: cubit.categoriesDataModel!.result!.categories[index].name,
-              image: cubit.categoriesDataModel!.result!.categories[index].image,
+              category: cubit.homePageDataModel!.result!.categories![index],
               onPress: () => cubit.changeCategorySelection(index),
               index: index,
               selectedCategory: cubit.categoryIndex,
@@ -59,16 +60,14 @@ class CategoriesScroll extends StatelessWidget {
 //* Categories Button
 class CategoryButton extends StatefulWidget {
 
-  final String title;
-  final String image;
+  final HomeCategories category;
   final VoidCallback onPress;
   final int index;
   final int selectedCategory;
 
   const CategoryButton({
     super.key,
-    required this.title,
-    required this.image,
+    required this.category,
     required this.onPress,
     required this.index,
     required this.selectedCategory
@@ -96,10 +95,10 @@ class _CategoryButtonState extends State<CategoryButton> {
                   borderRadius: BorderRadius.circular(AppSizesDouble.s10),
                   side: BorderSide(color: widget.selectedCategory == widget.index? ColorsManager.grey:ColorsManager.black, width: AppSizesDouble.s2)
                 ),
-                child: SvgPicture.asset(AssetsManager.productPlaceHolder, fit: BoxFit.cover, height: AppSizesDouble.s60, width: AppSizesDouble.s60,,)/*Image.network(widget.image, fit: BoxFit.cover, width: AppSizesDouble.s60, height: AppSizesDouble.s60,)*/,
+                child: Image.network(AppConstants.baseImageUrl +  widget.category.image!, fit: BoxFit.cover, width: AppSizesDouble.s60, height: AppSizesDouble.s60,),
               ),
               Text(
-                widget.title,
+                widget.category.name,
                 style: TextStyle(
                   color: widget.selectedCategory == widget.index? ColorsManager.grey:ColorsManager.primaryColor,
                   fontSize: AppSizesDouble.s18
@@ -248,15 +247,15 @@ class _ItemsDropDownMenuState extends State<ItemsDropDownMenu> {
 class AdsBannerSection extends StatelessWidget {
   const AdsBannerSection({
     super.key,
-    required String imgSrc,
-  }) : _imgSrc = imgSrc;
+    required HomePageSliders slider,
+  }) : _sliders = slider;
 
-  final String _imgSrc;
+  final HomePageSliders _sliders;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: (){},
+      onTap: () => launchUrlHelper(_sliders.link!),
       child: Container(
         margin: EdgeInsets.symmetric(vertical: AppMargins.m15),
         decoration: BoxDecoration(
@@ -265,7 +264,7 @@ class AdsBannerSection extends StatelessWidget {
         clipBehavior: Clip.antiAliasWithSaveLayer,
         width: double.infinity,
         height: AppSizesDouble.s110,
-        child: Image.network(_imgSrc, fit: BoxFit.fitWidth,),
+        child: Image.network(AppConstants.baseImageUrl +  _sliders.name!, fit: BoxFit.fitWidth,),
       ),
     );
   }
@@ -276,10 +275,10 @@ class AdsBannerSection extends StatelessWidget {
 class TopSection extends StatelessWidget {
   const TopSection({
     super.key,
-    required String title,
-  }) : _title = title;
+    required TopSectionDataModel topSection,
+  }) : _topSection = topSection;
 
-  final String _title;
+  final TopSectionDataModel _topSection;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -287,18 +286,18 @@ class TopSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text(_title, style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600),),
+            Text(_topSection.name, style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600),),
             Spacer(),
-            TextButton(onPressed: (){}, child: Text(StringsManager.showAll, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),))
+            TextButton(onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search))), child: Text(StringsManager.showAll, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),))
           ],
         ),
         SizedBox(
           height: AppSizesDouble.s200,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: 10, //!Keep it 10 for now till adjusting the real item count
+            itemCount: _topSection.categoryInfo.ads!.length,
             separatorBuilder: (context, index) => SizedBox(width: AppSizesDouble.s10,),
-            itemBuilder: (context, index) => TopSectionsElement(imgSrc: 'https://www.mouthmatters.com/wp-content/uploads/2024/07/placeholder-wide.jpg',)
+            itemBuilder: (context, index) => TopSectionsElement(ad: _topSection.categoryInfo.ads![index],)
           ),
         ),
       ],
@@ -310,9 +309,9 @@ class TopSection extends StatelessWidget {
 class TopSectionsElement extends StatelessWidget {
   const TopSectionsElement({
     super.key,
-    required String imgSrc,
-  }) : _imgSrc = imgSrc;
-  final String _imgSrc;
+    required CommercialAdItem ad,
+  }) : _ad = ad;
+  final CommercialAdItem _ad;
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -322,7 +321,7 @@ class TopSectionsElement extends StatelessWidget {
         clipBehavior: Clip.antiAliasWithSaveLayer,
         width: AppSizesDouble.s200,
         height: AppSizesDouble.s200,
-        child: Image.network(_imgSrc, fit: BoxFit.cover,),
+        child: Image.network(AppConstants.baseImageUrl + _ad.mainImage!, fit: BoxFit.cover,),
       ),
     );
   }
@@ -332,7 +331,10 @@ class TopSectionsElement extends StatelessWidget {
 class HorizontalProductList extends StatelessWidget {
   const HorizontalProductList({
     super.key,
+    required this.products
   });
+
+  final List<CommercialAdItem> products;
 
   @override
   Widget build(BuildContext context) {
@@ -340,9 +342,9 @@ class HorizontalProductList extends StatelessWidget {
       height: AppSizesDouble.s370,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: 10, //!Keep it 10 for now till adjusting the real item count
+        itemCount: products.length,
         itemBuilder: (context, index) => VerticalProductCard(
-          type: 'Auction',
+          commercialAdType: products[index],
         ),
         separatorBuilder: (context, index) => SizedBox(width: AppSizesDouble.s10,),
       ),
@@ -355,9 +357,9 @@ class HorizontalProductList extends StatelessWidget {
 class VerticalProductCard extends StatefulWidget {
   const VerticalProductCard({
     super.key,
-    required this.type
+    required this.commercialAdType
   });
-  final String type;
+  final CommercialAdItem commercialAdType;
 
   @override
   State<VerticalProductCard> createState() => _VerticalProductCardState();
@@ -367,14 +369,14 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
   late ProductTypeData _typeData;
   @override
   void initState() {
-    _typeData = getProductType(widget.type);
+    _typeData = getProductType(widget.commercialAdType.adsType?.name??'Sale');
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: _typeData))),
+      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: widget.commercialAdType.id))),
       child: Container(
         height: AppSizesDouble.s370,
         width: AppSizesDouble.s230,
@@ -389,8 +391,9 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
             Stack(
               children: [
                 SizedBox(
-                  height: AppSizesDouble.s200,
-                  child: Image.network('https://www.mouthmatters.com/wp-content/uploads/2024/07/placeholder-wide.jpg', fit: BoxFit.cover,),
+                  height: AppSizesDouble.s180,
+                  width: double.infinity,
+                  child: Image.network(AppConstants.baseImageUrl + widget.commercialAdType.mainImage!, fit: BoxFit.cover,),
                 ),
                 IntrinsicWidth(
                   child: Container(
@@ -410,15 +413,15 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Product Title', style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w500), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                  Text(widget.commercialAdType.title, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w500), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                   SizedBox(height: AppSizesDouble.s5,),
-                  Text('Product Description', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                  Text(widget.commercialAdType.description??'', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                   SizedBox(height: AppSizesDouble.s5,),
-                  Text('200 EGP', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.w600), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                  Text('${widget.commercialAdType.price} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.w600), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                   SizedBox(height: AppSizesDouble.s5,),
-                  Text('Egypt, Cairo', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                  Text('${widget.commercialAdType.city!.name}, ${widget.commercialAdType.region!.name}', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                   SizedBox(height: AppSizesDouble.s5,),
-                  Text('1 day', maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
+                  Text(DateFormat('dd - MM - yyyy').format(DateTime.parse(widget.commercialAdType.createdAt!)), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
                 ],
               ),
             ),
@@ -929,16 +932,44 @@ class DefaultCommercialGridItem extends StatelessWidget {
   final CommercialAdItem item;
   @override
   Widget build(BuildContext context) {
-    log(item.mainImage.toString());
     return InkWell(
       onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.commercialDetails, arguments: item.id))),
       child: Container(
-          margin: EdgeInsets.all(AppSizesDouble.s5),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSizesDouble.s8),
-              image: DecorationImage(image: /*NetworkImage(item.mainImage!,)*/svg_provider.Svg(AssetsManager.productPlaceHolder), fit: BoxFit.cover,)
-          )
+        margin: EdgeInsets.all(AppSizesDouble.s5),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+          image: DecorationImage(image: NetworkImage(AppConstants.baseImageUrl + item.mainImage!,), fit: BoxFit.cover,)
+        )
       ),
+    );
+  }
+}
+
+Future<void> launchUrlHelper(String url) async {
+  final trimmedUrl = url.trim();
+  final parsedUri = Uri.tryParse(trimmedUrl);
+
+  if (parsedUri != null && parsedUri.isAbsolute) {
+    try {
+      await launchUrl(
+        parsedUri,
+        mode: LaunchMode.externalApplication
+      );
+    } on PlatformException catch (e) {
+      showToastMessage(
+        msg: 'Platform error: ${e.message}',
+        toastState: ToastState.error,
+      );
+    } catch (e) {
+      showToastMessage(
+        msg: 'Failed to launch URL',
+        toastState: ToastState.error,
+      );
+    }
+  } else {
+    showToastMessage(
+      msg: 'Invalid URL: $trimmedUrl',
+      toastState: ToastState.error,
     );
   }
 }

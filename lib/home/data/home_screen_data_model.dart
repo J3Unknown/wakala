@@ -1,3 +1,5 @@
+import 'package:wakala/home/data/commercial_ad_data_model.dart';
+
 class HomePageDataModel {
   bool? success;
   Result? result;
@@ -12,71 +14,90 @@ class HomePageDataModel {
     msg = json['msg'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =<String, dynamic>{};
-    data['success'] = success;
-    if (result != null) {
-      data['result'] =result!.toJson();
-    }
-    data['msg'] = msg;
-    return data;
-  }
 }
 
 class Result {
-  List<Categories>? categories;
-  List<Sliders>? sliders;
-  List<Null>? homePageCategories;
+  List<HomeCategories>? categories;
+  List<HomePageSliders>? sliders;
+  List<TopSectionDataModel>? homePageProducts;
 
-  Result(
-      {this.categories, this.sliders, this.homePageCategories});
+  Result({this.categories, this.sliders, this.homePageProducts});
 
   Result.fromJson(Map<String, dynamic> json) {
     if (json['categories'] != null) {
-      categories = <Categories>[];
+      categories = <HomeCategories>[];
       json['categories'].forEach((v) {
-        categories!.add(Categories.fromJson(v));
+        categories!.add(HomeCategories.fromJson(v));
       });
     }
 
     if (json['sliders'] != null) {
-      sliders = <Sliders>[];
+      sliders = <HomePageSliders>[];
       json['sliders'].forEach((v) {
-        sliders!.add( Sliders.fromJson(v));
+        sliders!.add( HomePageSliders.fromJson(v));
       });
     }
-    // if (json['HomePageCategories'] != null) {
-    //   homePageCategories = <dynamic>[];
-    //   json['HomePageCategories'].forEach((v) {
-    //     homePageCategories!.add( Null.fromJson(v));
-    //   });
-    // }
+
+    if (json['HomePageCategories'] != null) {
+      homePageProducts = <TopSectionDataModel>[];
+      json['HomePageCategories'].forEach((v) {
+        homePageProducts!.add(TopSectionDataModel.fromJson(v));
+      });
+    }
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (categories != null) {
-      data['categories'] = categories!.map((v) => v.toJson()).toList();
+}
+
+class TopSectionDataModel{
+  late int id;
+  late int categoryId;
+  late String name;
+  late CategoryInfo categoryInfo;
+
+  TopSectionDataModel.fromJson(Map<String, dynamic> json){
+    id = json['id'];
+    categoryId = json['category_id'];
+    name = json['name'];
+    categoryInfo = CategoryInfo.fromJson(json['category']);
+  }
+
+}
+
+class CategoryInfo{
+  late int id;
+  int? rank;
+  int? parentId;
+  late String nameInAr;
+  late String nameInEn;
+  late String image;
+  late int endPoint;
+  late int orders;
+  List<CommercialAdItem>? ads;
+
+  CategoryInfo.fromJson(Map<String, dynamic> json){
+    id = json['id'];
+    rank = json['rank'];
+    parentId = json['parent_id'];
+    nameInAr = json['name_ar'];
+    nameInEn = json['name_en'];
+    image = json['image'];
+    endPoint = json['end_point'];
+    orders = json['order'];
+    if(json['ads'] != null){
+      ads = [];
+      json['ads'].forEach((v) => ads?.add(CommercialAdItem.fromJson(v)));
     }
-    if (sliders != null) {
-      data['sliders'] = sliders!.map((v) => v.toJson()).toList();
-    }
-    // if (homePageCategories != null) {
-    //   data['HomePageCategories'] =
-    //       homePageCategories!.map((v) => v.toJson()).toList();
-    // }
-    return data;
   }
 }
 
-class Categories {
+class HomeCategories {
   late int id;
   String? image;
   late String name;
 
-  Categories({ required this.id, required this.image, required this.name});
+  HomeCategories({ required this.id, this.image, required this.name});
 
-  Categories.fromJson(Map<String, dynamic> json) {
+  HomeCategories.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     image = json['image'];
     name = json['name'];
@@ -91,14 +112,14 @@ class Categories {
   }
 }
 
-class Sliders {
+class HomePageSliders {
   int? id;
   String? name;
   String? link;
 
-  Sliders({this.id, this.name, this.link});
+  HomePageSliders({this.id, this.name, this.link});
 
-  Sliders.fromJson(Map<String, dynamic> json) {
+  HomePageSliders.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     link = json['link'];

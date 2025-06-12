@@ -104,6 +104,7 @@ class MainCubit extends Cubit<MainCubitStates>{
   void getHomeScreen(){
     emit(MainGetHomeScreenLoadingState());
     DioHelper.getData(path: EndPoints.home).then((value){
+      log(value.data.toString());
       homePageDataModel = HomePageDataModel.fromJson(value.data);
       emit(MainGetHomeScreenSuccessState());
     });
@@ -140,7 +141,6 @@ class MainCubit extends Cubit<MainCubitStates>{
 
     final queryParams = {
       'page': currentCommercialAdsPage,
-      // Add any other parameters you need
     };
 
     DioHelper.getData(
@@ -150,27 +150,27 @@ class MainCubit extends Cubit<MainCubitStates>{
       final newData = CommercialAdDataModel.fromJson(value.data);
 
       if (loadMore) {
-        // Append new items to existing list
         commercialAdDataModel?.result?.commercialAdsItems?.addAll(newData.result?.commercialAdsItems ?? []);
       } else {
         commercialAdDataModel = newData;
       }
 
-      // Check if there's more data
-      commercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) <
-          (newData.result?.pagination.lastPage ?? 0);
+      commercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) < (newData.result?.pagination.lastPage ?? 0);
 
       commercialAdsIsLoadingMore = false;
+      log(value.data.toString());
       emit(MainGetCommercialAdSuccessState());
     });
   }
 
   SpecificAdDataModel? specificAdDataModel;
   void getCommercialAdByID(int id){
+    specificAdDataModel = null;
     emit(MainGetCommercialAdByIDLoadingState());
     DioHelper.getData(path: '${EndPoints.getCommercialAd}/$id').then((value){
+      log(value.data.toString());
       specificAdDataModel = SpecificAdDataModel.fromJson(value.data);
-      emit(MainGetCommercialAdByIDSuccessState());
+      emit(MainGetCommercialAdByIDSuccessState(specificAdDataModel!));
     }).catchError((e){
       if (e is DioException) {
         log("Dio Error: ${e.message}");
@@ -191,7 +191,6 @@ class MainCubit extends Cubit<MainCubitStates>{
         data: {
           'lang':locale
         },
-        lang: locale
       ).then((value){
         emit(MainUpdateLangSuccessState());
       }).catchError((e){
@@ -203,6 +202,19 @@ class MainCubit extends Cubit<MainCubitStates>{
         }
       });
     }
+  }
+  
+  void createPassword(String password, String passwordConfirmation){
+    emit(MainCreatePasswordSuccessState());
+    DioHelper.postData(
+      url: EndPoints.createPassword,
+      data: {
+        'password': password,
+        'password_confirmation': passwordConfirmation
+      }
+    ).then((value){
+      emit(MainCreatePasswordSuccessState());
+    });
   }
 
   Future<void> logOut() async{

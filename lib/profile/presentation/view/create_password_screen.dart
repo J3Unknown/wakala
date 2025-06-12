@@ -26,20 +26,29 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  late final String _phone;
-  late final int _otpCode;
+  String? _phone;
+  int? _otpCode;
 
   @override
   void didChangeDependencies() {
-    final CreatePasswordScreenArguments args = ModalRoute.of(context)!.settings.arguments as CreatePasswordScreenArguments;
-    _phone = args.phone;
-    _otpCode = args.otpCode;
+    final CreatePasswordScreenArguments? args = ModalRoute.of(context)?.settings.arguments as CreatePasswordScreenArguments?;
+    if(args != null){
+      _phone = args.phone;
+      _otpCode = args.otpCode;
+    }
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MainCubit, MainCubitStates>(
+    return BlocConsumer<MainCubit, MainCubitStates>(
+      listener: (context, state) {
+        if(state is MainCreatePasswordSuccessState){
+          showToastMessage(msg: 'Password Updated Successfully', toastState: ToastState.success);
+          _passwordController.clear();
+          _confirmPasswordController.clear();
+        }
+      },
       builder: (context, state) => Scaffold(
         appBar: AppBar(
           actions: [
@@ -90,12 +99,16 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                 DefaultAuthButton(
                   onPressed: (){
                     if(_formKey.currentState!.validate()){
-                      AuthCubit.get(context).resetPassword(
-                        phone: _phone,
-                        otpCode: _otpCode,
-                        password: _passwordController.text,
-                        passwordConfirmation: _confirmPasswordController.text
-                      );
+                      if(_phone != null){
+                        AuthCubit.get(context).resetPassword(
+                          phone: _phone!,
+                          otpCode: _otpCode!,
+                          password: _passwordController.text,
+                          passwordConfirmation: _confirmPasswordController.text
+                        );
+                      } else {
+                        MainCubit.get(context).createPassword(_passwordController.text, _confirmPasswordController.text);
+                      }
                     }
                   },
                   title: StringsManager.createPassword,

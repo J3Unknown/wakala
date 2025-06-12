@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
-import 'package:wakala/home/presentation/view/screens/home_screen.dart';
 import 'package:wakala/home/presentation/view/widgets/bottom_nav_bar.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
 
@@ -26,13 +25,6 @@ class _HomeLayoutState extends State<HomeLayout> {
 
   final DeBouncer _deBouncer = DeBouncer();
 
-  @override
-  void initState() {
-    if(MainCubit.get(context).homePageDataModel == null){
-      MainCubit.get(context).getHomeScreen();
-    }
-    super.initState();
-  }
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<MainCubit, MainCubitStates>(

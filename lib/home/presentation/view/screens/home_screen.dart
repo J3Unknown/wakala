@@ -14,28 +14,43 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    MainCubit cubit = MainCubit.get(context);
     return BlocBuilder<MainCubit, MainCubitStates>(
-      builder: (context, state) => SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
-          child: Column(
-            children: [
-              ConditionalBuilder(
-                condition: MainCubit.get(context).categoriesDataModel != null,
-                fallback: (context) => Center(child: CircularProgressIndicator(),),
-                builder: (context) => CategoriesScroll()
-              ),
-              if(MainCubit.get(context).isCategorySelected)
-              Align(alignment: Alignment.centerLeft, child: DefaultFilterButton(categories: MainCubit.get(context).categoriesDataModel!)),
-              SizedBox(height: AppSizesDouble.s10,),
-              SearchButton(),
-              AdsBannerSection(imgSrc: 'https://www.mouthmatters.com/wp-content/uploads/2024/07/placeholder-wide.jpg',), //TODO: Get the Image from the Back End
-              TopSection(title: 'Top Commercials',),
-              TopSection(title: 'Top Automotive',),
-              TopSection(title: 'Top Real-Estate',),
-              AdsBannerSection(imgSrc: 'https://www.mouthmatters.com/wp-content/uploads/2024/07/placeholder-wide.jpg',), //TODO: Get the Image from the Back End
-              HorizontalProductList(),
-            ],
+      builder: (context, state) => ConditionalBuilder(
+        fallback: (context) => Center(child: CircularProgressIndicator(),),
+        condition: cubit.homePageDataModel != null,
+        builder: (context) => SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
+            child: Column(
+              children: [
+                CategoriesScroll(),
+                if(cubit.isCategorySelected)
+                Align(alignment: Alignment.centerLeft, child: DefaultFilterButton(categories: cubit.categoriesDataModel!)),
+                SearchButton(),
+                AdsBannerSection(slider: cubit.homePageDataModel!.result!.sliders![AppSizes.s0]),
+                ConditionalBuilder(
+                  condition: cubit.homePageDataModel!.result!.homePageProducts != null &&  cubit.homePageDataModel!.result!.homePageProducts!.isNotEmpty,
+                  fallback: (context) {
+                    return Center(child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal:  AppPaddings.p5),
+                      child: FittedBox(child: Text('There is No Suggestions Yet!!!!', style: Theme.of(context).textTheme.headlineMedium,)),
+                    ),);
+                  },
+                  builder: (context) => ListView(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    children: List.generate(cubit.homePageDataModel!.result!.homePageProducts!.length, (index) => TopSection(topSection: cubit.homePageDataModel!.result!.homePageProducts![index],)),
+                  ),
+                ),
+                AdsBannerSection(slider: cubit.homePageDataModel!.result!.sliders![AppSizes.s1]),
+                ConditionalBuilder(
+                  condition: cubit.commercialAdDataModel != null,
+                  fallback: (context) => Center(child: CircularProgressIndicator(),),
+                  builder: (context) => HorizontalProductList(products: cubit.commercialAdDataModel!.result!.commercialAdsItems!,)
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wakala/auth/data/create_password_screen_arguments.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
-import 'package:wakala/auth/presentation/view/widgets/DefaultPhoneInputField.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/alerts.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/icons_manager.dart';
+import 'package:wakala/utilities/resources/repo.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import '../../../utilities/resources/colors_manager.dart';
 import '../../../utilities/resources/components.dart';
@@ -64,7 +64,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       width: AppSizesDouble.s100,
                       height: AppSizesDouble.s100,
                       child: ClipOval(
-                        child: Image.network('https://s3.eu-central-1.amazonaws.com/uploads.mangoweb.org/shared-prod/visegradfund.org/uploads/2021/08/placeholder-male.jpg', fit: BoxFit.cover,)
+                        child: Repo.profileDataModel!.result!.image != null? Image.network(Repo.profileDataModel!.result!.image!, fit: BoxFit.cover,):SvgPicture.asset(AssetsManager.defaultAvatar)
                       ),
                     ),
                     Positioned(
@@ -174,28 +174,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   SizedBox _buildCreatePasswordButton(BuildContext context) {
     return SizedBox(
-            height: AppSizesDouble.s60,
-            child: ElevatedButton(
-              onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.createPassword))),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppSizesDouble.s10),
-                  side: BorderSide(color: ColorsManager.grey2, width: AppSizesDouble.s2),
-                ),
-                backgroundColor: ColorsManager.white,
-                elevation: AppSizesDouble.s0,
-                padding: EdgeInsets.all(AppPaddings.p15)
-              ),
-              child: Row(
-                children: [
-                  SvgPicture.asset(AssetsManager.eyeVisibilityOff),
-                  SizedBox(width: AppSizesDouble.s8,),
-                  FittedBox(child: Text(LocalizationService.translate(StringsManager.createPassword), style: Theme.of(context).textTheme.titleMedium,)),
-                  Spacer(),
-                  Icon(IconsManager.rightArrow),
-                ],
-              ),
-            ),
-          );
+      height: AppSizesDouble.s60,
+      child: ElevatedButton(
+        onPressed: () => Navigator.push(
+          context, RoutesGenerator.getRoute(
+            RouteSettings(
+              name: Routes.createPassword,
+            )
+          )
+        ),
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSizesDouble.s10),
+            side: BorderSide(color: ColorsManager.grey2, width: AppSizesDouble.s2),
+          ),
+          backgroundColor: ColorsManager.white,
+          elevation: AppSizesDouble.s0,
+          padding: EdgeInsets.all(AppPaddings.p15)
+        ),
+        child: Row(
+          children: [
+            SvgPicture.asset(AssetsManager.eyeVisibilityOff),
+            SizedBox(width: AppSizesDouble.s8,),
+            FittedBox(child: Text(LocalizationService.translate(StringsManager.createPassword), style: Theme.of(context).textTheme.titleMedium,)),
+            Spacer(),
+            Icon(IconsManager.rightArrow),
+          ],
+        ),
+      ),
+    );
   }
 }

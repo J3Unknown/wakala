@@ -5,6 +5,7 @@ class AppConstants{
   static const String imagePath = 'assets/images/';
   static const String iconsImagePath = 'assets/images/icons/';
   static const String baseUrl = 'https://wikala.org/wikala/api/';
+  static const String baseImageUrl = 'https://wikala.org/wikala/';
 
   //!caches
   //*Authentication
@@ -33,7 +34,7 @@ List<ProductTypeData> _productTypesList = [
   ProductTypeData('Auction', ColorsManager.red)
 ];
 
-ProductTypeData getProductType(String type){
+ProductTypeData getProductType(String? type){
   switch(type){
     case 'Sale':
       return _productTypesList[0];
