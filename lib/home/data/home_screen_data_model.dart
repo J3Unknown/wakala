@@ -1,3 +1,4 @@
+import 'package:wakala/home/data/categories_data_model.dart';
 import 'package:wakala/home/data/commercial_ad_data_model.dart';
 
 class HomePageDataModel {
@@ -17,7 +18,7 @@ class HomePageDataModel {
 }
 
 class Result {
-  List<HomeCategories>? categories;
+  List<Categories>? categories;
   List<HomePageSliders>? sliders;
   List<TopSectionDataModel>? homePageProducts;
 
@@ -25,9 +26,9 @@ class Result {
 
   Result.fromJson(Map<String, dynamic> json) {
     if (json['categories'] != null) {
-      categories = <HomeCategories>[];
+      categories = <Categories>[];
       json['categories'].forEach((v) {
-        categories!.add(HomeCategories.fromJson(v));
+        categories!.add(Categories.fromJson(v));
       });
     }
 
@@ -87,28 +88,6 @@ class CategoryInfo{
       ads = [];
       json['ads'].forEach((v) => ads?.add(CommercialAdItem.fromJson(v)));
     }
-  }
-}
-
-class HomeCategories {
-  late int id;
-  String? image;
-  late String name;
-
-  HomeCategories({ required this.id, this.image, required this.name});
-
-  HomeCategories.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    image = json['image'];
-    name = json['name'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['image'] = image;
-    data['name'] = name;
-    return data;
   }
 }
 

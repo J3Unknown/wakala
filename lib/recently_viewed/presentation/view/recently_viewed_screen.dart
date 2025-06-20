@@ -18,7 +18,7 @@ class RecentlyViewedScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: VerticalProductsList(isRecentlyViewed: true),
+      body: VerticalProductsList(isRecentlyViewed: true, items: [],),
     );
   }
 }

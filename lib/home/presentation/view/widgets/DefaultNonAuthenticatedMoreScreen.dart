@@ -32,7 +32,9 @@ class DefaultNonAuthenticatedMoreScreen extends StatelessWidget {
         SizedBox(
           width: deviceSize(context).width/AppSizes.s2,
           child: DefaultAuthButton(
-            onPressed: () => navigateToAuthLayout(context),
+            onPressed: () {
+              navigateToAuthLayout(context);
+            },
             title: LocalizationService.translate(StringsManager.login),
             foregroundColor: ColorsManager.white,
             backgroundColor: ColorsManager.primaryColor,

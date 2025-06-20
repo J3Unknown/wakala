@@ -1,9 +1,14 @@
+import 'dart:developer';
+
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
+import 'package:wakala/home/cubit/main_cubit_states.dart';
+import 'package:wakala/home/data/commercial_ad_data_model.dart';
 import 'package:wakala/profile/presentation/view/widgets/profile_screen_arguments.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
@@ -31,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _isOther = args.isOthers;
     if(!_isOther){
       _profileDataModel = args.profileDataModel;
+      MainCubit.get(context).getMyAds();
     } else {
       if(_profileDataModel == null){
         await context.read<MainCubit>().getOtherProfile();
@@ -39,89 +45,94 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     super.didChangeDependencies();
   }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                backgroundColor: ColorsManager.white,
-                floating: true,
-                pinned: true,
-                expandedHeight: AppSizesDouble.s320,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: ImageHeaderSection(isOther: _isOther, profileDataModel: _profileDataModel!),
+    return BlocConsumer<MainCubit, MainCubitStates>(
+      listener: (context, state) {},
+      builder: (context, state) => Scaffold(
+        body: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  backgroundColor: ColorsManager.white,
+                  floating: true,
+                  pinned: true,
+                  expandedHeight: AppSizesDouble.s320,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: ImageHeaderSection(isOther: _isOther, profileDataModel: _profileDataModel!),
+                  ),
+                  actions: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
+                      child: Text(LocalizationService.translate(StringsManager.profile), style: Theme.of(context).textTheme.titleLarge,),
+                    ),
+                  ],
                 ),
-                actions: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
-                    child: Text(LocalizationService.translate(StringsManager.profile), style: Theme.of(context).textTheme.titleLarge,),
+                if(_isOther)
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(vertical: AppPaddings.p10),
+                  sliver: SliverToBoxAdapter(
+                    child: DefaultActionsRow(
+                      children: [
+                        DefaultTitledIconButton(
+                          title: LocalizationService.translate(StringsManager.report),
+                          onPressed: (){},
+                          imagePath: AssetsManager.report,
+                        ),
+                        DefaultTitledIconButton(
+                          title: LocalizationService.translate(StringsManager.follow),
+                          onPressed: (){},
+                          imagePath: AssetsManager.add,
+                        ),
+                        DefaultTitledIconButton(
+                          title: LocalizationService.translate(StringsManager.share),
+                          onPressed: (){},
+                          imagePath: AssetsManager.share,
+                        ),
+                      ]
+                    )
+                  ),
+                ),
+
+                SliverProductsList(isOthers: _isOther, state: state,),
+              ],
+            ),
+            if(_isOther)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10, vertical: AppPaddings.p15),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DefaultAuthButton(
+                      onPressed: (){},
+                      icon: AssetsManager.chatsIcon,
+                      title: LocalizationService.translate(StringsManager.message),
+                      backgroundColor: ColorsManager.primaryColor,
+                      hasBorder: false,
+                      foregroundColor: ColorsManager.white,
+                      height: AppSizesDouble.s60,
+                    )
+                  ),
+                  SizedBox(width: AppSizesDouble.s10,),
+                  Expanded(
+                    child: DefaultAuthButton(
+                      onPressed: (){},
+                      icon: AssetsManager.call,
+                      title: LocalizationService.translate(StringsManager.call),
+                      backgroundColor: ColorsManager.primaryColor,
+                      hasBorder: false,
+                      foregroundColor: ColorsManager.white,
+                      height: AppSizesDouble.s60,
+                    )
                   ),
                 ],
               ),
-              if(_isOther)
-              SliverPadding(
-                padding: EdgeInsets.symmetric(vertical: AppPaddings.p10),
-                sliver: SliverToBoxAdapter(
-                  child: DefaultActionsRow(
-                    children: [
-                      DefaultTitledIconButton(
-                        title: LocalizationService.translate(StringsManager.report),
-                        onPressed: (){},
-                        imagePath: AssetsManager.report,
-                      ),
-                      DefaultTitledIconButton(
-                        title: LocalizationService.translate(StringsManager.follow),
-                        onPressed: (){},
-                        imagePath: AssetsManager.add,
-                      ),
-                      DefaultTitledIconButton(
-                        title: LocalizationService.translate(StringsManager.share),
-                        onPressed: (){},
-                        imagePath: AssetsManager.share,
-                      ),
-                    ]
-                  )
-                ),
-              ),
-              SliverProductsList(isOthers: _isOther),
-            ],
-          ),
-          if(_isOther)
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10, vertical: AppPaddings.p15),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DefaultAuthButton(
-                    onPressed: (){},
-                    icon: AssetsManager.chatsIcon,
-                    title: LocalizationService.translate(StringsManager.message),
-                    backgroundColor: ColorsManager.primaryColor,
-                    hasBorder: false,
-                    foregroundColor: ColorsManager.white,
-                    height: AppSizesDouble.s60,
-                  )
-                ),
-                SizedBox(width: AppSizesDouble.s10,),
-                Expanded(
-                  child: DefaultAuthButton(
-                    onPressed: (){},
-                    icon: AssetsManager.call,
-                    title: LocalizationService.translate(StringsManager.call),
-                    backgroundColor: ColorsManager.primaryColor,
-                    hasBorder: false,
-                    foregroundColor: ColorsManager.white,
-                    height: AppSizesDouble.s60,
-                  )
-                ),
-              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -169,7 +180,7 @@ class ImageHeaderSection extends StatelessWidget {
                       style: IconButton.styleFrom(
                         backgroundColor: ColorsManager.white,
                       ),
-                      onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.editProfile))),
+                      onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.editProfile, arguments: profileDataModel))),
                       icon: SvgPicture.asset(AssetsManager.edit, colorFilter: ColorFilter.mode(ColorsManager.black, BlendMode.srcIn),)
                     ),
                     SizedBox(height: AppPaddings.p10,),
@@ -202,14 +213,27 @@ class ImageHeaderSection extends StatelessWidget {
 }
 
 class SliverProductsList extends StatelessWidget {
-  const SliverProductsList({super.key, required this.isOthers});
+  const SliverProductsList({super.key, required this.isOthers, required this.state});
   final bool isOthers;
+  final MainCubitStates state;
   @override
   Widget build(BuildContext context) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => HorizontalProductCard(type: 'Sale', isRecentlyViewing: isOthers),
-        childCount: 10
+    log(state.toString());
+    return SliverToBoxAdapter(
+      child: ConditionalBuilder(
+        condition: MainCubit.get(context).userAdDataModel != null && state is !MainGetUserAdLoadingState,
+        fallback: (context) {
+          if(state is MainGetUserAdLoadingState){
+            return Center(child: CircularProgressIndicator(),);
+          }
+          return Center(child: Text('No Items Yet'));
+        },
+        builder: (context) => SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => HorizontalProductCard(commercialItem: MainCubit.get(context).userAdDataModel!.result!.commercialAdsItems![index], isRecentlyViewing: isOthers),
+            childCount: 10
+          ),
+        ),
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:wakala/auth/presentation/view/screens/sign_up_screen.dart';
 import 'package:wakala/chat/presentation/view/screens/chat_screen.dart';
 import 'package:wakala/chat/presentation/view/screens/chats_list_screen.dart';
 import 'package:wakala/commercial_details/presentation/view/commercial_details.dart';
+import 'package:wakala/home/data/categories_data_model.dart';
 import 'package:wakala/home/presentation/view/home_layout.dart';
 import 'package:wakala/home/presentation/view/screens/full_post_screen.dart';
 import 'package:wakala/my_ads/presentation/view/my_ads_screen.dart';
@@ -74,7 +75,7 @@ class RoutesGenerator{
       case Routes.fullPost:
         return MaterialPageRoute(builder: (_) => FullPostScreen());
       case Routes.search:
-        return MaterialPageRoute(builder: (_) => SearchScreen());
+        return MaterialPageRoute(builder: (_) => SearchScreen(selectedCategory: settings.arguments! as Categories,));
       case Routes.chatsList:
         return MaterialPageRoute(builder: (_) => ChatsListScreen());
       case Routes.chat:
@@ -90,7 +91,7 @@ class RoutesGenerator{
       case Routes.profile:
         return MaterialPageRoute(builder: (_) => ProfileScreen(), settings: settings);
       case Routes.editProfile:
-        return MaterialPageRoute(builder: (_) => EditProfileScreen());
+        return MaterialPageRoute(builder: (_) => EditProfileScreen(), settings: settings);
       case Routes.createPassword:
         return MaterialPageRoute(builder: (_) => CreatePasswordScreen());
       case Routes.addressesList:

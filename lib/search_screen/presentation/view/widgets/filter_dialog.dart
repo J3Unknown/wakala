@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
@@ -13,7 +15,7 @@ import '../../../../utilities/resources/constants_manager.dart';
 
 class FilterDialog extends StatefulWidget {
   const FilterDialog({super.key, required this.categories});
-  final CategoriesDataModel categories;
+  final Categories categories;
   @override
   State<FilterDialog> createState() => _FilterDialogState();
 }
@@ -21,7 +23,13 @@ class FilterDialog extends StatefulWidget {
 class _FilterDialogState extends State<FilterDialog> {
   final TextEditingController _minPriceController = TextEditingController();
   final TextEditingController _maxPriceController = TextEditingController();
-  int? firstPropertySelection;
+  List<List<Categories?>> subCategories = [];
+  List<int?> selections = [];
+  int maxLevel = 0;
+  int currentLevel = 0;
+  Categories? currentCategory;
+  final GlobalKey<FormState> _formKey = GlobalKey();
+  int? lastSelectedSubCategory;
   int selectedTypeIndex = 0;
   int selectedCashOptionIndex = 0;
   int selectedWarrantyOptionsIndex = 0;
@@ -47,11 +55,61 @@ class _FilterDialogState extends State<FilterDialog> {
   ];
 
   @override
+  void initState() {
+    log((widget.categories.endPoint != 1 && widget.categories.subCategories != null).toString());
+    log((widget.categories.name.toString()));
+    log((widget.categories.subCategories).toString());
+    if (widget.categories.endPoint != 1 && widget.categories.subCategories != null) {
+        subCategories.add(widget.categories.subCategories!);
+    }
+    //_init();
+    super.initState();
+  }
+
+  // Categories _findCategories(context, Categories category){
+  //   for (var e in MainCubit.get(context).categoriesDataModel!.result!.categories) {
+  //     if(e.id == category.id){
+  //       return e;
+  //     }
+  //   }
+  //   return category;
+  // }
+
+  void _init(){
+  }
+
+  // void _handleDropdownChange(int level, int? selectedId) {
+  //   setState(() {
+  //     // Update selectedPath for this level
+  //     if (level < selectedPath.length) {
+  //       selectedPath[level] = selectedId == null ? null :
+  //       dropdownLevels[level].firstWhere((e) => e.id == selectedId);
+  //     } else {
+  //       selectedPath.add(selectedId == null ? null :
+  //       dropdownLevels[level].firstWhere((e) => e.id == selectedId));
+  //     }
+  //
+  //     // Truncate subsequent levels
+  //     if (selectedPath.length > level + 1) {
+  //       selectedPath = selectedPath.sublist(0, level + 1);
+  //       dropdownLevels = dropdownLevels.sublist(0, level + 1);
+  //     }
+  //
+  //     // Add next level if selected subcategory is not endpoint
+  //     if (selectedId != null) {
+  //       final selectedSub = dropdownLevels[level].firstWhere((e) => e.id == selectedId);
+  //       if (selectedSub.endPoint != 1 && selectedSub.subCategories.isNotEmpty) {
+  //         dropdownLevels.add(selectedSub.subCategories);
+  //       }
+  //     }
+  //   });
+  // }
+
+  @override
   Widget build(BuildContext context) {
-    var currentCategory = widget.categories.result!.categories[MainCubit.get(context).categoryIndex];
     return Dialog(
       backgroundColor: ColorsManager.white,
-      elevation: 10,
+      elevation: AppSizesDouble.s10,
       shadowColor: ColorsManager.black,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizesDouble.s8)
@@ -63,27 +121,45 @@ class _FilterDialogState extends State<FilterDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              HorizontalCategoryButton(title: currentCategory.name, image: AppConstants.baseImageUrl + currentCategory.image,),
+              HorizontalCategoryButton(title: widget.categories.name, image: AppConstants.baseImageUrl + widget.categories.image,),
               SizedBox(height: AppSizesDouble.s15,),
-              ItemsDropDownMenu(
-                title: currentCategory.subCategories[0].name,
-                items: currentCategory.subCategories,
-                selectedItem: firstPropertySelection,
-                onChange: (value){
-                  setState(() {
-                    firstPropertySelection = value;
-                  });
-                }
-              ),
+              ...List.generate(subCategories.length, (index){
+                log(subCategories[maxLevel].toString());
+                return Column(
+                  children: [
+                    ItemsDropDownMenu(
+                      items: subCategories[currentLevel],
+                      selectedItem: selections[currentLevel],
+                      onChange: (value){},
+                    ),
+                    SizedBox(height: AppSizesDouble.s20,)
+                  ],
+                );
+              }),
               SizedBox(height: AppSizesDouble.s20,),
               Text('Price', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
               SizedBox(height: AppSizesDouble.s10,),
-              Row(
-                children: [
-                  Expanded(child: DefaultFilterInputField(controller: _minPriceController, keyboardType: TextInputType.number, hint: 'Min',)),
-                  SizedBox(width: AppSizesDouble.s5,),
-                  Expanded(child: DefaultFilterInputField(controller: _maxPriceController, keyboardType: TextInputType.number, hint: 'Max',))
-                ],
+              Form(
+                key: _formKey,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DefaultFilterInputField(
+                        controller: _minPriceController,
+                        keyboardType: TextInputType.number,
+                        hint: 'Min',
+                        validator: (String? value){
+                          if(int.parse(value!) > int.parse(_maxPriceController.text)){
+                            return 'Minimum Price can\'t be greater than the Maximum Price!!';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    SizedBox(width: AppSizesDouble.s5,),
+                    Expanded(child: DefaultFilterInputField(controller: _maxPriceController, keyboardType: TextInputType.number, hint: 'Max',))
+                  ],
+                ),
               ),
               DefaultFilterOptions(
                 title: 'Add Type',
@@ -131,7 +207,9 @@ class _FilterDialogState extends State<FilterDialog> {
               DefaultAuthButton(
                 height: AppSizesDouble.s50,
                 onPressed: (){
-                  Navigator.of(context).pop();
+                  if(_formKey.currentState!.validate()){
+                    Navigator.of(context).pop();
+                  }
                 },
                 title: LocalizationService.translate(StringsManager.confirm),
                 backgroundColor: ColorsManager.primaryColor,

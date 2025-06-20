@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ import 'package:wakala/home/presentation/view/screens/post_screen.dart';
 import 'package:wakala/notifications/presentation/view/notifications_screen.dart';
 import 'package:wakala/utilities/network/dio.dart';
 import 'package:wakala/utilities/network/end_points.dart';
+import 'package:wakala/utilities/resources/components.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/repo.dart';
 
@@ -160,6 +162,52 @@ class MainCubit extends Cubit<MainCubitStates>{
       commercialAdsIsLoadingMore = false;
       log(value.data.toString());
       emit(MainGetCommercialAdSuccessState());
+    }).catchError((e){
+      emit(MainGetCommercialAdErrorState());
+    });
+  }
+
+
+  CommercialAdDataModel? userAdDataModel;
+  int currentUserAdsPage = 1;
+  bool userAdsIsLoadingMore = false;
+  bool userAdsHasMore = true;
+  void getMyAds({bool loadMore = false}){
+    if (loadMore) {
+      if (!userAdsHasMore || userAdsIsLoadingMore) return;
+      userAdsIsLoadingMore = true;
+      currentUserAdsPage++;
+      emit(MainGetUserAdLoadingMoreState());
+    } else {
+      currentUserAdsPage = 1;
+      userAdsHasMore = true;
+      emit(MainGetUserAdLoadingState());
+    }
+
+    final data = {
+      'page': currentUserAdsPage,
+    };
+
+    log(Repo.profileDataModel!.result!.id.toString());
+    DioHelper.getData(
+      path: EndPoints.getMyAds,
+      data: data,
+    ).then((value) {
+      final newData = CommercialAdDataModel.fromJson(value.data);
+
+      if (loadMore) {
+        commercialAdDataModel?.result?.commercialAdsItems?.addAll(newData.result?.commercialAdsItems ?? []);
+      } else {
+        commercialAdDataModel = newData;
+      }
+
+      commercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) < (newData.result?.pagination.lastPage ?? 0);
+
+      commercialAdsIsLoadingMore = false;
+      log(value.data.toString());
+      emit(MainGetUserAdSuccessState());
+    }).catchError((e){
+      emit(MainGetUserAdErrorState());
     });
   }
 
@@ -217,6 +265,27 @@ class MainCubit extends Cubit<MainCubitStates>{
     });
   }
 
+  void editProfile({required String name, required String phone, File? image}){
+    emit(MainEditAccountLoadingState());
+    DioHelper.postData(
+        url: EndPoints.createPassword,
+        data: {
+          'name': name,
+          'phone': phone,
+          'image':image,
+        }
+    ).then((value){
+      emit(MainEditAccountSuccessState());
+    });
+  }
+  
+  void deleteAccount(context){
+    emit(MainDeleteAccountLoadingState());
+    DioHelper.deleteData(url: EndPoints.getAndDeleteProfile).then((value){
+      navigateToAuthLayout(context);
+    });
+  }
+  
   Future<void> logOut() async{
     emit(MainLogOutLoadingState());
     DioHelper.getData(path: EndPoints.logout).then((value){

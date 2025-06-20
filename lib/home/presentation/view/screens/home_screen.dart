@@ -24,11 +24,11 @@ class HomeScreen extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
             child: Column(
               children: [
-                CategoriesScroll(),
+                CategoriesScroll(catList: cubit.homePageDataModel!.result!.categories, isList: true,),
                 if(cubit.isCategorySelected)
-                Align(alignment: Alignment.centerLeft, child: DefaultFilterButton(categories: cubit.categoriesDataModel!)),
-                SearchButton(),
-                AdsBannerSection(slider: cubit.homePageDataModel!.result!.sliders![AppSizes.s0]),
+                Align(alignment: Alignment.centerLeft, child: DefaultFilterButton(categories: cubit.homePageDataModel!.result!.categories![cubit.categoryIndex])),
+                SearchButton(selectedCategory: cubit.homePageDataModel!.result!.categories![cubit.isCategorySelected? cubit.categoryIndex: 0],),
+                AdsBannerSection(slider: cubit.homePageDataModel!.result!.sliders!.first),
                 ConditionalBuilder(
                   condition: cubit.homePageDataModel!.result!.homePageProducts != null &&  cubit.homePageDataModel!.result!.homePageProducts!.isNotEmpty,
                   fallback: (context) {
@@ -43,7 +43,7 @@ class HomeScreen extends StatelessWidget {
                     children: List.generate(cubit.homePageDataModel!.result!.homePageProducts!.length, (index) => TopSection(topSection: cubit.homePageDataModel!.result!.homePageProducts![index],)),
                   ),
                 ),
-                AdsBannerSection(slider: cubit.homePageDataModel!.result!.sliders![AppSizes.s1]),
+                AdsBannerSection(slider: cubit.homePageDataModel!.result!.sliders!.last),
                 ConditionalBuilder(
                   condition: cubit.commercialAdDataModel != null,
                   fallback: (context) => Center(child: CircularProgressIndicator(),),

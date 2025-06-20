@@ -18,7 +18,7 @@ class SavedScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: VerticalProductsList(isRecentlyViewed: true, isSaved: true,),
+      body: VerticalProductsList(isRecentlyViewed: true, isSaved: true, items: [],),
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wakala/auth/data/create_password_screen_arguments.dart';
+import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/alerts.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
@@ -29,13 +31,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final GlobalKey<FormState> _formKey;
   @override
   void initState() {
-    _fullNameController = TextEditingController();
-    _bioController = TextEditingController();
-    _dateOfBirthController = TextEditingController();
-    _phoneController = TextEditingController();
-    _emailController = TextEditingController();
     _formKey = GlobalKey();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    final ProfileDataModel args = ModalRoute.of(context)!.settings.arguments! as ProfileDataModel;
+    _fullNameController = TextEditingController(text: args.result!.name);
+    _bioController = TextEditingController(text: args.result!.bio);
+    _dateOfBirthController = TextEditingController(text: args.result!.dateOfBirth);
+    _phoneController = TextEditingController(text: args.result!.phone);
+    _emailController = TextEditingController(text: args.result!.email);
+    super.didChangeDependencies();
   }
   @override
   Widget build(BuildContext context) {
@@ -92,6 +100,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   DefaultTextInputField(
                     controller: _fullNameController,
                     hintText: StringsManager.fullName,
+                    obscured: false,
                     validator: (String? value){
                       if(value!.isEmpty) {
                         return LocalizationService.translate(StringsManager.emptyFieldMessage);
@@ -101,16 +110,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   SizedBox(height: AppSizesDouble.s20,),
                   DefaultTextInputField(
+                    obscured: false,
                     controller: _bioController,
                     hintText: StringsManager.bio,
                   ),
                   SizedBox(height: AppSizesDouble.s20,),
                   DefaultTextInputField(
+                    obscured: false,
                     controller: _dateOfBirthController,
                     hintText: StringsManager.dateOfBirth,
                   ),
                   SizedBox(height: AppSizesDouble.s20,),
                   DefaultTextInputField(
+                    obscured: false,
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
                     hintText: StringsManager.hintText,
@@ -120,6 +132,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   SizedBox(height: AppSizesDouble.s10,),
                   DefaultTextInputField(
+                    obscured: false,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     hintText: StringsManager.email,
@@ -141,7 +154,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             DefaultAuthButton(
               onPressed: (){
                 if(_formKey.currentState!.validate()){
-
+                  MainCubit.get(context).editProfile(
+                    name: _fullNameController.text,
+                    phone: _phoneController.text,
+                  );
                 }
               },
               title: StringsManager.save,

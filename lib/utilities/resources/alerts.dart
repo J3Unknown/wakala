@@ -187,7 +187,7 @@ class DeleteAccountAlert extends StatelessWidget {
       ),
       actions: [
         DefaultAuthButton(
-          onPressed: () {},
+          onPressed: () => MainCubit.get(context).deleteAccount(context),
           title: LocalizationService.translate(StringsManager.deleteAccount),
           backgroundColor: ColorsManager.deepRed,
           foregroundColor: ColorsManager.white,

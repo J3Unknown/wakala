@@ -33,7 +33,7 @@ class DefaultUserCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: user!.image != null? NetworkImage(user!.image!):Svg(AssetsManager.defaultAvatar),
+              backgroundImage: user?.image != null? NetworkImage(user!.image!):Svg(AssetsManager.defaultAvatar),
             ),
             SizedBox(width: 5,),
             Text(user!.name, style: Theme.of(context).textTheme.titleMedium)

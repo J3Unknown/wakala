@@ -29,8 +29,11 @@ import 'icons_manager.dart';
 
 //* Categories Scroll
 class CategoriesScroll extends StatelessWidget {
-  const CategoriesScroll({super.key,});
+  const CategoriesScroll({super.key, this.categories, this.catList, this.isList = false});
 
+  final bool isList;
+  final List<Categories>? catList;
+  final Categories? categories;
   @override
   Widget build(BuildContext context) {
     MainCubit cubit = MainCubit.get(context);
@@ -43,9 +46,9 @@ class CategoriesScroll extends StatelessWidget {
           ),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: cubit.homePageDataModel!.result!.categories!.length,
+            itemCount: !isList?categories!.subCategories!.length:catList!.length,
             itemBuilder: (context, index) => CategoryButton(
-              category: cubit.homePageDataModel!.result!.categories![index],
+              category: !isList? categories!.subCategories![index]:catList![index],
               onPress: () => cubit.changeCategorySelection(index),
               index: index,
               selectedCategory: cubit.categoryIndex,
@@ -60,7 +63,7 @@ class CategoriesScroll extends StatelessWidget {
 //* Categories Button
 class CategoryButton extends StatefulWidget {
 
-  final HomeCategories category;
+  final Categories category;
   final VoidCallback onPress;
   final int index;
   final int selectedCategory;
@@ -199,11 +202,11 @@ class CustomSearchBar extends StatelessWidget {
 //* Dropdowns
 //? This Dropdown is a full extended dropdown menu
 class ItemsDropDownMenu extends StatefulWidget {
-  const ItemsDropDownMenu({super.key, this.isExpanded = true, required this.title, required this.items, required this.selectedItem, required this.onChange});
-  final List<SubCategories> items;
+  const ItemsDropDownMenu({super.key, this.isExpanded = true, this.title, required this.items, required this.selectedItem, required this.onChange});
+  final List<Categories?> items;
   final int? selectedItem;
   final ValueChanged onChange;
-  final String title;
+  final String? title;
   final bool isExpanded;
   @override
   State<ItemsDropDownMenu> createState() => _ItemsDropDownMenuState();
@@ -229,14 +232,14 @@ class _ItemsDropDownMenuState extends State<ItemsDropDownMenu> {
         items: List.generate(
           widget.items.length,
           (index) => DropdownMenuItem(
-            value: widget.items[index].id,
-            child: Text(widget.items[index].name),
+            value: widget.items[index]!.id,
+            child: Text(widget.items[index]!.name),
           )
         ),
         isExpanded: widget.isExpanded,
-        hint: Text(widget.title, style: Theme.of(context).textTheme.bodyLarge,),
+        hint: widget.title != null?Text(widget.title!, style: Theme.of(context).textTheme.bodyLarge,):null,
         dropdownColor: ColorsManager.white,
-        selectedItemBuilder: (value) => widget.items.map((element) => DropdownMenuItem(value: element.id,child: Text(element.name),)).toList(),
+        selectedItemBuilder: (value) => widget.items.map((element) => DropdownMenuItem(value: element!.id,child: Text(element.name),)).toList(),
         onChanged: (value) => widget.onChange(value)
       ),
     );
@@ -421,7 +424,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                   SizedBox(height: AppSizesDouble.s5,),
                   Text('${widget.commercialAdType.city!.name}, ${widget.commercialAdType.region!.name}', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                   SizedBox(height: AppSizesDouble.s5,),
-                  Text(DateFormat('dd - MM - yyyy').format(DateTime.parse(widget.commercialAdType.createdAt!)), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
+                  Text(DateFormat(StringsManager.dateFormat).format(DateTime.parse(widget.commercialAdType.createdAt!)), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
                 ],
               ),
             ),
@@ -435,11 +438,11 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
 class HorizontalProductCard extends StatefulWidget {
   const HorizontalProductCard({
     super.key,
-    required this.type,
+    required this.commercialItem,
     required this.isRecentlyViewing,
     this.isSaved = false
   });
-  final String type;
+  final CommercialAdItem commercialItem;
   final bool isRecentlyViewing;
   final bool isSaved;
 
@@ -450,7 +453,7 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
   late ProductTypeData typeData;
   @override
   void initState() {
-    typeData = getProductType(widget.type);
+    typeData = getProductType(widget.commercialItem.adsType?.name);
     super.initState();
   }
   @override
@@ -474,7 +477,7 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
           children: [
             Stack(
               children: [
-                Image.network('https://www.mouthmatters.com/wp-content/uploads/2024/07/placeholder-wide.jpg', width: MediaQuery.of(context).size.width/2.5, height: 200, fit: BoxFit.cover,),
+                Image.network(widget.commercialItem.mainImage!, width: MediaQuery.of(context).size.width/2.5, height: 200, fit: BoxFit.cover,),
                 IntrinsicWidth(
                   child: Container(
                     margin: EdgeInsets.all(AppPaddings.p10),
@@ -494,15 +497,17 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Product Title', style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w500), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                  Text(widget.commercialItem.title, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w500), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                   SizedBox(height: AppSizesDouble.s10,),
-                  Text('Product Description', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                  if(widget.commercialItem.description != null)
+                    Text(widget.commercialItem.description!, style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                  if(widget.commercialItem.description != null)
+                    SizedBox(height: AppSizesDouble.s10,),
+                  Text('${widget.commercialItem.price} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.w600), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                   SizedBox(height: AppSizesDouble.s10,),
-                  Text('200 EGP', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.w600), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
-                  SizedBox(height: AppSizesDouble.s10,),
-                  Text('Egypt, Cairo', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                  Text('${widget.commercialItem.city!.name}, ${widget.commercialItem.region!.name}', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                   SizedBox(height: AppSizesDouble.s5,),
-                  Text('1 day', maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
+                  Text(DateFormat(StringsManager.dateFormat).format(DateTime.parse(widget.commercialItem.createdAt!)), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
                 ],
               ),
             ),
@@ -523,17 +528,18 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
 }
 
 class VerticalProductsList extends StatelessWidget {
-const VerticalProductsList({super.key, required this.isRecentlyViewed, this.isSaved = false, this.scrollable = true});
+const VerticalProductsList({super.key, required this.items, required this.isRecentlyViewed, this.isSaved = false, this.scrollable = true});
   final bool isRecentlyViewed;
   final bool isSaved;
+  final List<CommercialAdItem> items;
   final bool scrollable;
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: !scrollable,
       physics: !scrollable?NeverScrollableScrollPhysics():null,
-      itemCount: 10,
-      itemBuilder: (context, index) =>  HorizontalProductCard(type: 'Sale', isRecentlyViewing: isRecentlyViewed, isSaved: isSaved)
+      itemCount: items.length,
+      itemBuilder: (context, index) =>  HorizontalProductCard(commercialItem: items[index], isRecentlyViewing: isRecentlyViewed, isSaved: isSaved)
     );
   }
 }
@@ -546,7 +552,6 @@ void navigateToAuthLayout(context) async{
   await CacheHelper.saveData(key: KeysManager.isGuest, value: false);
   await CacheHelper.saveData(key: KeysManager.isAuthenticated, value: false);
   await CacheHelper.saveData(key: KeysManager.token, value: '');
-  await MainCubit.get(context).logOut();
   Navigator.pushAndRemoveUntil(context,RoutesGenerator.getRoute(RouteSettings(name: Routes.authLayout)), (root) => false);
 }
 
@@ -557,12 +562,14 @@ class DefaultFilterInputField extends StatelessWidget {
     String? hint,
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
+    this.validator
   }) : _controller = controller, _keyboardType = keyboardType, _maxLines = maxLines, _hint = hint;
 
   final TextEditingController _controller;
   final TextInputType _keyboardType;
   final int _maxLines;
   final String? _hint;
+  final String? Function(String? value)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -572,6 +579,7 @@ class DefaultFilterInputField extends StatelessWidget {
       keyboardType: _keyboardType,
       maxLines: _maxLines,
       minLines: AppSizes.s1,
+      validator: validator,
       decoration: InputDecoration(
         filled: true,
         fillColor: ColorsManager.loginButtonBackgroundColor,
@@ -626,7 +634,7 @@ class _DefaultSwitchState extends State<DefaultSwitch> {
             ),
             child: Row(
               children: [
-                FittedBox(child: Text(LocalizationService.translate(widget.title))),
+                Text(LocalizationService.translate(widget.title), maxLines: 2, overflow: TextOverflow.ellipsis,),
                 Spacer(),
                 Switch(
                   value: widget.isActivated,
@@ -836,7 +844,7 @@ class DefaultFilterButton extends StatelessWidget {
     required this.categories,
   });
 
-  final CategoriesDataModel categories;
+  final Categories categories;
 
   @override
   Widget build(BuildContext context) {
@@ -854,8 +862,8 @@ class DefaultFilterButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: ColorsManager.white,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizesDouble.s8),
-            side: BorderSide(color: ColorsManager.grey)
+          borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+          side: BorderSide(color: ColorsManager.grey)
         ),
         padding: EdgeInsets.all(AppPaddings.p10)
       ),

@@ -39,12 +39,12 @@ class DefaultInputField extends StatelessWidget {
             fillColor: ColorsManager.loginButtonBackgroundColor,
             hintText: _hint,
             enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSizesDouble.s10),
-                borderSide: BorderSide(color: ColorsManager.grey3, width: AppSizesDouble.s2)
+              borderRadius: BorderRadius.circular(AppSizesDouble.s10),
+              borderSide: BorderSide(color: ColorsManager.grey3, width: AppSizesDouble.s2)
             ),
             focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSizesDouble.s10),
-                borderSide: BorderSide(color: ColorsManager.primaryColor)
+              borderRadius: BorderRadius.circular(AppSizesDouble.s10),
+              borderSide: BorderSide(color: ColorsManager.primaryColor)
             ),
           ),
         ),

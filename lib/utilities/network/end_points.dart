@@ -29,9 +29,9 @@ class EndPoints{
   static const String attributes = 'attributes_by_category';
 
   //*Followings
-  static const String followAndUnfollow = 'follow/67';
-  static const String following = 'follow/following/68';
-  static const String followers = 'follow/followers/69';
+  static const String followAndUnfollow = 'follow';
+  static const String following = 'follow/following';
+  static const String followers = 'follow/followers';
 
   //*home
   static const String home = 'home';
@@ -41,7 +41,7 @@ class EndPoints{
 
   //*chat
   static const String getChatsAndSendMessage = 'chats';
-  static const String deleteChat = 'chats/2';
+  static const String deleteChat = 'chats';
 
   //*Save Ads
   static const String savedAds = 'saved-ads';
@@ -59,5 +59,7 @@ class EndPoints{
 
   //*commercial
   static const String getCommercialAd = 'ads';
+  static const String getMyAds = 'ads/my_ads/index';
+  static const String getUserAds = 'ads/user';
 
 }

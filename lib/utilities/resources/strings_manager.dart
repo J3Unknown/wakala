@@ -29,6 +29,8 @@ class StringsManager{
   static const String welcome = 'Welcome';
   static const String welcomeGuest = 'Welcome, Guest';
   static const String editProduct = 'Edit Product';
+  static const String dateFormat = 'dd - MM - yyyy';
+  static const String all = 'All';
 
   //*searching
   static const String searchHint = 'what are you looking for?';

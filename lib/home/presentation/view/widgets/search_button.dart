@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/home/data/categories_data_model.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
@@ -9,12 +10,13 @@ import '../../../../utilities/resources/values_manager.dart';
 class SearchButton extends StatelessWidget {
   const SearchButton({
     super.key,
+    required this.selectedCategory,
   });
-
+  final Categories selectedCategory;
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search))),
+      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: selectedCategory))),
       child: Hero(
         tag: KeysManager.searchBarHeroTag,
         child: SizedBox(
@@ -24,8 +26,8 @@ class SearchButton extends StatelessWidget {
             elevation: AppSizesDouble.s0,
             color: ColorsManager.grey1,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSizesDouble.s10),
-                side: BorderSide(color: ColorsManager.grey)
+              borderRadius: BorderRadius.circular(AppSizesDouble.s10),
+              side: BorderSide(color: ColorsManager.grey)
             ),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: AppSizesDouble.s25),

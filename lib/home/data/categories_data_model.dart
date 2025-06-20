@@ -60,20 +60,26 @@ class Categories {
   late int id;
   late String name;
   late String image;
-  late int endPoint;
-  late List<SubCategories> subCategories;
-
-  Categories({required this.id, required this.name, required this.image, required this.endPoint, required this.subCategories});
+  int? endPoint;
+  int? parentId;
+  int? order;
+  List<Categories>? subCategories;
 
   Categories.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     image = json['image'];
     endPoint = json['end_point'];
-    if (json['end_point'] != 1) {
-      subCategories = <SubCategories>[];
+    if(parentId != null){
+      parentId = json['parent_id'];
+    }
+    if(order != null){
+      order = json['order'];
+    }
+    if (json['end_point'] != null && json['end_point'] != 1) {
+      subCategories = <Categories>[];
       json['sub_categories'].forEach((v) {
-        subCategories.add(SubCategories.fromJson(v));
+        subCategories!.add(Categories.fromJson(v));
       });
     }
   }
@@ -84,56 +90,8 @@ class Categories {
     data['name'] = name;
     data['image'] = image;
     data['end_point'] = endPoint;
-    if (endPoint != 1) {
-      data['sub_categories'] = subCategories.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
-class SubCategories {
-  late int id;
-  late String name;
-  late int parentId;
-  late String image;
-  late int endPoint;
-  late int order;
-  late List<SubCategories> subCategories;
-
-  SubCategories(
-      {required this.id,
-        required this.name,
-        required this.parentId,
-        required this.image,
-        required this.endPoint,
-        required this.order,
-        required this.subCategories});
-
-  SubCategories.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    parentId = json['parent_id'];
-    image = json['image'];
-    endPoint = json['end_point'];
-    order = json['order'];
-    if (json['end_point'] != 1) {
-      subCategories = <SubCategories>[];
-      json['sub_categories'].forEach((v) {
-        subCategories.add( SubCategories.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['name'] = name;
-    data['parent_id'] = parentId;
-    data['image'] = image;
-    data['end_point'] = endPoint;
-    data['order'] = order;
-    if (endPoint != 1) {
-      data['sub_categories'] = subCategories.map((v) => v.toJson()).toList();
+    if (endPoint != null && endPoint != 1) {
+      data['sub_categories'] = subCategories!.map((v) => v.toJson()).toList();
     }
     return data;
   }

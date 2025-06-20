@@ -74,7 +74,10 @@ class _PostScreenContentState extends State<PostScreenContent> {
                     ),
                     Spacer(),
                     TextButton(
-                        onPressed: () => navigateToAuthLayout(context),
+                        onPressed: () async{
+                          await MainCubit.get(context).logOut();
+                          navigateToAuthLayout(context);
+                        },
                         child: Text('Change\nAccount', style: TextStyle(color: ColorsManager.primaryColor),)
                     )
                   ],
@@ -83,7 +86,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
               SizedBox(height: AppSizesDouble.s10,),
               ItemsDropDownMenu(
                 title: 'Category',
-                items: MainCubit.get(context).categoriesDataModel!.result!.categories[0].subCategories, //TODO: Create get category request
+                items: MainCubit.get(context).categoriesDataModel!.result!.categories[0].subCategories!,
                 selectedItem: categorySelectedItem,
                 onChange: (value){
                   setState(() {
@@ -94,7 +97,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
               SizedBox(height: AppSizesDouble.s10,),
               ItemsDropDownMenu(
                 title: 'type',
-                items: MainCubit.get(context).categoriesDataModel!.result!.categories[0].subCategories[0].subCategories,
+                items: MainCubit.get(context).categoriesDataModel!.result!.categories[0].subCategories![0].subCategories!,
                 selectedItem: typeSelectedItem,
                 onChange: (value){
                   setState(() {

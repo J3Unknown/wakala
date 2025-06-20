@@ -48,6 +48,14 @@ class MainGetCommercialAdSuccessState extends MainCubitStates{}
 
 class MainGetCommercialAdErrorState extends MainCubitStates{}
 
+class MainGetUserAdLoadingState extends MainCubitStates{}
+
+class MainGetUserAdLoadingMoreState extends MainCubitStates{}
+
+class MainGetUserAdSuccessState extends MainCubitStates{}
+
+class MainGetUserAdErrorState extends MainCubitStates{}
+
 class MainGetCommercialAdByIDLoadingState extends MainCubitStates{}
 
 class MainGetCommercialAdByIDSuccessState extends MainCubitStates{
@@ -69,4 +77,17 @@ class MainCreatePasswordLoadingState extends MainCubitStates{}
 class MainCreatePasswordSuccessState extends MainCubitStates{}
 
 class MainCreatePasswordErrorState extends MainCubitStates{}
+
+class MainEditAccountLoadingState extends MainCubitStates{}
+
+class MainEditAccountSuccessState extends MainCubitStates{}
+
+class MainEditAccountErrorState extends MainCubitStates{}
+
+
+class MainDeleteAccountLoadingState extends MainCubitStates{}
+
+class MainDeleteAccountSuccessState extends MainCubitStates{}
+
+class MainDeleteAccountErrorState extends MainCubitStates{}
 
