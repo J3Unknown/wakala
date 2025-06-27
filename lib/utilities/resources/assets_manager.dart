@@ -33,4 +33,8 @@ class AssetsManager{
   static const String call = '${AppConstants.iconsImagePath}call.svg';
   static const String add = '${AppConstants.iconsImagePath}add.svg';
   static const String trash = '${AppConstants.iconsImagePath}trash.svg';
+  static const String whatsapp = '${AppConstants.iconsImagePath}whatsapp.svg';
+  static const String facebook = '${AppConstants.iconsImagePath}facebook.svg';
+  static const String instagram = '${AppConstants.iconsImagePath}instagram.svg';
+  static const String youtube = '${AppConstants.iconsImagePath}youtube.svg';
 }

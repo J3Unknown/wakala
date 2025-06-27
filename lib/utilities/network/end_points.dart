@@ -16,6 +16,7 @@ class EndPoints{
   static const String createPassword = 'create-password';
   static const String editProfile = 'edit_profile';
   static const String getAndDeleteProfile = 'profile';
+  static const String getOtherProfile = 'profile/show';
 
   //*City And Regions
   static const String cities = 'cities';
@@ -36,8 +37,10 @@ class EndPoints{
   //*home
   static const String home = 'home';
 
-  //*adds
-  static const String saveAdd = 'ads';
+  //*ads
+  static const String saveAd = 'ads';
+  static const String getAuctionsForAd = 'auction/ad';
+  static const String saveAdAuction = 'auction/store';
 
   //*chat
   static const String getChatsAndSendMessage = 'chats';
@@ -55,7 +58,7 @@ class EndPoints{
 
   //*categories
   static const String categories = 'categories';
-  static const String subCategories = 'get_sub_categories';
+  static const String subCategories = 'get_subCategories';
 
   //*commercial
   static const String getCommercialAd = 'ads';

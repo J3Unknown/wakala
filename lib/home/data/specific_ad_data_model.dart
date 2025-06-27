@@ -103,11 +103,13 @@ class User {
   late int id;
   late String name;
   String? image;
+  String? phone;
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     image = json['image'];
+    phone = json['phone'];
   }
 
 }

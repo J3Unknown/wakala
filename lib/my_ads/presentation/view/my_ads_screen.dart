@@ -19,7 +19,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
 
   @override
   void initState() {
-    if(context.read<MainCubit>().userAdDataModel == null){
+    if(context.read<MainCubit>().myAdsDataModel == null){
       context.read<MainCubit>().getMyAds();
     }
     super.initState();
@@ -38,16 +38,16 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
           ],
         ),
         body: ConditionalBuilder(
-          condition: MainCubit.get(context).userAdDataModel != null && state is !MainGetUserAdLoadingState,
+          condition: MainCubit.get(context).myAdsDataModel != null && state is !MainGetMyAdsLoadingState,
           fallback: (context) {
-            if(state is MainGetUserAdLoadingState){
+            if(state is MainGetMyAdsLoadingState){
               return Center(child: CircularProgressIndicator(),);
             }
             return Center(child: Text('No Items Yet'));
           },
           builder: (context) => VerticalProductsList(
             isRecentlyViewed: false,
-            items: MainCubit.get(context).userAdDataModel!.result!.commercialAdsItems!,
+            items: MainCubit.get(context).myAdsDataModel!.result!.commercialAdsItems!,
           ),
         ),
       ),

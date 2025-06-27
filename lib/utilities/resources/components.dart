@@ -9,6 +9,7 @@ import 'package:flutter_svg_provider/flutter_svg_provider.dart' as svg_provider;
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/home/data/home_screen_data_model.dart';
@@ -101,7 +102,7 @@ class _CategoryButtonState extends State<CategoryButton> {
                 child: Image.network(AppConstants.baseImageUrl +  widget.category.image!, fit: BoxFit.cover, width: AppSizesDouble.s60, height: AppSizesDouble.s60,),
               ),
               Text(
-                widget.category.name,
+                widget.category.name!,
                 style: TextStyle(
                   color: widget.selectedCategory == widget.index? ColorsManager.grey:ColorsManager.primaryColor,
                   fontSize: AppSizesDouble.s18
@@ -202,12 +203,14 @@ class CustomSearchBar extends StatelessWidget {
 //* Dropdowns
 //? This Dropdown is a full extended dropdown menu
 class ItemsDropDownMenu extends StatefulWidget {
-  const ItemsDropDownMenu({super.key, this.isExpanded = true, this.title, required this.items, required this.selectedItem, required this.onChange});
+  const ItemsDropDownMenu({super.key, this.isEnabled = true, this.isExpanded = true, this.title, required this.items, required this.selectedItem, required this.onChange,});
   final List<Categories?> items;
   final int? selectedItem;
   final ValueChanged onChange;
   final String? title;
   final bool isExpanded;
+  final bool isEnabled;
+
   @override
   State<ItemsDropDownMenu> createState() => _ItemsDropDownMenuState();
 }
@@ -232,14 +235,15 @@ class _ItemsDropDownMenuState extends State<ItemsDropDownMenu> {
         items: List.generate(
           widget.items.length,
           (index) => DropdownMenuItem(
+            enabled: widget.isEnabled,
             value: widget.items[index]!.id,
-            child: Text(widget.items[index]!.name),
+            child: Text(widget.items[index]!.name!),
           )
         ),
         isExpanded: widget.isExpanded,
         hint: widget.title != null?Text(widget.title!, style: Theme.of(context).textTheme.bodyLarge,):null,
         dropdownColor: ColorsManager.white,
-        selectedItemBuilder: (value) => widget.items.map((element) => DropdownMenuItem(value: element!.id,child: Text(element.name),)).toList(),
+        selectedItemBuilder: (value) => widget.items.map((element) => DropdownMenuItem(value: element!.id,child: Text(element.name!),)).toList(),
         onChanged: (value) => widget.onChange(value)
       ),
     );
@@ -289,9 +293,10 @@ class TopSection extends StatelessWidget {
       children: [
         Row(
           children: [
+            //TODO: get the categories based on the given top section category Id then navigate to search screen
             Text(_topSection.name, style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600),),
             Spacer(),
-            TextButton(onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search))), child: Text(StringsManager.showAll, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),))
+            TextButton(onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: _topSection.categoryId))), child: Text(StringsManager.showAll, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),))
           ],
         ),
         SizedBox(
@@ -318,7 +323,7 @@ class TopSectionsElement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: (){},
+      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.commercialDetails, arguments: _ad.id))),
       child: Container(
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppSizesDouble.s15)),
         clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -980,4 +985,44 @@ Future<void> launchUrlHelper(String url) async {
       toastState: ToastState.error,
     );
   }
+}
+
+class DefaultPairDropDownMenu extends StatefulWidget {
+  const DefaultPairDropDownMenu({super.key, this.borderColor = ColorsManager.grey3, this.selectedItem, required this.title, required this.items, required this.onChanged, this.isExpanded = true});
+  final int? selectedItem;
+  final List<dynamic> items;
+  final ValueChanged onChanged;
+  final String title;
+  final bool isExpanded;
+  final Color borderColor;
+  @override
+  State<DefaultPairDropDownMenu> createState() => _DefaultPairDropDownMenuState();
+}
+
+class _DefaultPairDropDownMenuState extends State<DefaultPairDropDownMenu> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: ColorsManager.loginButtonBackgroundColor,
+        borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+        border: Border.all(color: widget.borderColor)
+      ),
+      padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
+      child: DropdownButton(
+        isExpanded: widget.isExpanded,
+        underline: SizedBox(),
+        hint: Text(LocalizationService.translate(widget.title)),
+        value: widget.selectedItem,
+        dropdownColor: ColorsManager.white,
+        items: widget.items.map((e) => DropdownMenuItem(value: e.id,child: Text(e.name??''),)).toList(),
+        onChanged: (value) => widget.onChanged(value)
+      ),
+    );
+  }
+}
+
+Future<void> shareButton(String destination, String message) async{
+  await Share.share('$message\n\n$destination');
 }

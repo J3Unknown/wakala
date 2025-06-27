@@ -37,12 +37,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   void didChangeDependencies() {
-    final ProfileDataModel args = ModalRoute.of(context)!.settings.arguments! as ProfileDataModel;
-    _fullNameController = TextEditingController(text: args.result!.name);
-    _bioController = TextEditingController(text: args.result!.bio);
-    _dateOfBirthController = TextEditingController(text: args.result!.dateOfBirth);
-    _phoneController = TextEditingController(text: args.result!.phone);
-    _emailController = TextEditingController(text: args.result!.email);
+    final ProfileDataModel? args = ModalRoute.of(context)!.settings.arguments! as ProfileDataModel?;
+    if(args != null){
+      _fullNameController = TextEditingController(text: args.result!.name);
+      _bioController = TextEditingController(text: args.result!.bio);
+      _dateOfBirthController = TextEditingController(text: args.result!.dateOfBirth);
+      _phoneController = TextEditingController(text: args.result!.phone);
+      _emailController = TextEditingController(text: args.result!.email);
+    }
     super.didChangeDependencies();
   }
   @override

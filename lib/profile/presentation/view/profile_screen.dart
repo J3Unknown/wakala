@@ -2,8 +2,10 @@ import 'dart:developer';
 
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
@@ -11,17 +13,20 @@ import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/home/data/commercial_ad_data_model.dart';
 import 'package:wakala/profile/presentation/view/widgets/profile_screen_arguments.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/network/end_points.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/colors_manager.dart';
 import 'package:wakala/utilities/resources/components.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
+import 'package:wakala/utilities/resources/repo.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 
+import '../../../home/data/specific_ad_data_model.dart';
 import '../../../utilities/resources/strings_manager.dart';
 import '../../../utilities/resources/values_manager.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
-
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -29,7 +34,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late bool _isOther;
   ProfileDataModel? _profileDataModel;
-
+  int? id;
   @override
   void didChangeDependencies() async{
     ProfileScreenArguments args = ModalRoute.of(context)!.settings.arguments as ProfileScreenArguments;
@@ -38,8 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _profileDataModel = args.profileDataModel;
       MainCubit.get(context).getMyAds();
     } else {
+      id = args.id;
       if(_profileDataModel == null){
-        await context.read<MainCubit>().getOtherProfile();
+        await context.read<MainCubit>().getOtherProfile(id!);
         _profileDataModel = context.read<MainCubit>().otherProfile;
       }
     }
@@ -96,7 +102,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     )
                   ),
                 ),
-
                 SliverProductsList(isOthers: _isOther, state: state,),
               ],
             ),
@@ -155,7 +160,7 @@ class ImageHeaderSection extends StatelessWidget {
       children: [
         SizedBox(
           width: double.infinity,
-          height: AppSizesDouble.s300,
+          height: AppSizesDouble.s280,
           child: Stack(
             alignment: Alignment.topRight,
             children: [
@@ -188,7 +193,9 @@ class ImageHeaderSection extends StatelessWidget {
                       style: IconButton.styleFrom(
                         backgroundColor: ColorsManager.white,
                       ),
-                      onPressed: (){},
+                      onPressed: () {
+                        shareButton('${AppConstants.baseUrl}${EndPoints.getOtherProfile}/${Repo.profileDataModel!.result!.id}', 'Check this profile!!');
+                      },
                       icon: SvgPicture.asset(AssetsManager.share, colorFilter: ColorFilter.mode(ColorsManager.black, BlendMode.srcIn),)
                     ),
                   ],
@@ -202,10 +209,10 @@ class ImageHeaderSection extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15,),
           child: Text(profileDataModel.result!.name, style: Theme.of(context).textTheme.titleLarge,),
         ),
-        if(profileDataModel.result!.address!= null && profileDataModel.result!.address!.isNotEmpty)
+        if(profileDataModel.result!.address.isNotEmpty)
         Padding(
           padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15,),
-          child: Text(profileDataModel.result!.address![0], style: Theme.of(context).textTheme.bodyLarge,),
+          child: Text(profileDataModel.result!.address[0]!.street!, style: Theme.of(context).textTheme.bodyLarge, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
         ),
       ],
     );
@@ -221,16 +228,16 @@ class SliverProductsList extends StatelessWidget {
     log(state.toString());
     return SliverToBoxAdapter(
       child: ConditionalBuilder(
-        condition: MainCubit.get(context).userAdDataModel != null && state is !MainGetUserAdLoadingState,
+        condition: MainCubit.get(context).myAdsDataModel != null && state is !MainGetMyAdsLoadingState,
         fallback: (context) {
-          if(state is MainGetUserAdLoadingState){
+          if(state is MainGetMyAdsLoadingState){
             return Center(child: CircularProgressIndicator(),);
           }
           return Center(child: Text('No Items Yet'));
         },
         builder: (context) => SliverList(
           delegate: SliverChildBuilderDelegate(
-            (context, index) => HorizontalProductCard(commercialItem: MainCubit.get(context).userAdDataModel!.result!.commercialAdsItems![index], isRecentlyViewing: isOthers),
+            (context, index) => HorizontalProductCard(commercialItem: MainCubit.get(context).myAdsDataModel!.result!.commercialAdsItems![index], isRecentlyViewing: isOthers),
             childCount: 10
           ),
         ),

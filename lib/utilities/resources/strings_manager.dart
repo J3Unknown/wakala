@@ -31,6 +31,17 @@ class StringsManager{
   static const String editProduct = 'Edit Product';
   static const String dateFormat = 'dd - MM - yyyy';
   static const String all = 'All';
+  static const String addAuction = 'Add Auction'; //! not added to translation yet
+  static const String putAuctionPrice = 'Put Auction Price'; //! not added to translation yet
+  static const String auctionPriceWarning = 'The Price Can not be lower than the Lowest Auction Price'; //! not added to translation yet
+
+  //*address
+  static const String deleteAddress = 'Delete Address';
+  static const String selectAddress = 'Select Address'; //! not added to translation yet
+  static const String deleteAddressWarning = 'Do You want to really delete this Address?';
+  static const String region = 'region'; //! not added to translation yet
+  static const String cities = 'cities'; //! not added to translation yet
+  static const String noAddressesWarning = 'There are no Addresses Yet!!, Try Add One First'; //! not added to translation yet
 
   //*searching
   static const String searchHint = 'what are you looking for?';
@@ -40,6 +51,14 @@ class StringsManager{
   static const String condition = 'Condition';
   static const String category = 'Category';
   static const String showAll = 'show all';
+
+  //*post Screen
+  static const String addType = 'Add Type'; //! not added to translation yet
+  static const String exchangeItem = 'Exchange Item'; //! not added to translation yet
+  static const String lowestAuctionPrice = 'Lowest Auction Price'; //! not added to translation yet
+  static const String productType = 'Product Type'; //! not added to translation yet
+  static const String cashOptions = 'Cash Options'; //! not added to translation yet
+
 
   //*Auth
   static const String loginToWikala = 'Login To Wikala';
@@ -90,6 +109,11 @@ class StringsManager{
   static const String profile = 'Profile';
   static const String editProfile = 'Edit My Profile';
   static const String loginMessage = 'Please Login First To Proceed into this action';
+  static const String contactUs = 'Contact Our technical support team now'; //! not added to translation yet
+  static const String whatsapp = 'Whatsapp'; //! not added to translation yet
+  static const String facebook = 'Facebook'; //! not added to translation yet
+  static const String instagram = 'Instagram'; //! not added to translation yet
+  static const String youtube = 'Youtube'; //! not added to translation yet
 
   //*Profile
   static const String follow = 'Follow';

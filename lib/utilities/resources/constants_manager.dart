@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/home/data/commercial_ad_data_model.dart';
 import 'package:wakala/utilities/resources/colors_manager.dart';
 
 class AppConstants{
@@ -22,6 +23,23 @@ class AppConstants{
 
 }
 
+PairOfIdAndName getTypeById(int id){
+  switch(id){
+    case 1:
+      return productsTypes[0];
+    case 2:
+      return productsTypes[1];
+    case 3:
+      return productsTypes[2];
+    default:
+      return productsTypes[2];
+  }
+}
+List<PairOfIdAndName> productsTypes = [
+  PairOfIdAndName.fromJson({'id':1, 'name':'Exchange'}),
+  PairOfIdAndName.fromJson({'id':2, 'name':'Auction'}),
+  PairOfIdAndName.fromJson({'id':3, 'name':'Sale'}),
+];
 class ProductTypeData{
   String type = "sale";
   Color color = ColorsManager.amber;

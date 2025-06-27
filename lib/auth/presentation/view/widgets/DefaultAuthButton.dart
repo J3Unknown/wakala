@@ -15,7 +15,8 @@ class DefaultAuthButton extends StatelessWidget {
     required String title,
     bool hasBorder = true,
     double height = 70,
-    Color? iconColor
+    Color? iconColor,
+    double iconWidth = 30,
   }) : _onPressed=onPressed,
         _foregroundColor=foregroundColor,
         _backgroundColor=backgroundColor,
@@ -23,7 +24,8 @@ class DefaultAuthButton extends StatelessWidget {
         _hasBorder=hasBorder,
         _title=title,
         _height=height,
-        _iconColor=iconColor;
+        _iconColor=iconColor,
+        _iconWidth=iconWidth;
 
   final VoidCallback _onPressed;
   final Color _backgroundColor;
@@ -33,6 +35,7 @@ class DefaultAuthButton extends StatelessWidget {
   final Color? _iconColor;
   final double _height;
   final bool _hasBorder;
+  final double _iconWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,7 @@ class DefaultAuthButton extends StatelessWidget {
       height: _height,
       child: ElevatedButton.icon(
         label: FittedBox(child: Text(LocalizationService.translate(_title), style: Theme.of(context).textTheme.titleLarge!.copyWith(color: _foregroundColor),)),
-        icon: _icon!=null? SvgPicture.asset(_icon, colorFilter: _iconColor != null?ColorFilter.mode(_iconColor, BlendMode.srcIn):null,):SizedBox(),
+        icon: _icon!=null? SvgPicture.asset(_icon, colorFilter: _iconColor != null?ColorFilter.mode(_iconColor, BlendMode.srcIn):null,width: _iconWidth,):SizedBox(),
         onPressed: _onPressed,
         style: ElevatedButton.styleFrom(
           foregroundColor: _foregroundColor,

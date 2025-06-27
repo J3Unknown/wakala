@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/about_us/presentation/view/about_us.dart';
+import 'package:wakala/about_us/presentation/view/support_screen.dart';
+import 'package:wakala/about_us/presentation/view/terms_and_conditions_screen.dart';
 import 'package:wakala/auth/data/otp_screen_arguments.dart';
+import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/view/auth_layout.dart';
 import 'package:wakala/auth/presentation/view/screens/forgot_password.dart';
 import 'package:wakala/auth/presentation/view/screens/login_screen.dart';
@@ -15,6 +19,7 @@ import 'package:wakala/my_ads/presentation/view/my_ads_screen.dart';
 import 'package:wakala/notifications/presentation/view/notifications_screen.dart';
 import 'package:wakala/on_boarding/presentation/view/on_boarding.dart';
 import 'package:wakala/product_details/presentation/view/product_details_screen.dart';
+import 'package:wakala/profile/data/add_address_arguments.dart';
 import 'package:wakala/profile/presentation/view/add_address_screen.dart';
 import 'package:wakala/profile/presentation/view/addresses_list_screen.dart';
 import 'package:wakala/profile/presentation/view/create_password_screen.dart';
@@ -51,6 +56,9 @@ class Routes{
   static const String commercialDetails = '/commercialDetails';
   static const String fullPost = '/fullPost';
   static const String productDetails = '/productDetails';
+  static const String aboutUs = '/aboutUs';
+  static const String termsAndConditions = '/termsAndConditions';
+  static const String support = '/support';
 }
 
 class RoutesGenerator{
@@ -97,11 +105,17 @@ class RoutesGenerator{
       case Routes.addressesList:
         return MaterialPageRoute(builder: (_) => AddressesListScreen());
       case Routes.addAddress:
-        return MaterialPageRoute(builder: (_) => AddAddressScreen());
+        return MaterialPageRoute(builder: (_) => AddAddressScreen(), settings: settings);
       case Routes.commercialDetails:
         return MaterialPageRoute(builder: (_) => CommercialDetails(id: settings.arguments! as int,));
       case Routes.productDetails:
         return MaterialPageRoute(builder: (_) => ProductDetailsScreen(id: settings.arguments! as int,));
+      case Routes.support:
+        return MaterialPageRoute(builder: (_) => SupportScreen());
+      case Routes.aboutUs:
+        return MaterialPageRoute(builder: (_) => AboutUs());
+      case Routes.termsAndConditions:
+        return MaterialPageRoute(builder: (_) => TermsAndConditionsScreen());
       default:
         return unDefinedRoute();
     }

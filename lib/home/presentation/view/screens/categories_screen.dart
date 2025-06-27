@@ -1,8 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
-import 'package:wakala/utilities/resources/assets_manager.dart';
+import 'package:wakala/home/data/categories_data_model.dart';
 import 'package:wakala/utilities/resources/colors_manager.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
@@ -18,10 +20,24 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   int selectedMainCategoryIndex = -1;
   int selectedSubCategoryIndex = -1;
+  List<Categories> allSubCategories = [];
+  List<Categories> allSecondSubCategories = [];
+  late List<Categories> categories;
+
+  @override
+  void initState() {
+    categories = MainCubit.get(context).categoriesDataModel!.result!.categories;
+    for (var e in categories) {
+      allSubCategories.addAll(e.subCategories??[]);
+    }
+    for (var e in allSubCategories) {
+      allSecondSubCategories.addAll(e.subCategories??[]);
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var categories = MainCubit.get(context).categoriesDataModel!.result!.categories;
     return Column(
       children: [
         Padding(
@@ -33,6 +49,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   if(selected){
                     setState(() {
                       selectedMainCategoryIndex = -1;
+                      selectedSubCategoryIndex = -1;
+                      allSecondSubCategories.clear();
+                      for(var i in allSubCategories){
+                        allSecondSubCategories.addAll(i.subCategories??[]);
+                      }
                     });
                   }
                 },
@@ -55,6 +76,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           setState(() {
                             if(categories[index].endPoint != 1) {
                               selectedMainCategoryIndex = index;
+                              allSecondSubCategories.clear();
+                              for(var i in categories[selectedMainCategoryIndex].subCategories!){
+                                allSecondSubCategories.addAll(i.subCategories??[]);
+                              }
                               selectedSubCategoryIndex = -1;
                             } else {
                               Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: categories[index])));
@@ -65,12 +90,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       backgroundColor: ColorsManager.white,
                       checkmarkColor: ColorsManager.white,
                       selectedColor: ColorsManager.primaryColor,
-                      label: Text(MainCubit.get(context).categoriesDataModel!.result!.categories[index].name,),
+                      label: Text(MainCubit.get(context).categoriesDataModel!.result!.categories[index].name!,),
                       selected: selectedMainCategoryIndex == index,
                       labelStyle: TextStyle(color: selectedMainCategoryIndex == index ? ColorsManager.white : ColorsManager.black),
                     ),
                     separatorBuilder: (context, index) =>SizedBox(width: AppSizesDouble.s10,),
-                    itemCount: MainCubit.get(context).categoriesDataModel!.result!.categories.length
+                    itemCount: categories.length
                   ),
                 ),
               ),
@@ -91,27 +116,54 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       onTap: (){
                         setState(() {
                           selectedSubCategoryIndex = -1;
+                          allSecondSubCategories.clear();
+                          if(selectedMainCategoryIndex != -1){
+                            for(var i in categories[selectedMainCategoryIndex].subCategories!){
+                              allSecondSubCategories.addAll(i.subCategories??[]);
+                            }
+                          } else {
+                            allSecondSubCategories.clear();
+                            for(var i in allSubCategories){
+                              allSecondSubCategories.addAll(i.subCategories??[]);
+                            }
+                          }
                         });
                       },
                       selected: selectedSubCategoryIndex == -1,
                       selectedTileColor: ColorsManager.grey5,
                       selectedColor: ColorsManager.primaryColor,
                     ),
-                    if(selectedMainCategoryIndex != -1 && categories[selectedMainCategoryIndex].endPoint != 1)
+                    if(selectedMainCategoryIndex != -1?categories[selectedMainCategoryIndex].endPoint != 1:true)
                     Expanded(
                       child: ListView.builder(
-                        itemCount: categories[selectedMainCategoryIndex].subCategories!.length,
+                        itemCount: selectedMainCategoryIndex == -1? allSubCategories.length:categories[selectedMainCategoryIndex].subCategories!.length,
                         itemBuilder: (context, index) => ListTile(
                           selected: selectedSubCategoryIndex == index,
                           selectedTileColor: ColorsManager.grey5,
                           selectedColor: ColorsManager.primaryColor,
-                          title: Text(categories[selectedMainCategoryIndex].subCategories![index].name),
+                          title: Text(selectedMainCategoryIndex == -1?allSubCategories[index].name!:categories[selectedMainCategoryIndex].subCategories![index].name!),
                           onTap: (){
                             setState(() {
-                              if(categories[selectedMainCategoryIndex].subCategories![index].endPoint != 1){
-                                selectedSubCategoryIndex = index;
-                              } else{
-                                Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: categories[selectedMainCategoryIndex].subCategories![index])));
+                              if(selectedMainCategoryIndex != -1){
+                                if(categories[selectedMainCategoryIndex].subCategories![index].endPoint != 1){
+                                  selectedSubCategoryIndex = index;
+                                  allSecondSubCategories.clear();
+                                  for(var i in categories[selectedMainCategoryIndex].subCategories!){
+                                    allSecondSubCategories.addAll(i.subCategories??[]);
+                                  }
+                                } else{
+                                  Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: categories[selectedMainCategoryIndex].subCategories![index])));
+                                }
+                              } else {
+                                if(allSubCategories[index].endPoint != 1){
+                                  selectedSubCategoryIndex = index;
+                                  allSecondSubCategories.clear();
+                                  for(var i in allSubCategories[selectedSubCategoryIndex].subCategories!){
+                                    allSecondSubCategories.add(i);
+                                  }
+                                } else{
+                                  Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: allSubCategories[index])));
+                                }
                               }
                             });
                           },
@@ -121,7 +173,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   ],
                 ),
               ),
-              if(selectedMainCategoryIndex != -1 && selectedSubCategoryIndex != -1 && categories[selectedMainCategoryIndex].subCategories![selectedSubCategoryIndex].endPoint != 1)
+              if(selectedSubCategoryIndex != -1?(selectedMainCategoryIndex != -1?categories[selectedMainCategoryIndex].subCategories![selectedSubCategoryIndex].endPoint != 1:allSubCategories[selectedSubCategoryIndex].endPoint!=1):true)
               Expanded(
                 child: GridView.builder(
                   shrinkWrap: true,
@@ -131,9 +183,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     crossAxisSpacing: AppSizesDouble.s10,
                     childAspectRatio: AppSizesDouble.s0_7,
                   ),
-                  itemCount: categories[selectedMainCategoryIndex].subCategories![selectedSubCategoryIndex != -1? selectedSubCategoryIndex:0].subCategories!.length,
+                  itemCount: allSecondSubCategories.length,
                   itemBuilder: (context, index) => InkWell(
-                    onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: categories[selectedMainCategoryIndex].subCategories![selectedSubCategoryIndex].subCategories![index]))),
+                    onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: allSecondSubCategories[index]))),
                     child: Padding(
                       padding: EdgeInsets.all(AppSizesDouble.s8),
                       child: Column(
@@ -141,9 +193,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         children: [
                           CircleAvatar(
                             radius: AppSizesDouble.s30,
-                            backgroundImage: Svg(AssetsManager.productPlaceHolder),
+                            backgroundImage: NetworkImage(AppConstants.baseImageUrl + allSecondSubCategories[index].image!),
                           ),
-                          Text(categories[selectedMainCategoryIndex].subCategories![selectedSubCategoryIndex].subCategories![index].name, textAlign: TextAlign.center,)
+                          Text(allSecondSubCategories[index].name!, textAlign: TextAlign.center,)
                         ],
                       ),
                     ),

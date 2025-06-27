@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakala/profile/data/add_address_arguments.dart';
 import 'package:wakala/profile/presentation/view/widgets/default_address_list_element.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/resources/repo.dart';
 
 import '../../../utilities/resources/assets_manager.dart';
 import '../../../utilities/resources/colors_manager.dart';
@@ -29,12 +31,12 @@ class AddressesListScreen extends StatelessWidget {
           slivers: [
             SliverList.separated(
               separatorBuilder: (context, index) => SizedBox(height: AppSizesDouble.s10,),
-              itemCount: 5,
-              itemBuilder: (context, index) => DefaultAddressListElement()
+              itemCount: Repo.profileDataModel!.result!.address.length,
+              itemBuilder: (context, index) => DefaultAddressListElement(address: Repo.profileDataModel!.result!.address[index]!,)
             ),
             SliverToBoxAdapter(
               child: TextButton(
-                onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.addAddress))),
+                onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.addAddress, arguments: AddAddressArguments(isEdit: false)))),
                 child: Row(
                   children: [
                     SvgPicture.asset(AssetsManager.add, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),),

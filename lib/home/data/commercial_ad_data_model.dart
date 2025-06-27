@@ -12,15 +12,6 @@ class CommercialAdDataModel {
     msg = json['msg'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['success'] = success;
-    if (result != null) {
-      data['result'] = result!.toJson();
-    }
-    data['msg'] = msg;
-    return data;
-  }
 }
 
 class Result {
@@ -39,15 +30,6 @@ class Result {
     pagination = Pagination.fromJson(json['pagination']);
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (commercialAdsItems != null) {
-      data['items'] = commercialAdsItems!.map((v) => v.toJson()).toList();
-    }
-      data['pagination'] = pagination.toJson();
-
-    return data;
-  }
 }
 
 class CommercialAdItem {
@@ -108,31 +90,6 @@ class CommercialAdItem {
 
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['category_id'] = categoryId;
-    data['user_id'] = userId;
-    data['type_id'] = typeId;
-    data['city_id'] = cityId;
-    data['region_id'] = regionId;
-    data['ad_number'] = adNumber;
-    data['title'] = title;
-    data['description'] = description;
-    data['contact_method'] = contactMethod;
-    data['negotiable'] = negotiable;
-    data['status'] = status;
-    data['start_date'] = startDate;
-    data['end_date'] = endDate;
-    data['main_image'] = mainImage;
-    data['created_at'] = createdAt;
-    data['updated_at'] = updatedAt;
-    data['ads_type'] = adsType;
-    data['category'] = category;
-    data['city'] = city;
-    data['region'] = updatedAt;
-    return data;
-  }
 }
 
 class PairOfIdAndName{
@@ -159,14 +116,5 @@ class Pagination {
     perPage = json['per_page'];
     currentPage = json['current_page'];
     lastPage = json['last_page'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['total'] = total;
-    data['per_page'] = perPage;
-    data['current_page'] = currentPage;
-    data['last_page'] = lastPage;
-    return data;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakala/utilities/resources/routes_manager.dart';
 
 import '../../../../auth/presentation/view/widgets/DefaultAuthButton.dart';
 import '../../../../auth/presentation/view/widgets/DefaultMoreTile.dart';
@@ -66,17 +67,17 @@ class DefaultNonAuthenticatedMoreScreen extends StatelessWidget {
           hasRightIcon: false,
         ),
         DefaultMoreTile(
-          onTap: (){},
+          onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.support))),
           iconPath: AssetsManager.supportAgent,
           title: LocalizationService.translate(StringsManager.support),
         ),
         DefaultMoreTile(
-          onTap: (){},
+          onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.aboutUs))),
           iconPath: AssetsManager.aboutUs,
           title: LocalizationService.translate(StringsManager.aboutUs),
         ),
         DefaultMoreTile(
-          onTap: (){},
+          onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.termsAndConditions))),
           iconPath: AssetsManager.termsAndConditions,
           title: LocalizationService.translate(StringsManager.termsAndConditions),
         ),

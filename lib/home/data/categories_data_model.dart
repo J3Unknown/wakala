@@ -57,9 +57,9 @@ class Result {
 }
 
 class Categories {
-  late int id;
-  late String name;
-  late String image;
+  int? id;
+  String? name;
+  String? image;
   int? endPoint;
   int? parentId;
   int? order;
@@ -76,11 +76,13 @@ class Categories {
     if(order != null){
       order = json['order'];
     }
-    if (json['end_point'] != null && json['end_point'] != 1) {
+    if (json['sub_categories'] != null) {
       subCategories = <Categories>[];
-      json['sub_categories'].forEach((v) {
-        subCategories!.add(Categories.fromJson(v));
-      });
+      final rawList = json['sub_categories'] as List<dynamic>;
+      subCategories = rawList.map((e) => Categories.fromJson(e as Map<String, dynamic>)).toList();
+      // json['sub_categories'].forEach((v) {
+      //   subCategories!.add(Categories.fromJson(v));
+      // });
     }
   }
 

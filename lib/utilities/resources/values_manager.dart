@@ -56,10 +56,13 @@ class AppSizesDouble{
   static const double s120 = 120;
   static const double s130 = 130;
   static const double s150 = 150;
+  static const double s170 = 170;
   static const double s180 = 180;
   static const double s200 = 200;
   static const double s220 = 220;
   static const double s230 = 230;
+  static const double s250 = 250;
+  static const double s280 = 280;
   static const double s300 = 300;
   static const double s320 = 320;
   static const double s350 = 350;
@@ -67,6 +70,7 @@ class AppSizesDouble{
 }
 
 class AppMargins{
+  static const double m3 = 3;
   static const double m5 = 5;
   static const double m10 = 10;
   static const double m15 = 15;

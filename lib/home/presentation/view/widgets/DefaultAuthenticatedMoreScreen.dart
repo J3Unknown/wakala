@@ -74,17 +74,17 @@ class DefaultAuthenticatedMoreScreen extends StatelessWidget {
           hasRightIcon: false,
         ),
         DefaultMoreTile(
-          onTap: (){},
+          onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.support))),
           iconPath: AssetsManager.supportAgent,
           title: LocalizationService.translate(StringsManager.support),
         ),
         DefaultMoreTile(
-          onTap: (){},
+          onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.aboutUs))),
           iconPath: AssetsManager.aboutUs,
           title: LocalizationService.translate(StringsManager.aboutUs),
         ),
         DefaultMoreTile(
-          onTap: (){},
+          onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.termsAndConditions))),
           iconPath: AssetsManager.termsAndConditions,
           title: LocalizationService.translate(StringsManager.termsAndConditions),
         ),
@@ -94,7 +94,7 @@ class DefaultAuthenticatedMoreScreen extends StatelessWidget {
             child: DefaultAuthButton(
               onPressed: () async{
                 await MainCubit.get(context).logOut();
-                navigateToAuthLayout (context);
+                navigateToAuthLayout(context);
               },
               title: LocalizationService.translate(StringsManager.logout),
               backgroundColor: ColorsManager.transparent,

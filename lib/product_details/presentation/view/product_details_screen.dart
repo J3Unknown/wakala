@@ -1,17 +1,26 @@
+import 'dart:developer';
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart' as svg_provider;
+import 'package:url_launcher/url_launcher.dart';
+import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/chat/presentation/view/widgets/default_user_card.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
+import 'package:wakala/home/data/commercial_ad_data_model.dart';
 import 'package:wakala/home/data/specific_ad_data_model.dart';
 import 'package:wakala/product_details/presentation/view/widgets/DefaultProductDetailsHeaderSection.dart';
+import 'package:wakala/product_details/presentation/view/widgets/add_auction_alert.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/resources/alerts.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/colors_manager.dart';
 import 'package:wakala/utilities/resources/components.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
+import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
@@ -26,17 +35,16 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   late final ProductTypeData typeData;
+  SpecificAdDataModel? dataModel;
 
   @override
-  void initState() {
-    typeData = getProductType(null);
+  void initState(){
     context.read<MainCubit>().getCommercialAdByID(widget.id);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    SpecificAdDataModel? dataModel;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -49,79 +57,179 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         listener: (context, state){
           if(state is MainGetCommercialAdByIDSuccessState){
             dataModel = state.specificAdDataModel;
+            PairOfIdAndName pair = getTypeById(dataModel!.result!.ad!.typeId!);
+            typeData = getProductType(pair.name);
+            log('entering checker');
+            if(typeData.type == 'Auction'){
+            log('inside the chcker');
+              MainCubit.get(context).getAuctionsForAd(dataModel!.result!.ad!.id!);
+            }
           }
         },
         builder: (context, state) => ConditionalBuilder(
           condition: dataModel != null,
           fallback: (context) => Center(child: CircularProgressIndicator(),),
-          builder: (context) => SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: AppPaddings.p15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DefaultProductDetailsHeaderSection(previewImages: dataModel!.result!.ad!.images!, typeData: typeData, ad: dataModel!.result!.ad!,),
-                if(typeData.type == 'Auction')
-                ExpandableList(
-                  title: 'Auctions',
-                  previewObject: [
-                    Text('preview Object')
-                  ],
-                  fullContent: [
-                    Text('full Content')
-                  ]
+          builder: (context) => Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(vertical: AppPaddings.p15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DefaultProductDetailsHeaderSection(previewImages: dataModel!.result!.ad!.images!, typeData: typeData, ad: dataModel!.result!.ad! ,),
+                      if(typeData.type == 'Auction')
+                      ConditionalBuilder(
+                        condition: MainCubit.get(context).auctionsDataModel != null && MainCubit.get(context).auctionsDataModel!.result.isNotEmpty && state is !MainGetAuctionsForAdLoadingState,
+                        fallback: (context){
+                          if(state is MainGetAuctionsForAdLoadingState){
+                            //log(MainCubit.get(context).auctionsDataModel!.result.isNotEmpty.toString());
+                            return Center(child: CircularProgressIndicator(),);
+                          }
+                          return SizedBox();
+                        },
+                        builder: (context) => ExpandableList(
+                          title: 'Auctions',
+                          previewObject: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundImage: MainCubit.get(context).auctionsDataModel!.result.first.user.image != null? NetworkImage(AppConstants.baseImageUrl + MainCubit.get(context).auctionsDataModel!.result.first.user.image!):svg_provider.Svg(AssetsManager.defaultAvatar),
+                                )
+                              ],
+                            )
+                          ],
+                          fullContent: [
+                            Text('full Content')
+                          ]
+                        )
+                      ),
+                      // ExpandableList(
+                      //   title: 'Details',
+                      //   previewObject: [
+                      //     Text('preview Object'),
+                      //   ],
+                      //   fullContent: [
+                      //     Text('full Content'),
+                      //     Text('full Content'),
+                      //     Text('full Content'),
+                      //     Text('full Content'),
+                      //   ]
+                      // ),
+                      ExpandableList(
+                        title: 'Description',
+                        previewObject: [
+                          Text(dataModel!.result!.ad!.description!, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
+                        ],
+                        fullContent: [
+                          Text(dataModel!.result!.ad!.description!)
+                        ]
+                      ),
+                      ExpandableList(
+                        isExpandable: false,
+                        title: 'Address',
+                        previewObject: [
+                          Text('User Address')
+                        ],
+                        fullContent: []
+                      ),
+                      if(dataModel!.result!.ad!.user!=null)
+                      ExpandableList(
+                        isExpandable: false,
+                        title: 'Advertiser',
+                        previewObject: [
+                          DefaultUserCard(
+                            hasMargin: false,
+                            hasUnderline: false,
+                            user: dataModel!.result!.ad!.user!,
+                          ),
+                        ],
+                        fullContent: []
+                      ),
+                      ExpandableList(
+                        isExpandable: false,
+                        title: 'Related Ads',
+                        previewObject: [
+                          HorizontalProductList(products: dataModel!.result!.relatedAds!,),
+                        ],
+                        fullContent: []
+                      ),
+                    ],
+                  ),
                 ),
-                // ExpandableList(
-                //   title: 'Details',
-                //   previewObject: [
-                //     Text('preview Object'),
-                //   ],
-                //   fullContent: [
-                //     Text('full Content'),
-                //     Text('full Content'),
-                //     Text('full Content'),
-                //     Text('full Content'),
-                //   ]
-                // ),
-                ExpandableList(
-                  title: 'Description',
-                  previewObject: [
-                    Text(dataModel!.result!.ad!.description!, maxLines: 1, overflow: TextOverflow.ellipsis,)
-                  ],
-                  fullContent: [
-                    Text(dataModel!.result!.ad!.description!)
-                  ]
+              ),
+              if(typeData.type != 'Auction')
+              Padding(
+                padding: EdgeInsets.only(bottom: AppPaddings.p20, left: AppPaddings.p15, right: AppPaddings.p15),
+                child: SizedBox(
+                  height: AppSizesDouble.s60,
+                  child: Row(
+                    children: [
+                      if(dataModel!.result!.ad!.contactMethod == 'phone')
+                      Expanded(
+                        child: DefaultAuthButton(
+                          onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.chat, arguments: dataModel!.result!.ad!.user!.id))),
+                          title: StringsManager.message,
+                          icon: AssetsManager.chatsIcon,
+                          iconColor: ColorsManager.white,
+                          backgroundColor: ColorsManager.primaryColor,
+                          foregroundColor: ColorsManager.white,
+                          height: AppSizesDouble.s60,
+                          hasBorder: false,
+                        ),
+                      ),
+                      SizedBox(width: AppSizesDouble.s10,),
+                      if(dataModel!.result!.ad!.contactMethod == 'chat')
+                      Expanded(
+                        child: DefaultAuthButton(
+                          onPressed: () async{
+                            final Uri uri = Uri(scheme: 'tel', path: dataModel!.result!.ad!.user!.phone!.toString());
+                            if(await canLaunchUrl(uri)){
+                              await launchUrl(uri);
+                            }
+                          },
+                          title: StringsManager.call,
+                          icon: AssetsManager.call,
+                          iconColor: ColorsManager.white,
+                          backgroundColor: ColorsManager.primaryColor,
+                          foregroundColor: ColorsManager.white,
+                          height: AppSizesDouble.s60,
+                          hasBorder: false,
+                        )
+                      )
+                    ],
+                  ),
                 ),
-                ExpandableList(
-                  isExpandable: false,
-                  title: 'Address',
-                  previewObject: [
-                    Text('User Address')
-                  ],
-                  fullContent: []
+              ),
+              if(typeData.type == 'Auction')
+              Padding(
+                padding: EdgeInsets.only(bottom: AppPaddings.p20, left: AppPaddings.p15, right: AppPaddings.p15),
+                child: SizedBox(
+                  height: AppSizesDouble.s60,
+                  width: double.infinity,
+                  child: DefaultAuthButton(
+                    onPressed: () async{
+                      if(AppConstants.isAuthenticated) {
+                        String? result;
+                        result = await showDialog(context: context, builder: (context) => AddAuctionAlert(adId: dataModel!.result!.ad!.id!, lowestAuctionPrice: dataModel!.result!.ad!.price!,));
+                        if(result == 'added'){
+                          MainCubit.get(context).getAuctionsForAd(dataModel!.result!.ad!.id!);
+                        }
+                      } else {
+                        showDialog(context: context, builder: (context) => LoginAlert());
+                      }
+                    },
+                    title: StringsManager.addAuction,
+                    icon: AssetsManager.auction,
+                    iconColor: ColorsManager.white,
+                    backgroundColor: ColorsManager.primaryColor,
+                    foregroundColor: ColorsManager.white,
+                    height: AppSizesDouble.s60,
+                    hasBorder: false,
+                  ),
                 ),
-                if(dataModel!.result!.ad!.user!=null)
-                ExpandableList(
-                  isExpandable: false,
-                  title: 'Advertiser',
-                  previewObject: [
-                    DefaultUserCard(
-                      hasMargin: false,
-                      hasUnderline: false,
-                      user: dataModel!.result!.ad!.user!,
-                    ),
-                  ],
-                  fullContent: []
-                ),
-                ExpandableList(
-                  isExpandable: false,
-                  title: 'Related Ads',
-                  previewObject: [
-                    HorizontalProductList(products: dataModel!.result!.relatedAds!,),
-                  ],
-                  fullContent: []
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
