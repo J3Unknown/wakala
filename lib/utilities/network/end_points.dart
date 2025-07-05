@@ -23,8 +23,7 @@ class EndPoints{
   static const String regions = 'regions';
   static const String editMyRegion = 'edit_client_region';
   static const String deleteMyRegion = 'delete_client_region';
-  static const String addMyRegion = 'select_main_address';
-  static const String addMainAddress = 'select_main_address';
+  static const String addMyRegion = 'add_client_region';
 
   //*attributes
   static const String attributes = 'attributes_by_category';
@@ -32,29 +31,29 @@ class EndPoints{
   //*Followings
   static const String followAndUnfollow = 'follow';
   static const String following = 'follow/following';
-  static const String followers = 'follow/followers';
 
   //*home
   static const String home = 'home';
 
   //*ads
   static const String saveAd = 'ads';
+  static const String hideAd = 'ads/hide';
   static const String getAuctionsForAd = 'auction/ad';
   static const String saveAdAuction = 'auction/store';
 
   //*chat
-  static const String getChatsAndSendMessage = 'chats';
-  static const String deleteChat = 'chats';
+  static const String chat = 'chats';
 
   //*Save Ads
   static const String savedAds = 'saved-ads';
+  static const String recentlyViewed = ''; //TODO: Get the correct end point after is created
 
   //*Favorite Chats
   static const String getAndAddFavorite = 'favorite-ads';
   static const String deleteFavorite = 'favorite-ads';
 
   //*notifications
-  static const String notifications = 'favorite-ads';
+  static const String notifications = 'notifications';
 
   //*categories
   static const String categories = 'categories';
@@ -64,5 +63,9 @@ class EndPoints{
   static const String getCommercialAd = 'ads';
   static const String getMyAds = 'ads/my_ads/index';
   static const String getUserAds = 'ads/user';
+
+  //*report
+  static const String report = 'reports/store';
+  static const String reportOptions = 'reports/reportOption';
 
 }

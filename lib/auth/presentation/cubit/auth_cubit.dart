@@ -73,6 +73,7 @@ class AuthCubit extends Cubit<AuthStates>{
     DioHelper.postData(url: EndPoints.sendOtpRegister, data: {'phone':phoneNumber}).then((value){
       if(value.data['success']){
         otpCode = value.data['result']['otpCode'];
+        log(otpCode.toString());
         emit(AuthSendingOtpCodeSuccessState());
       } else {
         emit(AuthSendingOtpCodeErrorState());
@@ -90,10 +91,15 @@ class AuthCubit extends Cubit<AuthStates>{
       url: EndPoints.sendOtp,
       data: {
         'phone': phone
-      }
+      },
     ).then((value){
-      otpCode = value.data['result']['otp_code'];
-      emit(AuthSendingOtpCodeSuccessState());
+      if(value.data['success']){
+        otpCode = value.data['result']['otp_code'];
+        emit(AuthSendingOtpCodeSuccessState());
+      } else {
+        showToastMessage(msg: value.data['msg'], toastState: ToastState.error);
+        emit(AuthSendingOtpCodeErrorState());
+      }
     });
   }
   
@@ -123,16 +129,26 @@ class AuthCubit extends Cubit<AuthStates>{
         'phone': phone,
         'password': password,
         'name': name,
+        'type':'user',
         'otpCode':otpCode
       }
     ).then((value){
       Repo.profileDataModel = ProfileDataModel.fromJson(value.data);
-      CacheHelper.saveData(key: KeysManager.isAuthenticated, value: true);
-      AppConstants.isAuthenticated = true;
-      CacheHelper.saveData(key: KeysManager.token, value: Repo.profileDataModel!.result!.token);
-      AppConstants.token = Repo.profileDataModel!.result!.token!;
+      _loginCaches();
       emit(AuthSignUpSuccessState());
+    }).catchError((e){
+      showToastMessage(msg: "An Error occurred, please try again later", toastState: ToastState.error);
     });
+  }
+  void _loginCaches(){
+    CacheHelper.saveData(key: KeysManager.isAuthenticated, value: true);
+    AppConstants.isAuthenticated = true;
+    CacheHelper.saveData(key: KeysManager.isGuest, value: false);
+    AppConstants.isGuest = false;
+    CacheHelper.saveData(key: KeysManager.userId, value: Repo.profileDataModel!.result!.id);
+    AppConstants.userId = Repo.profileDataModel!.result!.id;
+    CacheHelper.saveData(key: KeysManager.token, value: Repo.profileDataModel!.result!.token);
+    AppConstants.token = Repo.profileDataModel!.result!.token!;
   }
 
   void login(String phone, String password) {
@@ -147,13 +163,10 @@ class AuthCubit extends Cubit<AuthStates>{
     ).then((value){
       if(value.data['success']){
         Repo.profileDataModel = ProfileDataModel.fromJson(value.data);
-        CacheHelper.saveData(key: KeysManager.isAuthenticated, value: true);
-        AppConstants.isAuthenticated = true;
-        CacheHelper.saveData(key: KeysManager.token, value: Repo.profileDataModel!.result!.token);
-        AppConstants.token = Repo.profileDataModel!.result!.token!;
+        _loginCaches();
         emit(AuthLoginSuccessState());
       } else {
-        showToastMessage(msg: "couldn't login", toastState: ToastState.error);
+        showToastMessage(msg: "couldn't login: ${value.data['msg']}", toastState: ToastState.error);
         emit(AuthLoginErrorState());
       }
     }).catchError((e){

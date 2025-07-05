@@ -18,12 +18,12 @@ class AuctionsDataModel{
 }
 
 class Auction{
-  late int id;
-  late User user;
-  late int adId;
-  late String price;
-  late String createdAt;
-  late String updatedAt;
+  int? id;
+  User? user;
+  int? adId;
+  String? price;
+  String? createdAt;
+  String? updatedAt;
 
   Auction.fromJson(Map<String, dynamic> json){
     id = json['id'];

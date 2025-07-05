@@ -32,7 +32,7 @@ class _AddAuctionAlertState extends State<AddAuctionAlert> {
         listener: (context, state) {
           if(state is MainSaveAuctionSuccessState){
             if(mounted){
-              Navigator.of(context).pop('added');
+              Navigator.of(context).pop();
             }
           }
         },

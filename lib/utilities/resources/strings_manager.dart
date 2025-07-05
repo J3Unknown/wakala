@@ -117,6 +117,7 @@ class StringsManager{
 
   //*Profile
   static const String follow = 'Follow';
+  static const String unfollow = 'Unfollow';
   static const String message = 'Message';
   static const String call = 'Call';
   static const String bio = 'Bio';
@@ -146,4 +147,5 @@ class KeysManager{
   static const String token = 'token';
   static const String phone = 'phone';
   static const String password = 'password';
+  static const String userId = 'userId';
 }

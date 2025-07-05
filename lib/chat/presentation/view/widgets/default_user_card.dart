@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:wakala/home/data/specific_ad_data_model.dart';
@@ -14,16 +16,20 @@ class DefaultUserCard extends StatelessWidget {
     super.key,
     this.hasMargin = true,
     this.hasUnderline = true,
-    this.user
+    required this.id,
+    required this.name,
+    required this.image
   });
 
   final bool hasMargin;
   final bool hasUnderline;
-  User? user;
+  int id;
+  String? image;
+  String name;
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.profile, arguments: ProfileScreenArguments(id: user!.id, isOthers: true)))),
+      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.profile, arguments: ProfileScreenArguments(id: id, isOthers: true)))),
       child: Container(
         margin: hasMargin?EdgeInsets.only(bottom: AppMargins.m15):null,
         padding: hasMargin?EdgeInsets.symmetric(horizontal: AppPaddings.p10):null,
@@ -34,10 +40,10 @@ class DefaultUserCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: user?.image != null? NetworkImage(AppConstants.baseImageUrl + user!.image!):Svg(AssetsManager.defaultAvatar),
+              backgroundImage: image != null? NetworkImage(AppConstants.baseImageUrl + image!):Svg(AssetsManager.defaultAvatar),
             ),
             SizedBox(width: 5,),
-            Text(user!.name, style: Theme.of(context).textTheme.titleMedium)
+            Text(name, style: Theme.of(context).textTheme.titleMedium)
           ],
         ),
       ),

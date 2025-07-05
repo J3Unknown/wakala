@@ -46,7 +46,7 @@ class DioHelper{
     {
       required String url,
       Map<String, dynamic>? query,
-      required Map<String, dynamic>? data,
+      Map<String, dynamic>? data,
     }) async
   {
     dio.options.headers = {
@@ -54,11 +54,12 @@ class DioHelper{
       'lang':AppConstants.locale,
       'Authorization':'Bearer ${AppConstants.token}',
     };
-    return dio.post(url, queryParameters: query, data: data);
+    return dio.post(url, queryParameters: query, data: data??{});
   }
 
   static Future<Response> deleteData({
     required String url,
+    Map<String, dynamic>? data,
     Map<String, dynamic>? query,
   }) async {
     dio.options.headers = {
@@ -66,7 +67,7 @@ class DioHelper{
       'lang':AppConstants.locale,
       'Authorization':'Bearer ${AppConstants.token}'
     };
-    return dio.delete(url,queryParameters: query??{});
+    return dio.delete(url,queryParameters: query??{}, data: data??{});
   }
 
 }

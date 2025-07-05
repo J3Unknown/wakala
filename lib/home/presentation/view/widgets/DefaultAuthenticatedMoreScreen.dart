@@ -94,7 +94,6 @@ class DefaultAuthenticatedMoreScreen extends StatelessWidget {
             child: DefaultAuthButton(
               onPressed: () async{
                 await MainCubit.get(context).logOut();
-                navigateToAuthLayout(context);
               },
               title: LocalizationService.translate(StringsManager.logout),
               backgroundColor: ColorsManager.transparent,

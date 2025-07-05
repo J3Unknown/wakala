@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wakala/home/data/categories_data_model.dart';
+import 'package:wakala/home/presentation/data/search_screen_arguments.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
@@ -16,7 +17,7 @@ class SearchButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: selectedCategory))),
+      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(selectedCategory.id!, categories: selectedCategory)))),
       child: Hero(
         tag: KeysManager.searchBarHeroTag,
         child: SizedBox(

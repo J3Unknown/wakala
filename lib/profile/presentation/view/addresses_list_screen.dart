@@ -32,7 +32,9 @@ class AddressesListScreen extends StatelessWidget {
             SliverList.separated(
               separatorBuilder: (context, index) => SizedBox(height: AppSizesDouble.s10,),
               itemCount: Repo.profileDataModel!.result!.address.length,
-              itemBuilder: (context, index) => DefaultAddressListElement(address: Repo.profileDataModel!.result!.address[index]!,)
+              itemBuilder: (context, index) => DefaultAddressListElement(
+                address: Repo.profileDataModel!.result!.address[index]!,
+              )
             ),
             SliverToBoxAdapter(
               child: TextButton(

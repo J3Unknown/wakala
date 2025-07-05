@@ -132,6 +132,18 @@ class MainSaveAdSuccessState extends MainCubitStates{}
 
 class MainSaveAdErrorState extends MainCubitStates{}
 
+class MainGetSavedAdsLoadingState extends MainCubitStates{}
+
+class MainUnSaveAdLoadingState extends MainCubitStates{}
+
+class MainUnSaveAdSuccessState extends MainCubitStates{}
+
+class MainUnSaveAdErrorState extends MainCubitStates{}
+
+class MainGetSavedAdsSuccessState extends MainCubitStates{}
+
+class MainGetSavedAdsErrorState extends MainCubitStates{}
+
 class MainGetAuctionsForAdLoadingState extends MainCubitStates{}
 
 class MainGetAuctionsForAdSuccessState extends MainCubitStates{}
@@ -143,4 +155,88 @@ class MainSaveAuctionLoadingState extends MainCubitStates{}
 class MainSaveAuctionSuccessState extends MainCubitStates{}
 
 class MainSaveAuctionErrorState extends MainCubitStates{}
+
+class MainFollowLoadingState extends MainCubitStates{}
+
+class MainFollowSuccessState extends MainCubitStates{}
+
+class MainFollowErrorState extends MainCubitStates{}
+
+class MainUnfollowLoadingState extends MainCubitStates{}
+
+class MainUnfollowSuccessState extends MainCubitStates{}
+
+class MainUnfollowErrorState extends MainCubitStates{}
+
+class MainGetFollowingLoadingState extends MainCubitStates{}
+
+class MainGetFollowingSuccessState extends MainCubitStates{}
+
+class MainGetFollowingErrorState extends MainCubitStates{}
+
+class MainGetChatsLoadingState extends MainCubitStates{}
+
+class MainGetChatsSuccessState extends MainCubitStates{}
+
+class MainGetChatsErrorState extends MainCubitStates{}
+
+class MainSendMessageLoadingState extends MainCubitStates{}
+
+class MainSendMessageSuccessState extends MainCubitStates{}
+
+class MainSendMessageErrorState extends MainCubitStates{}
+
+class MainDeleteMessageLoadingState extends MainCubitStates{}
+
+class MainDeleteMessageSuccessState extends MainCubitStates{}
+
+class MainDeleteMessageErrorState extends MainCubitStates{}
+
+class MainPickChatFilesLoadingState extends MainCubitStates{}
+
+class MainPickChatFilesSuccessState extends MainCubitStates{}
+
+class MainPickChatFilesErrorState extends MainCubitStates{}
+
+class MainAddToRecentlyViewedLoadingState extends MainCubitStates{}
+
+class MainAddToRecentlyViewedSuccessState extends MainCubitStates{}
+
+class MainAddToRecentlyViewedErrorState extends MainCubitStates{}
+
+class MainDeleteAddressLoadingState extends MainCubitStates{}
+
+class MainDeleteAddressSuccessState extends MainCubitStates{}
+
+class MainDeleteAddressErrorState extends MainCubitStates{}
+
+class MainAddAddressLoadingState extends MainCubitStates{}
+
+class MainAddAddressSuccessState extends MainCubitStates{}
+
+class MainAddAddressErrorState extends MainCubitStates{}
+
+class MainPostAdLoadingState extends MainCubitStates{}
+
+class MainPostAdSuccessState extends MainCubitStates{}
+
+class MainPostAdErrorState extends MainCubitStates{}
+
+class MainHideAdLoadingState extends MainCubitStates{}
+
+class MainHideAdSuccessState extends MainCubitStates{}
+
+class MainHideAdErrorState extends MainCubitStates{}
+
+class MainReportLoadingState extends MainCubitStates{}
+
+class MainReportSuccessState extends MainCubitStates{}
+
+class MainReportErrorState extends MainCubitStates{}
+
+class MainGetReportLoadingState extends MainCubitStates{}
+
+class MainGetReportSuccessState extends MainCubitStates{}
+
+class MainGetReportErrorState extends MainCubitStates{}
 

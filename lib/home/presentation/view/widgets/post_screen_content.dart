@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +19,6 @@ import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/components.dart';
 import '../../../../utilities/resources/icons_manager.dart';
 import '../../../../utilities/resources/repo.dart';
-import '../../../../utilities/resources/routes_manager.dart';
 import '../../../../utilities/resources/strings_manager.dart';
 import '../../../../utilities/resources/values_manager.dart';
 import '../../../cubit/main_cubit.dart';
@@ -31,7 +32,6 @@ class PostScreenContent extends StatefulWidget {
   State<PostScreenContent> createState() => _PostScreenContentState();
 }
 class _PostScreenContentState extends State<PostScreenContent> {
-  int? categorySelectedItem;
   int? typeSelectedItem;
   int? paymentSelectedItem;
 
@@ -40,14 +40,15 @@ class _PostScreenContentState extends State<PostScreenContent> {
   List<int?> selections = [];
   List<List<Categories>> subCategoryLevels = [];
 
-  String typeHint = StringsManager.price;
+  List<PairOfIdAndName> paymentOptions = [PairOfIdAndName.fromJson({'id':1,'name':'Cash'})];
+
+  String typeHint = '';
   TextInputType typeKeyboard = TextInputType.number;
 
   late final MainCubit cubit;
 
   bool negotiable = false;
-  bool phoneIncluded = false;
-  bool chatIncluded = false;
+  int isPhoneContact = 0;
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -58,7 +59,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
     selections = [];
     subCategoryLevels = [];
     cubit = MainCubit.get(context);
-
+    cubit.adImagesList = [];
     if(context.read<MainCubit>().categoriesDataModel == null){
       context.read<MainCubit>().getCategories();
     } else {
@@ -269,15 +270,15 @@ class _PostScreenContentState extends State<PostScreenContent> {
                   //ItemsDropDownMenu(isExpanded: false, title: 'Condition', items: [], selectedItem: null, onChange: (value){}),
                   //ItemsDropDownMenu(isExpanded: false, title: 'Warranty', items: [], selectedItem: null, onChange: (value){}),
                   //ItemsDropDownMenu(isExpanded: false, title: 'Payment Option', items: [], selectedItem: null, onChange: (value){}),
-                  DefaultPairDropDownMenu(
-                    title: StringsManager.addType,
-                    items: [],
-                    onChanged: (value){
-
-                    },
-                    isExpanded: false,
-                    borderColor: ColorsManager.grey5,
-                  ),
+                  // DefaultPairDropDownMenu(
+                  //   title: StringsManager.addType,
+                  //   items: [],
+                  //   onChanged: (value){
+                  //
+                  //   },
+                  //   isExpanded: false,
+                  //   borderColor: ColorsManager.grey5,
+                  // ),
                   DefaultPairDropDownMenu(
                     title: StringsManager.productType,
                     selectedItem: typeSelectedItem,
@@ -288,12 +289,15 @@ class _PostScreenContentState extends State<PostScreenContent> {
                       setState(() {
                         typeSelectedItem = value;
                         if(typeSelectedItem == 1){
+                          _priceController.clear();
                           typeHint = StringsManager.exchangeItem;
                           typeKeyboard = TextInputType.text;
                         } else if(typeSelectedItem == 2){
+                          _priceController.clear();
                           typeHint = StringsManager.lowestAuctionPrice;
                           typeKeyboard = TextInputType.number;
                         } else{
+                          _priceController.clear();
                           typeHint = StringsManager.price;
                           typeKeyboard = TextInputType.number;
                         }
@@ -355,8 +359,9 @@ class _PostScreenContentState extends State<PostScreenContent> {
               SizedBox(height: AppSizesDouble.s15,),
               DefaultPairDropDownMenu(
                 title: StringsManager.cashOptions,
-                items: [PairOfIdAndName.fromJson({'id':1,'name':'Cash'})],
+                items: paymentOptions,
                 onChanged: (value) => null,
+                selectedItem: paymentOptions[0].id,
                 borderColor: ColorsManager.grey5,
               ),
               //ItemsDropDownMenu(title: 'Payment Method', items: ['Cash'], selectedItem: paymentSelectedItem, onChange: (value){}),
@@ -374,24 +379,109 @@ class _PostScreenContentState extends State<PostScreenContent> {
                 alignment: Alignment.centerLeft,
                 child: Text('Contact Method', style: Theme.of(context).textTheme.titleMedium,)
               ),
-              DefaultCheckBox(
-                value: chatIncluded,
-                title: 'Phone',
+              RadioListTile.adaptive(
+                value: 0,
+                title: Text('Phone'),
+                activeColor: ColorsManager.primaryColor,
+                contentPadding: EdgeInsets.symmetric(horizontal: AppPaddings.p5),
                 onChanged: (value){
                   setState(() {
-                    chatIncluded = value!;
+                    isPhoneContact = 0;
                   });
                 },
+                groupValue: isPhoneContact,
               ),
-              DefaultCheckBox(
-                value: phoneIncluded,
-                title: 'Chat',
+              RadioListTile.adaptive(
+                value: 1,
+                contentPadding: EdgeInsets.symmetric(horizontal: AppPaddings.p5),
+                title: Text('Chat'),
+                activeColor: ColorsManager.primaryColor,
                 onChanged: (value){
                   setState(() {
-                    phoneIncluded = value!;
+                    isPhoneContact = 1;
                   });
                 },
+                groupValue: isPhoneContact,
               ),
+              SizedBox(height: AppSizesDouble.s15,),
+              DefaultAuthButton(
+                onPressed: (){
+                  if(
+                  selections.length == 1 && selections[0] == null ||
+                  cubit.adImagesList.length < 2 ||
+                  _titleController.text.isEmpty ||
+                  typeSelectedItem == null ||
+                  _descriptionController.text.isEmpty ||
+                  selectedAddress == null ||
+                  _priceController.text.isEmpty
+                  ){
+                    log('entered if zone');
+                    if(selections.length == 1 && selections[0] == null){
+                      showToastMessage(
+                        msg: 'Make Sure to select at least 1 category',
+                      );
+                    } else if(cubit.adImagesList.length < 2){
+                      showToastMessage(
+                        msg: 'Select at least 2 images (Main Image Preview, and one product image)',
+                      );
+                    } else if(_titleController.text.isEmpty){
+                      showToastMessage(
+                        msg: 'Title Must be Added',
+                      );
+                    } else if(_descriptionController.text.isEmpty){
+                      showToastMessage(
+                        msg: 'Description must be added',
+                      );
+                    } else if(selectedAddress == null){
+                      showToastMessage(
+                        msg: 'select your address',
+                      );
+                    }else if(typeSelectedItem == null){
+                      showToastMessage(
+                        msg: 'select ad type',
+                      );
+                    } else if(_priceController.text.isEmpty){
+                      if(typeSelectedItem == 1){
+                        showToastMessage(
+                          msg: 'Add the Exchange Item',
+                        );
+                      } else if(typeSelectedItem == 2){
+                        showToastMessage(
+                          msg: 'Add the lowest Auction Price',
+                        );
+                      } else{
+                        showToastMessage(
+                          msg: 'Add the product price',
+                        );
+                      }
+                    }
+                  } else {
+                    log('entered cubit zone');
+                    cubit.postAd(
+                      categoryId: selections.last!,
+                      typeId: typeSelectedItem!,
+                      title: _titleController.text,
+                      description: _descriptionController.text,
+                      contactMethod: isPhoneContact == 0?'phone':'chat',
+                      mainImage: cubit.adImagesList.first,
+                      images: cubit.adImagesList.sublist(1),
+                      cityId: selectedAddress!.regionParent!.id??13,
+                      regionId: selectedAddress!.region!.id??14,
+                      endDate: DateTime.now(),
+                      startDate: DateTime.now(),
+                      exchangeItem: typeSelectedItem == 0?_priceController.text:null,
+                      lowestAuction: typeSelectedItem == 1?_priceController.text:null,
+                      negotiable: negotiable?1:0,
+                      price: typeSelectedItem == 2?_priceController.text:null
+                    );
+                  }
+                },
+                title: StringsManager.save,
+                hasBorder: false,
+                backgroundColor: ColorsManager.primaryColor,
+                foregroundColor: ColorsManager.white,
+                height: AppSizesDouble.s60,
+              )
             ],
           ),
         ),

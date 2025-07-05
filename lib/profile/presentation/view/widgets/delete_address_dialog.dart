@@ -30,11 +30,14 @@ class DeleteAddressDialog extends StatelessWidget {
           backgroundColor: ColorsManager.deepRed,
           foregroundColor: ColorsManager.white,
           hasBorder: false,
-          onPressed: () => MainCubit.get(context).deleteAddress(address.id!),
+          onPressed: () {
+            MainCubit.get(context).deleteAddress(address.id!);
+            Navigator.of(context).pop();
+          },
           title: LocalizationService.translate(StringsManager.confirm),
         ),
       ],
-      content: Text('${StringsManager.deleteAddressWarning}\n\n"${address.regionParent??''} ${address.region??''} ${address.blockNo??''} ${address.street}"\n', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center,),
+      content: Text('${StringsManager.deleteAddressWarning}\n\n"${address.regionParent!.name??''} ${address.region!.name??''} ${address.blockNo??''} ${address.street}"\n', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center,),
     );
   }
 }

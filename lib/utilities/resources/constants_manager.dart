@@ -12,6 +12,7 @@ class AppConstants{
   //*Authentication
   static bool isGuest = false;
   static bool isAuthenticated = false;
+  static int userId = -1;
 
   //*system
   static String locale = 'en';

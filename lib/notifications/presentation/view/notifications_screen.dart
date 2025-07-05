@@ -12,7 +12,7 @@ class NotificationsScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10, vertical: AppPaddings.p15),
       itemBuilder: (context, index) => NotificationCard(),
       separatorBuilder: (context, index) => SizedBox(height: AppSizesDouble.s10,),
-      itemCount: 10
+      itemCount: 0
     );
   }
 }

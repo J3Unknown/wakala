@@ -5,7 +5,6 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg_provider/flutter_svg_provider.dart' as svg_provider;
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +12,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/home/data/home_screen_data_model.dart';
+import 'package:wakala/home/presentation/data/search_screen_arguments.dart';
+import 'package:wakala/saved/data/saved_ads_data_model.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -296,7 +297,7 @@ class TopSection extends StatelessWidget {
             //TODO: get the categories based on the given top section category Id then navigate to search screen
             Text(_topSection.name, style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600),),
             Spacer(),
-            TextButton(onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: _topSection.categoryId))), child: Text(StringsManager.showAll, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),))
+            TextButton(onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(_topSection.categoryId)))), child: Text(StringsManager.showAll, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),))
           ],
         ),
         SizedBox(
@@ -465,8 +466,7 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (){
-        log(typeData.toString());
-        Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: typeData)));
+        Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: widget.commercialItem.id)));
       },
       child: Container(
         margin: EdgeInsets.all(AppSizesDouble.s10),
@@ -482,7 +482,7 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
           children: [
             Stack(
               children: [
-                Image.network(widget.commercialItem.mainImage!, width: MediaQuery.of(context).size.width/2.5, height: 200, fit: BoxFit.cover,),
+                Image.network(AppConstants.baseImageUrl + widget.commercialItem.mainImage!, width: MediaQuery.of(context).size.width/2.5, height: 200, fit: BoxFit.cover,),
                 IntrinsicWidth(
                   child: Container(
                     margin: EdgeInsets.all(AppPaddings.p10),
@@ -549,12 +549,129 @@ const VerticalProductsList({super.key, required this.items, required this.isRece
   }
 }
 
+class SavedAdCard extends StatefulWidget {
+  const SavedAdCard({
+    super.key,
+    required this.ad,
+  });
+  final SavedAd ad;
+
+  @override
+  State<SavedAdCard> createState() => _SavedAdCardState();
+}
+class _SavedAdCardState extends State<SavedAdCard> {
+  late ProductTypeData typeData;
+  bool isSaved = false;
+  @override
+  void initState() {
+    typeData = getProductType(getTypeById(widget.ad.id!).name);
+    isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == widget.ad.id!);
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<MainCubit, MainCubitStates>(
+      listener: (context, state){
+        if(state is MainSaveAdSuccessState || state is MainUnSaveAdSuccessState){
+          isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == widget.ad.id!);
+        }
+      },
+      builder: (context, state) => InkWell(
+        onTap: (){
+          log(typeData.toString());
+          Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: widget.ad.id)));
+        },
+        child: Container(
+          margin: EdgeInsets.all(AppSizesDouble.s10),
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          width: double.infinity,
+          height: AppSizesDouble.s200,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+              border: Border.all(color: ColorsManager.grey)
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  Image.network(AppConstants.baseImageUrl + widget.ad.ad!.mainImage!, width: MediaQuery.of(context).size.width/2.5, height: 200, fit: BoxFit.cover,),
+                  IntrinsicWidth(
+                    child: Container(
+                      margin: EdgeInsets.all(AppPaddings.p10),
+                      padding: EdgeInsets.symmetric(horizontal: AppSizesDouble.s15, vertical: AppSizesDouble.s5),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+                        color: typeData.color
+                      ),
+                      child: Text(typeData.type),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: AppSizesDouble.s10,),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.ad.ad!.title!, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w500), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    SizedBox(height: AppSizesDouble.s10,),
+                    if(widget.ad.ad!.description != null)
+                      Text(widget.ad.ad!.description!, style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    if(widget.ad.ad!.description != null)
+                      SizedBox(height: AppSizesDouble.s10,),
+                    Text('${widget.ad.ad!.price} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.w600), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    SizedBox(height: AppSizesDouble.s10,),
+                    Text('${widget.ad.ad!.cityId}, ${widget.ad.ad!.regionId}', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    SizedBox(height: AppSizesDouble.s5,),
+                    Text(DateFormat(StringsManager.dateFormat).format(DateTime.parse(widget.ad.createdAt!)), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
+                  ],
+                ),
+              ),
+              if(!isSaved)
+                IconButton(
+                  onPressed: () {
+                    MainCubit.get(context).saveAd(widget.ad.id!);
+                  },
+                  icon: SvgPicture.asset(AssetsManager.saved)
+                ),
+              if(isSaved)
+                IconButton(
+                  onPressed: () {
+                    MainCubit.get(context).unSaveAd(widget.ad.id!);
+                  },
+                  icon: SvgPicture.asset(AssetsManager.savedFilled)
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SavedAdsList extends StatelessWidget {
+  const SavedAdsList({super.key, required this.savedAds,});
+  final List<SavedAd> savedAds;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: savedAds.length,
+      itemBuilder: (context, index) =>  SavedAdCard(ad: savedAds[index],)
+    );
+  }
+}
+
 //* go to login screen
 void navigateToAuthLayout(context) async{
   AppConstants.isGuest = false;
   AppConstants.isAuthenticated = false;
   AppConstants.token = '';
+  AppConstants.userId = -1;
   await CacheHelper.saveData(key: KeysManager.isGuest, value: false);
+  await CacheHelper.saveData(key: KeysManager.userId, value: -1);
   await CacheHelper.saveData(key: KeysManager.isAuthenticated, value: false);
   await CacheHelper.saveData(key: KeysManager.token, value: '');
   Navigator.pushAndRemoveUntil(context,RoutesGenerator.getRoute(RouteSettings(name: Routes.authLayout)), (root) => false);
@@ -754,7 +871,7 @@ class DefaultTitledIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       splashColor: ColorsManager.transparent,
-      onPressed: (){},
+      onPressed: onPressed,
       alignment: Alignment.center,
       icon: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -780,13 +897,15 @@ class DefaultTextInputField extends StatelessWidget {
     this.hintText,
     this.onSuffixPressed,
     this.suffixIcon = '',
-    this.borderColor = ColorsManager.grey2
+    this.borderColor = ColorsManager.grey2,
+    this.minLines,
   });
 
   final TextEditingController controller;
   final TextInputType keyboardType;
   final FormFieldValidator<String>? validator;
   final int maxLines;
+  final int? minLines;
   final bool isOutlined;
   final bool obscured;
   final String? hintText;
@@ -797,6 +916,7 @@ class DefaultTextInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      minLines: minLines,
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,

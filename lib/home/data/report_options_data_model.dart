@@ -1,24 +1,16 @@
 class ReportOptionsDataModel{
   late bool success;
   String? message;
-  Result? result;
+  late List<ReportOption> options;
 
   ReportOptionsDataModel.fromJson(Map<String, dynamic> json){
     success = json['success'];
-    if(json['result'] != null){
-      result = Result.fromJson(json['result']);
-    }
+    options = <ReportOption>[];
+    json['result'].forEach((e) => options.add(ReportOption.fromJson(e)));
     message = json['message'];
   }
 }
 
-class Result{
-  late List<ReportOption> options;
-  Result.fromJson(Map<String, dynamic> json){
-    options = <ReportOption>[];
-    json['result'].forEach((e) => options.add(ReportOption.fromJson(e)));
-  }
-}
 
 class ReportOption{
   late int id;

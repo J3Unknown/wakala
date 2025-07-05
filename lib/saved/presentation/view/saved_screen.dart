@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
 
 import '../../../utilities/resources/components.dart';
 import '../../../utilities/resources/strings_manager.dart';
@@ -18,7 +19,7 @@ class SavedScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: VerticalProductsList(isRecentlyViewed: true, isSaved: true, items: [],),
+      body: SavedAdsList(savedAds: MainCubit.get(context).savedAdsDataModel!.result!,),
     );
   }
 }

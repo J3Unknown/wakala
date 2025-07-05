@@ -11,6 +11,7 @@ import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/icons_manager.dart';
 
 import '../../../home/cubit/main_cubit.dart';
+import '../../../utilities/resources/alerts.dart';
 import '../../../utilities/resources/components.dart';
 import '../../../utilities/resources/strings_manager.dart';
 import '../../../utilities/resources/values_manager.dart';
@@ -97,12 +98,36 @@ class _CommercialDetailsState extends State<CommercialDetails> {
                   children:[
                     DefaultTitledIconButton(
                       title: StringsManager.report,
-                      onPressed: (){},
+                      onPressed: (){
+                        if(AppConstants.isAuthenticated){
+                          showDialog(
+                            context: context,
+                            builder: (context) => ReportAlert(
+                              reportType: 'ad',
+                              reportedId: _specificAdDataModel!.result!.ad!.id.toString()
+                            )
+                          );
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => LoginAlert()
+                          );
+                        }
+                      },
                       imagePath: AssetsManager.report,
                     ),
                     DefaultTitledIconButton(
                       title: StringsManager.hide,
-                      onPressed: (){},
+                      onPressed: (){
+                        if(AppConstants.isAuthenticated){
+                          MainCubit.get(context).hideAd(_specificAdDataModel!.result!.ad!.id!);
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => LoginAlert()
+                          );
+                        }
+                      },
                       imagePath: AssetsManager.hide,
                     ),
                     DefaultTitledIconButton(

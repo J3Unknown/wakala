@@ -31,7 +31,7 @@ class SignUpScreen extends StatelessWidget {
     return BlocConsumer<AuthCubit, AuthStates>(
       listener: (context, state){
         if(state is AuthSendingOtpCodeSuccessState){
-          Navigator.pushAndRemoveUntil(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.otp, arguments: OtpScreenArguments(_phoneController.text, false, name: _nameController.text, password: _passwordController.text))), (route) =>false);
+          Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.otp, arguments: OtpScreenArguments(_phoneController.text, false, name: _nameController.text, password: _passwordController.text))));
         }
       },
       builder: (context, state) => Scaffold(

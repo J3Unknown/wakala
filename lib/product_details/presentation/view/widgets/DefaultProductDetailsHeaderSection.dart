@@ -14,21 +14,37 @@ import '../../../../utilities/resources/assets_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/values_manager.dart';
 
-class DefaultProductDetailsHeaderSection extends StatelessWidget {
-  DefaultProductDetailsHeaderSection({
+class DefaultProductDetailsHeaderSection extends StatefulWidget {
+  const DefaultProductDetailsHeaderSection({
     super.key,
     required this.previewImages,
     required this.typeData,
     required this.ad,
   });
-  final PageController _pageController = PageController();
   final List<AdImage> previewImages;
   final ProductTypeData typeData;
   final Ad ad;
   @override
+  State<DefaultProductDetailsHeaderSection> createState() => _DefaultProductDetailsHeaderSectionState();
+}
+
+class _DefaultProductDetailsHeaderSectionState extends State<DefaultProductDetailsHeaderSection> {
+  final PageController _pageController = PageController();
+  bool isSaved = false;
+
+  @override
+  void initState() {
+    isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == widget.ad.id!);
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<MainCubit, MainCubitStates>(
-      listener: (context, state) {},
+      listener: (context, state) {
+        if(state is MainSaveAdSuccessState || state is MainUnSaveAdSuccessState){
+          isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == widget.ad.id!);
+        }
+      },
       builder: (context, state) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -40,7 +56,7 @@ class DefaultProductDetailsHeaderSection extends StatelessWidget {
                 child: PageView(
                   pageSnapping: true,
                   controller: _pageController,
-                  children: List.generate(previewImages.length, (index) => Image.network(AppConstants.baseImageUrl + previewImages[index].image)),
+                  children: List.generate(widget.previewImages.length, (index) => Image.network(AppConstants.baseImageUrl + widget.previewImages[index].image)),
                 ),
               ),
               Positioned(
@@ -56,14 +72,23 @@ class DefaultProductDetailsHeaderSection extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: AppSizesDouble.s15, vertical: AppSizesDouble.s5),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(AppSizesDouble.s8),
-                          color: typeData.color
+                          color: widget.typeData.color
                         ),
-                        child: Text(typeData.type),
+                        child: Text(widget.typeData.type),
                       ),
                     ),
+                    if(!isSaved)
                     IconButton.filled(
-                      onPressed: () => MainCubit.get(context).saveAd(ad.id!),
+                      onPressed: () => MainCubit.get(context).saveAd(widget.ad.id!),
                       icon: SvgPicture.asset(AssetsManager.saved, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),),
+                      style: IconButton.styleFrom(
+                        backgroundColor: ColorsManager.white,
+                      ),
+                    ),
+                    if(isSaved)
+                    IconButton.filled(
+                      onPressed: () => MainCubit.get(context).unSaveAd(widget.ad.id!),
+                      icon: SvgPicture.asset(AssetsManager.savedFilled, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),),
                       style: IconButton.styleFrom(
                         backgroundColor: ColorsManager.white,
                       ),
@@ -78,7 +103,7 @@ class DefaultProductDetailsHeaderSection extends StatelessWidget {
                 child: Center(
                   child: SmoothPageIndicator(
                     controller: _pageController,
-                    count: previewImages.length,
+                    count: widget.previewImages.length,
                     effect: ScrollingDotsEffect(
                       activeDotScale: AppSizesDouble.s1_5,
                       dotHeight: AppSizesDouble.s10,
@@ -96,11 +121,11 @@ class DefaultProductDetailsHeaderSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(ad.title!, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600),),
-                Text(ad.description!, style: Theme.of(context).textTheme.titleMedium,),
-                if(typeData.type == 'Sale')
-                  Text('${ad.price!} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.bold)),
-                Text(DateFormat('dd - MM - yyyy').format(DateTime.parse(ad.createdAt!)), style: Theme.of(context).textTheme.titleMedium,),
+                Text(widget.ad.title!, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600),),
+                Text(widget.ad.description!, style: Theme.of(context).textTheme.titleMedium,),
+                if(widget.typeData.type == 'Sale')
+                  Text('${widget.ad.price!} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.bold)),
+                Text(DateFormat('dd - MM - yyyy').format(DateTime.parse(widget.ad.createdAt!)), style: Theme.of(context).textTheme.titleMedium,),
               ],
             ),
           )

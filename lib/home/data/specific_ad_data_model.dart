@@ -105,6 +105,7 @@ class User {
   String? image;
   String? phone;
 
+  User({required this.id, required this.name, this.image, this.phone});
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];

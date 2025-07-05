@@ -83,11 +83,11 @@ class RoutesGenerator{
       case Routes.fullPost:
         return MaterialPageRoute(builder: (_) => FullPostScreen());
       case Routes.search:
-        return MaterialPageRoute(builder: (_) => SearchScreen(selectedCategory: settings.arguments! as Categories,));
+        return MaterialPageRoute(builder: (_) => SearchScreen(), settings: settings);
       case Routes.chatsList:
         return MaterialPageRoute(builder: (_) => ChatsListScreen());
       case Routes.chat:
-        return MaterialPageRoute(builder: (_) => ChatScreen());
+        return MaterialPageRoute(builder: (_) => ChatScreen(), settings: settings);
       case Routes.notifications:
         return MaterialPageRoute(builder: (_) => NotificationsScreen());
       case Routes.myAds:

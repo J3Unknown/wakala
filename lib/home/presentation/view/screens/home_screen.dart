@@ -2,7 +2,6 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
-import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/components.dart';
 import '../../../../utilities/resources/values_manager.dart';
 import '../../../cubit/main_cubit.dart';

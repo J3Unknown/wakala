@@ -202,3 +202,74 @@ class DeleteAccountAlert extends StatelessWidget {
     );
   }
 }
+
+class ReportAlert extends StatefulWidget {
+  ReportAlert({super.key, required this.reportType, required this.reportedId});
+  final String reportType;
+  final String reportedId;
+
+  @override
+  State<ReportAlert> createState() => _ReportAlertState();
+}
+
+class _ReportAlertState extends State<ReportAlert> {
+  int? selection;
+
+  final TextEditingController _notesController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Report', textAlign: TextAlign.center,),
+      backgroundColor: ColorsManager.white,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ...List.generate(
+            MainCubit.get(context).reportOptionsDataModel!.options.length,
+            (index) {
+              final option = MainCubit.get(context).reportOptionsDataModel!.options[index];
+              return RadioListTile.adaptive(
+                value: option.id,
+                title: Text(AppConstants.locale == 'ar'?option.titleAR:option.titleEn),
+                groupValue: selection,
+                onChanged: (value){
+                  setState(() {
+                    selection = value;
+                  });
+                }
+              );
+            }
+          ),
+          DefaultTextInputField(
+            controller: _notesController,
+            obscured: false,
+            maxLines: 5,
+            isOutlined: true,
+          ),
+        ],
+      ),
+      actions: [
+          DefaultAuthButton(
+            onPressed: (){
+              if(selection != null){
+                MainCubit.get(context).report(
+                  option: selection!,
+                  reportedId: int.parse(widget.reportedId),
+                  reportType: widget.reportType,
+                  notes: _notesController.text
+                );
+                Navigator.of(context).pop();
+              } else {
+                showToastMessage(msg: 'Please select an option first', toastState: ToastState.warning);
+              }
+            },
+            backgroundColor: ColorsManager.primaryColor,
+            foregroundColor: ColorsManager.white,
+            hasBorder: false,
+            title: LocalizationService.translate(StringsManager.submit)
+          )
+      ],
+    );
+  }
+}

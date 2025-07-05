@@ -1,3 +1,5 @@
+import 'package:wakala/home/data/commercial_ad_data_model.dart';
+
 class ProfileDataModel {
   late bool success;
   Result? result;
@@ -63,8 +65,8 @@ class Address{
   String? blockNo;
   String? street;
   String? notes;
-  int? region;
-  int? regionParent;
+  PairOfIdAndName? region;
+  PairOfIdAndName? regionParent;
 
   Address.fromJson(Map<String, dynamic> json){
     id = json['id'];
@@ -74,7 +76,7 @@ class Address{
     blockNo = json['block_no'];
     street = json['street'];
     notes = json['notes'];
-    region = json['region'];
-    regionParent = json['region_parent'];
+    region = PairOfIdAndName.fromJson(json['region']??{});
+    regionParent = PairOfIdAndName.fromJson(json['region_parent']??{});
   }
 }

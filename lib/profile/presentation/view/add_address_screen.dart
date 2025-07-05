@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
@@ -23,7 +22,7 @@ class AddAddressScreen extends StatefulWidget {
 class _AddAddressScreenState extends State<AddAddressScreen> {
   int? selectedRegion;
   int? selectedCity;
-
+  int? id;
   late bool isEdit;
 
   late final TextEditingController _streetController;
@@ -35,10 +34,15 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   @override
   void initState() {
+    _streetController = TextEditingController();
+    _blockNoController = TextEditingController();
+    _buildingNoController = TextEditingController();
+    _flatNoController = TextEditingController();
+    _floorNoController = TextEditingController();
+    _noteController = TextEditingController();
     if(context.read<MainCubit>().cities == null){
       context.read<MainCubit>().getCities();
     }
-
     super.initState();
   }
   @override
@@ -46,16 +50,30 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     AddAddressArguments? args = ModalRoute.of(context)!.settings.arguments as AddAddressArguments?;
     if(args != null){
       isEdit = args.isEdit;
-      _streetController = TextEditingController(text: args.address?.street);
-      selectedCity = args.address?.regionParent;
-      selectedRegion = args.address?.region;
-      _blockNoController = TextEditingController(text: args.address?.blockNo);
-      _buildingNoController = TextEditingController(text: args.address?.buildingNo);
-      _flatNoController = TextEditingController(text: args.address?.flatNo);
-      _floorNoController = TextEditingController(text: args.address?.floorNo);
-      _noteController = TextEditingController(text: args.address?.notes);
+      if(args.address != null){
+        id = args.address?.id;
+        _streetController = TextEditingController(text: args.address?.street);
+        selectedCity = args.address?.regionParent!.id;
+        selectedRegion = args.address?.region!.id;
+        _blockNoController = TextEditingController(text: args.address?.blockNo);
+        _buildingNoController = TextEditingController(text: args.address?.buildingNo);
+        _flatNoController = TextEditingController(text: args.address?.flatNo);
+        _floorNoController = TextEditingController(text: args.address?.floorNo);
+        _noteController = TextEditingController(text: args.address?.notes);
+      }
     }
     super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _streetController.dispose();
+    _blockNoController.dispose();
+    _buildingNoController.dispose();
+    _flatNoController.dispose();
+    _floorNoController.dispose();
+    _noteController.dispose();
+    super.dispose();
   }
 
   @override
@@ -121,10 +139,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
               DefaultTextInputField(
                 controller: _streetController,
                 obscured: false,
-                hintText: 'Street Number',
+                hintText: 'Street',
                 borderColor: ColorsManager.grey3,
                 isOutlined: true,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
               ),
               SizedBox(height: AppSizesDouble.s10,),
               DefaultTextInputField(
@@ -164,11 +182,37 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
               ),
               SizedBox(height: AppSizesDouble.s10,),
               DefaultAuthButton(
-                onPressed: (){ //TODO: Add the ADD and EDIT functionalities
+                onPressed: (){ //TODO: Add the EDIT functionalities
                   if(isEdit){
-                    // cubit.editAddress();
+                    cubit.editAddress(
+                      regionId: selectedRegion!,
+                      id: id!,
+                      blockNo: _blockNoController.text.isNotEmpty?int.parse(_blockNoController.text):null,
+                      buildingNo: _buildingNoController.text.isNotEmpty?int.parse(_buildingNoController.text):null,
+                      flatNo: _flatNoController.text.isNotEmpty?int.parse(_flatNoController.text):null,
+                      floorNo: _floorNoController.text.isNotEmpty?int.parse(_floorNoController.text):null,
+                      street: _streetController.text,
+                      notes: _noteController.text
+                    );
                   } else{
-                    // cubit.addAddress();
+                    if(selectedCity != null && selectedRegion != null){
+                      cubit.addAddress(
+                        cityId: selectedCity!,
+                        regionId: selectedRegion!,
+                        blockNo: _blockNoController.text.isNotEmpty?int.parse(_blockNoController.text):null,
+                        buildingNo: _buildingNoController.text.isNotEmpty?int.parse(_buildingNoController.text):null,
+                        flatNo: _flatNoController.text.isNotEmpty?int.parse(_flatNoController.text):null,
+                        floorNo: _floorNoController.text.isNotEmpty?int.parse(_floorNoController.text):null,
+                        street: _streetController.text,
+                        notes: _noteController.text
+                      );
+                    } else{
+                      if(selectedCity == null){
+                        showToastMessage(msg: 'select a city first', toastState: ToastState.warning);
+                      } else {
+                        showToastMessage(msg: 'select a region first', toastState: ToastState.warning);
+                      }
+                    }
                   }
                 },
                 title: 'Save Address',

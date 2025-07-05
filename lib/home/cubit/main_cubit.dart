@@ -2,16 +2,19 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wakala/about_us/data/about_us_data_model.dart';
 import 'package:wakala/auth/data/profile_data_model.dart';
+import 'package:wakala/chat/data/chats_data_model.dart';
 import 'package:wakala/chat/presentation/view/screens/chats_list_screen.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/home/data/categories_data_model.dart';
 import 'package:wakala/home/data/commercial_ad_data_model.dart';
 import 'package:wakala/home/data/home_screen_data_model.dart';
+import 'package:wakala/home/data/report_options_data_model.dart';
 import 'package:wakala/home/data/specific_ad_data_model.dart';
 import 'package:wakala/home/presentation/view/screens/categories_screen.dart';
 import 'package:wakala/home/presentation/view/screens/commercial_screen.dart';
@@ -21,6 +24,8 @@ import 'package:wakala/home/presentation/view/screens/post_screen.dart';
 import 'package:wakala/notifications/presentation/view/notifications_screen.dart';
 import 'package:wakala/product_details/data/auctions_data_model.dart';
 import 'package:wakala/profile/data/cities_and_regions_dataModel.dart';
+import 'package:wakala/profile/data/followings_data_model.dart';
+import 'package:wakala/saved/data/saved_ads_data_model.dart';
 import 'package:wakala/utilities/network/dio.dart';
 import 'package:wakala/utilities/network/end_points.dart';
 import 'package:wakala/utilities/resources/components.dart';
@@ -104,7 +109,8 @@ class MainCubit extends Cubit<MainCubitStates>{
   Future<void> getOtherProfile(int profileId) async{
     emit(MainGetOtherProfileLoadingState());
     DioHelper.getData(path: '${EndPoints.getOtherProfile}/$profileId').then((value){
-      //TODO: Set the profile Data Model
+      otherProfile = ProfileDataModel.fromJson(value.data);
+      emit(MainGetOtherProfileSuccessState());
     });
   }
 
@@ -112,7 +118,6 @@ class MainCubit extends Cubit<MainCubitStates>{
   void getHomeScreen(){
     emit(MainGetHomeScreenLoadingState());
     DioHelper.getData(path: EndPoints.home).then((value){
-      log(value.data.toString());
       homePageDataModel = HomePageDataModel.fromJson(value.data);
       emit(MainGetHomeScreenSuccessState());
     });
@@ -142,11 +147,155 @@ class MainCubit extends Cubit<MainCubitStates>{
     });
   }
 
+  CommercialAdDataModel? searchScreenAdsDataModel;
+  int currentSearchCommercialAdsPage = 1;
+  bool searchCommercialAdsIsLoadingMore = false;
+  bool searchCommercialAdsHasMore = true;
+  void getSearchCommercialAds({
+    bool loadMore = false,
+    int? categoryId,
+    int? userId,
+    String? search,
+    int? minPrice,
+    int? maxPrice,
+    int? cityId,
+    int? regionId,
+    int? typeId,
+  }){
+    if (loadMore) {
+      if (!commercialAdsHasMore || commercialAdsIsLoadingMore) return;
+      commercialAdsIsLoadingMore = true;
+      currentCommercialAdsPage++;
+      emit(MainGetCommercialAdLoadingMoreState());
+    } else {
+      currentSearchCommercialAdsPage = 1;
+      searchCommercialAdsHasMore = true;
+      emit(MainGetCommercialAdLoadingState());
+    }
+
+    final queryParams = {
+      'page': currentCommercialAdsPage,
+      'category_id': categoryId,
+      'user_id': userId,
+      'search': search,
+      'min_price': minPrice,
+      'max_price': maxPrice,
+      'city_id': cityId,
+      'region_id': regionId,
+      'type_id': typeId,
+    };
+
+    DioHelper.getData(
+      path: EndPoints.getCommercialAd,
+      query: queryParams,
+    ).then((value) {
+      final newData = CommercialAdDataModel.fromJson(value.data);
+
+      if (loadMore) {
+        searchScreenAdsDataModel?.result?.commercialAdsItems?.addAll(newData.result?.commercialAdsItems ?? []);
+      } else {
+        searchScreenAdsDataModel = newData;
+      }
+
+      searchCommercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) < (newData.result?.pagination.lastPage ?? 0);
+
+      searchCommercialAdsIsLoadingMore = false;
+      emit(MainGetCommercialAdSuccessState());
+    }).catchError((e){
+      if (e is DioException) {
+        log("Dio Error: ${e.message}");
+        log("Response: ${e.response?.data}");
+        log("Status Code: ${e.response?.statusCode}");
+      } else {
+        log("Non-Dio Error: $e");
+      }
+      emit(MainGetCommercialAdErrorState());
+    });
+  }
+
+  //*For Home Screen Search By Category
+  CommercialAdDataModel? homeScreenAdsDataModel;
+  int currentHomeCommercialAdsPage = 1;
+  bool homeCommercialAdsIsLoadingMore = false;
+  bool homeCommercialAdsHasMore = true;
+  void getHomeCommercialAds({
+    bool loadMore = false,
+    int? categoryId,
+    int? userId,
+    String? search,
+    int? minPrice,
+    int? maxPrice,
+    int? cityId,
+    int? regionId,
+    int? typeId,
+  }){
+    if (loadMore) {
+      if (!commercialAdsHasMore || commercialAdsIsLoadingMore) return;
+      commercialAdsIsLoadingMore = true;
+      currentCommercialAdsPage++;
+      emit(MainGetCommercialAdLoadingMoreState());
+    } else {
+      currentHomeCommercialAdsPage = 1;
+      homeCommercialAdsHasMore = true;
+      emit(MainGetCommercialAdLoadingState());
+    }
+
+    final queryParams = {
+      'page': currentCommercialAdsPage,
+      'category_id': categoryId,
+      'user_id': userId,
+      'search': search,
+      'min_price': minPrice,
+      'max_price': maxPrice,
+      'city_id': cityId,
+      'region_id': regionId,
+      'type_id': typeId,
+    };
+
+    DioHelper.getData(
+      path: EndPoints.getCommercialAd,
+      query: queryParams,
+    ).then((value) {
+      final newData = CommercialAdDataModel.fromJson(value.data);
+
+      if (loadMore) {
+        homeScreenAdsDataModel?.result?.commercialAdsItems?.addAll(newData.result?.commercialAdsItems ?? []);
+      } else {
+        homeScreenAdsDataModel = newData;
+      }
+
+      homeCommercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) < (newData.result?.pagination.lastPage ?? 0);
+
+      homeCommercialAdsIsLoadingMore = false;
+      emit(MainGetCommercialAdSuccessState());
+    }).catchError((e){
+      if (e is DioException) {
+        log("Dio Error: ${e.message}");
+        log("Response: ${e.response?.data}");
+        log("Status Code: ${e.response?.statusCode}");
+      } else {
+        log("Non-Dio Error: $e");
+      }
+      emit(MainGetCommercialAdErrorState());
+    });
+  }
+
+  //*For Commercial Screen
   CommercialAdDataModel? commercialAdDataModel;
   int currentCommercialAdsPage = 1;
   bool commercialAdsIsLoadingMore = false;
   bool commercialAdsHasMore = true;
-  void getCommercialAds({bool loadMore = false}){
+  void getCommercialAds({
+    bool loadMore = false,
+    int? categoryId,
+    int? userId,
+    String? search,
+    int? minPrice,
+    int? maxPrice,
+    int? cityId,
+    int? regionId,
+    int? typeId,
+  }){
     if (loadMore) {
       if (!commercialAdsHasMore || commercialAdsIsLoadingMore) return;
       commercialAdsIsLoadingMore = true;
@@ -160,6 +309,14 @@ class MainCubit extends Cubit<MainCubitStates>{
 
     final queryParams = {
       'page': currentCommercialAdsPage,
+      'category_id': categoryId,
+      'user_id': userId,
+      'search': search,
+      'min_price': minPrice,
+      'max_price': maxPrice,
+      'city_id': cityId,
+      'region_id': regionId,
+      'type_id': typeId,
     };
 
     DioHelper.getData(
@@ -177,9 +334,15 @@ class MainCubit extends Cubit<MainCubitStates>{
       commercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) < (newData.result?.pagination.lastPage ?? 0);
 
       commercialAdsIsLoadingMore = false;
-      log(value.data.toString());
       emit(MainGetCommercialAdSuccessState());
     }).catchError((e){
+      if (e is DioException) {
+        log("Dio Error: ${e.message}");
+        log("Response: ${e.response?.data}");
+        log("Status Code: ${e.response?.statusCode}");
+      } else {
+        log("Non-Dio Error: $e");
+      }
       emit(MainGetCommercialAdErrorState());
     });
   }
@@ -220,7 +383,6 @@ class MainCubit extends Cubit<MainCubitStates>{
       commercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) < (newData.result?.pagination.lastPage ?? 0);
 
       commercialAdsIsLoadingMore = false;
-      log(value.data.toString());
       emit(MainGetMyAdsSuccessState());
     }).catchError((e){
       if (e is DioException) {
@@ -239,7 +401,6 @@ class MainCubit extends Cubit<MainCubitStates>{
     specificAdDataModel = null;
     emit(MainGetCommercialAdByIDLoadingState());
     DioHelper.getData(path: '${EndPoints.getCommercialAd}/$id').then((value){
-      log(value.data.toString());
       specificAdDataModel = SpecificAdDataModel.fromJson(value.data);
       emit(MainGetCommercialAdByIDSuccessState(specificAdDataModel!));
     }).catchError((e){
@@ -291,12 +452,12 @@ class MainCubit extends Cubit<MainCubitStates>{
   void editProfile({required String name, required String phone, File? image}){
     emit(MainEditAccountLoadingState());
     DioHelper.postData(
-        url: EndPoints.createPassword,
-        data: {
-          'name': name,
-          'phone': phone,
-          'image':image,
-        }
+      url: EndPoints.createPassword,
+      data: {
+        'name': name,
+        'phone': phone,
+        'image':image,
+      }
     ).then((value){
       emit(MainEditAccountSuccessState());
     });
@@ -340,12 +501,13 @@ class MainCubit extends Cubit<MainCubitStates>{
   }
 
   void deleteAddress(int id){
-    emit(state);
+    emit(MainDeleteAddressLoadingState());
     DioHelper.deleteData(
       url: EndPoints.deleteMyRegion,
       query: {'id':id}
     ).then((value){
-      emit(state);
+      Repo.profileDataModel!.result!.address.removeWhere((e) => e!.id == id);
+      emit(MainDeleteAddressSuccessState());
     });
   }
 
@@ -398,15 +560,154 @@ class MainCubit extends Cubit<MainCubitStates>{
   }
 
   void saveAd(int id){
-    emit(MainSaveAdSuccessState());
+    emit(MainSaveAdLoadingState());
     DioHelper.postData(
       url: EndPoints.savedAds,
-      data: {'id':id}
+      data: {'id':id,}
     ).then((value){
       emit(MainSaveAdSuccessState());
     });
   }
 
+  void unSaveAd(int id){
+    emit(MainUnSaveAdLoadingState());
+    DioHelper.postData(
+      url: EndPoints.savedAds,
+      data: {'id':id,}
+    ).then((value){
+      emit(MainUnSaveAdSuccessState());
+    });
+  }
+
+  void postAd({
+    required int categoryId,
+    required int typeId,
+    required String title,
+    required String description,
+    required String contactMethod,
+    int negotiable = 0,
+    startDate,
+    endDate,
+    required File mainImage,
+    required List<File> images,
+    required int cityId,
+    required int regionId,
+    price,
+    lowestAuction,
+    exchangeItem
+  }){
+    emit(MainPostAdLoadingState());
+    DioHelper.postData(
+      url: EndPoints.saveAd,
+      data: {
+        'category_id':categoryId,
+        'type_id':typeId,
+        'title':title,
+        'description':description,
+        'contact_method':contactMethod,
+        'negotiable':negotiable,
+        'start_date':startDate,
+        'end_date':endDate,
+        'mainImage':mainImage,
+        'images':images,
+        'city_id':cityId,
+        'region_id':regionId,
+        'price':price,
+        'lowest_auction_price':lowestAuction,
+        'change_product':exchangeItem
+      }
+    ).then((value){
+      showToastMessage(msg: 'Ad Was Added Successfully', toastState: ToastState.success);
+      emit(MainPostAdSuccessState());
+      changeBottomNavBarIndex(0);
+    }).catchError((e){
+      if (e is DioException) {
+        log("Dio Error: ${e.message}");
+        log("Status Code: ${e.response?.statusCode}");
+        log("data: ${e.response?.data}");
+      } else {
+        log("Non-Dio Error: $e");
+      }
+    });
+  }
+
+  //TODO: check on after checking on the error
+  void addAddress({
+    required int cityId,
+    required int regionId,
+    int? blockNo,
+    String? street,
+    int? buildingNo,
+    int? floorNo,
+    int? flatNo,
+    String? notes,
+  }){
+    emit(MainAddAddressLoadingState());
+    DioHelper.postData(
+      url: EndPoints.addMyRegion,
+      data: {
+        'id':regionId,
+        'region_parent':cityId,
+        'block_no':blockNo,
+        'street':street,
+        'building_no':buildingNo,
+        'floor_no':floorNo,
+        'flat_no':flatNo,
+        'notes':notes
+      }
+    ).then((value){
+      log(value.data.toString());
+      if(value.data['success']){
+        Repo.profileDataModel!.result!.address.add(Address.fromJson(value.data));
+        emit(MainAddAddressSuccessState());
+      } else {
+        emit(MainAddAddressErrorState());
+      }
+    });
+  }
+
+  void editAddress({
+    required int regionId,
+    required int id,
+    int? blockNo,
+    String? street,
+    int? buildingNo,
+    int? floorNo,
+    int? flatNo,
+    String? notes,
+  }){
+    emit(MainAddAddressLoadingState());
+    DioHelper.postData(
+      url: EndPoints.editMyRegion,
+      data: {
+        'id':id,
+        'region_id':regionId,
+        'block_no':blockNo,
+        'street':street,
+        'building_no':buildingNo,
+        'floor_no':floorNo,
+        'flat_no':flatNo,
+        'notes':notes
+      }
+    ).then((value){
+      log(value.data.toString());
+      if(value.data['success']){
+        Repo.profileDataModel!.result!.address.add(Address.fromJson(value.data));
+        emit(MainAddAddressSuccessState());
+      } else {
+        emit(MainAddAddressErrorState());
+      }
+    });
+  }
+  
+  SavedAdsDataModel? savedAdsDataModel;
+  void getSavedAds(){
+    emit(MainGetSavedAdsLoadingState());
+    DioHelper.getData(path: EndPoints.savedAds).then((value){
+      savedAdsDataModel = SavedAdsDataModel.fromJson(value.data);
+      emit(MainGetSavedAdsSuccessState());
+    });
+  }
 
   AuctionsDataModel? auctionsDataModel;
   void getAuctionsForAd(int adId){
@@ -414,8 +715,7 @@ class MainCubit extends Cubit<MainCubitStates>{
     DioHelper.getData(
       path: '${EndPoints.getAuctionsForAd}/$adId'
     ).then((value){
-      log(value.data.toString());
-      auctionsDataModel = AuctionsDataModel.fromJson(value.data);
+      auctionsDataModel = value.data == []?AuctionsDataModel.fromJson(value.data):null;
       emit(MainGetAuctionsForAdSuccessState());
     });
   }
@@ -430,6 +730,7 @@ class MainCubit extends Cubit<MainCubitStates>{
       }
     ).then((value){
       if(value.data['success']){
+        auctionsDataModel!.result.add(value.data['result']);
         emit(MainSaveAuctionSuccessState());
       } else {
         showToastMessage(
@@ -438,6 +739,157 @@ class MainCubit extends Cubit<MainCubitStates>{
         );
         emit(MainSaveAuctionErrorState());
       }
+    });
+  }
+
+  void follow(int userToFollowId){
+    emit(MainFollowLoadingState());
+    DioHelper.postData(
+      url: '${EndPoints.followAndUnfollow}/$userToFollowId',
+    ).then((value){
+      log(value.data.toString());
+      followingsDataModel.add(FollowingsDataModel.fromJson(value.data));
+      emit(MainFollowSuccessState());
+    });
+  }
+
+  void unfollow(int userToUnfollowId){
+    emit(MainUnfollowLoadingState());
+    DioHelper.deleteData(
+      url: '${EndPoints.followAndUnfollow}/$userToUnfollowId',
+    ).then((value){
+      followingsDataModel.removeAt(userToUnfollowId);
+      emit(MainUnfollowSuccessState());
+    });
+  }
+
+  List<FollowingsDataModel> followingsDataModel = [];
+  void getFollowing(int userToFollowId){
+    if(AppConstants.isAuthenticated){
+      emit(MainGetFollowingLoadingState());
+      DioHelper.deleteData(
+        url: '${EndPoints.followAndUnfollow}/$userToFollowId',
+      ).then((value){
+        if(value.data != null && value.data is List){
+          followingsDataModel = (value.data as List).map((i) => FollowingsDataModel.fromJson(i)).toList();
+        }
+        emit(MainGetFollowingSuccessState());
+      });
+    }
+
+  }
+
+  ChatsDataModel? chatsDataModel;
+  void getChats(){
+    emit(MainGetChatsLoadingState());
+    DioHelper.getData(
+      path: EndPoints.chat
+    ).then((value){
+      chatsDataModel = ChatsDataModel.fromJson(value.data);
+      emit(MainGetChatsSuccessState());
+    });
+  }
+
+  PlatformFile? pickedFiles;
+  void getChatAttachment() async{
+    emit(MainPickChatFilesLoadingState());
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.any,
+    );
+    if(result == null){
+      emit(MainPickChatFilesErrorState());
+      return;
+    }
+    pickedFiles = result.files.first;
+    emit(MainPickChatFilesSuccessState());
+  }
+
+  void sendMessage(int receiverId, message, String messageType){
+    emit(MainSendMessageLoadingState());
+    DioHelper.postData(
+      url: EndPoints.chat,
+      data: {
+        'receiver_id': receiverId,
+        'message': message,
+        'message_type': messageType,
+      }
+    ).then((value){
+      pickedFiles = null;
+      emit(MainSendMessageSuccessState());
+    }).catchError((e){
+      if (e is DioException) {
+        log("Dio Error: ${e.message}");
+        log("Status Code: ${e.response?.statusCode}");
+      } else {
+        log("Non-Dio Error: $e");
+      }
+      emit(MainSendMessageErrorState());
+    });
+  }
+
+  void deleteMessage(int messageId){
+    emit(MainDeleteMessageLoadingState());
+    DioHelper.deleteData(
+      url: EndPoints.chat,
+      data: {
+        'id': messageId,
+      }
+    ).then((value){
+      emit(MainDeleteMessageSuccessState());
+    }).catchError((e){
+      if (e is DioException) {
+        log("Dio Error: ${e.message}");
+        log("Status Code: ${e.response?.statusCode}");
+      } else {
+        log("Non-Dio Error: $e");
+      }
+      emit(MainDeleteMessageErrorState());
+    });
+  }
+
+  void addToRecentlyViewed(int id){
+    emit(MainAddToRecentlyViewedLoadingState());
+    // DioHelper.postData(url: EndPoints.)
+  }
+
+  void hideAd(int adId){
+    emit(MainHideAdLoadingState());
+    DioHelper.postData(url:
+      EndPoints.hideAd,
+      data: {'ad_id':adId}
+    ).then((value){
+      emit(MainHideAdSuccessState());
+    });
+  }
+
+  ReportOptionsDataModel? reportOptionsDataModel;
+  void getReports(){
+    emit(MainGetReportLoadingState());
+    DioHelper.getData(
+      path: EndPoints.reportOptions
+    ).then((value){
+      reportOptionsDataModel = ReportOptionsDataModel.fromJson(value.data);
+      emit(MainGetReportSuccessState());
+    });
+  }
+
+  void report({required String reportType, required int reportedId, required int option, String? notes}){
+    emit(MainReportLoadingState());
+    DioHelper.postData(
+      url: EndPoints.report,
+      data: {
+        'reportable_id':reportedId,
+        'reportable_type': reportType,
+        'report_option_id': option,
+        'additional_notes': notes
+      }
+    ).then((value){
+      showToastMessage(
+        msg: 'Report was Successfully Sent!',
+        toastState: ToastState.success
+      );
+      emit(MainReportSuccessState());
     });
   }
 }

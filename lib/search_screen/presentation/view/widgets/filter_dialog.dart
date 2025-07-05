@@ -49,7 +49,7 @@ class _FilterDialogState extends State<FilterDialog> {
 
   void _init() async{
     setState(() {
-      selections = [null];
+      selections = [widget.categories.id];
       subCategoryLevels = [[widget.categories]];
     });
 
@@ -136,7 +136,9 @@ class _FilterDialogState extends State<FilterDialog> {
                           keyboardType: TextInputType.number,
                           hint: 'Min',
                           validator: (String? value){
-                            if(int.parse(value!) > int.parse(_maxPriceController.text)){
+                            if(_minPriceController.text.trim().isEmpty){
+                              return null;
+                            } else if(int.parse(_minPriceController.text) > int.parse(_maxPriceController.text)){
                               showToastMessage(msg: 'Minimum Price can\'t be greater than the Maximum Price!!', toastState: ToastState.warning);
                               return '';
                             }
@@ -196,6 +198,11 @@ class _FilterDialogState extends State<FilterDialog> {
                   height: AppSizesDouble.s50,
                   onPressed: (){
                     if(_formKey.currentState!.validate()){
+                      MainCubit.get(context).getSearchCommercialAds(
+                        categoryId: selections.last,
+                        minPrice: int.tryParse(_minPriceController.text) != null?int.parse(_minPriceController.text):null,
+                        maxPrice: int.tryParse(_maxPriceController.text) != null?int.parse(_maxPriceController.text):null,
+                      );
                       Navigator.of(context).pop();
                     }
                   },

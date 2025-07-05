@@ -25,7 +25,7 @@ class DefaultAddressListElement extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text('${address.regionParent??''} ${address.region??''} ${address.blockNo??''} ${address.street}'),
+          Text('${address.regionParent!.name??''} ${address.region!.name??''} ${address.blockNo??''} ${address.street}'),
           Spacer(),
           if(canEdit)
           IconButton(
@@ -37,7 +37,7 @@ class DefaultAddressListElement extends StatelessWidget {
           ),
           if(canEdit)
           IconButton(
-            onPressed: () => showDialog(context: context, builder: (context) => DeleteAddressDialog(address: address,)) ,
+            onPressed: () => showDialog(context: context, builder: (context) => DeleteAddressDialog(address: address,)),
             icon: SvgPicture.asset(
               AssetsManager.trash,
               colorFilter: ColorFilter.mode(ColorsManager.red, BlendMode.srcIn),

@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wakala/auth/presentation/cubit/auth_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
-import 'package:wakala/profile/presentation/view/widgets/profile_screen_arguments.dart';
 import 'package:wakala/utilities/local/locale_changer.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/local/shared_preferences.dart';
@@ -34,6 +33,7 @@ void main() async{
   LocaleChanger localeChanger = LocaleChanger();
   await loadLocalizations(localeChanger);
   // CacheHelper.saveData(key: KeysManager.isGuest, value: false);
+  //CacheHelper.saveData(key: KeysManager.userId, value: 76);
   // CacheHelper.saveData(key: KeysManager.isNotificationsActive, value: true);
   // CacheHelper.saveData(key: KeysManager.finishedOnBoarding, value: true);
   // CacheHelper.saveData(key: KeysManager.isAuthenticated, value: false);
@@ -62,6 +62,7 @@ Future<void> loadCaches() async{
   AppConstants.isAuthenticated = await CacheHelper.getData(key: KeysManager.isAuthenticated)??false;
   AppConstants.finishedOnBoarding = await CacheHelper.getData(key: KeysManager.finishedOnBoarding)??false;
   AppConstants.isNotificationsActive = await CacheHelper.getData(key: KeysManager.isNotificationsActive)??true;
+  AppConstants.userId = await CacheHelper.getData(key: KeysManager.userId)??-1;
   AppConstants.token = await CacheHelper.getData(key: KeysManager.token)??'';
 }
 
@@ -125,7 +126,16 @@ class _MyAppState extends State<MyApp> {
       builder: (context, _) => MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => AuthCubit()),
-          BlocProvider(create: (context) => MainCubit()..getProfile()..getHomeScreen()..getCommercialAds()..getCategories()),
+          BlocProvider(create: (context) => MainCubit()
+            ..getProfile()
+            ..getHomeScreen()
+            ..getCommercialAds()
+            ..getCategories()
+            ..getFollowing(AppConstants.userId)
+            ..getChats()
+            ..getSavedAds()
+            ..getReports()
+          ),
         ],
         child: Directionality(
           textDirection: widget.localeChanger.getLanguage == 'ar'? TextDirection.rtl:TextDirection.ltr,

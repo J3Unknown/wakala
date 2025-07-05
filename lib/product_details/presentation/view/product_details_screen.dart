@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart' as svg_provider;
 import 'package:url_launcher/url_launcher.dart';
@@ -15,6 +16,7 @@ import 'package:wakala/home/data/specific_ad_data_model.dart';
 import 'package:wakala/product_details/presentation/view/widgets/DefaultProductDetailsHeaderSection.dart';
 import 'package:wakala/product_details/presentation/view/widgets/add_auction_alert.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/network/end_points.dart';
 import 'package:wakala/utilities/resources/alerts.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/colors_manager.dart';
@@ -36,7 +38,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   late final ProductTypeData typeData;
   SpecificAdDataModel? dataModel;
-
+  bool isSaved = false;
   @override
   void initState(){
     context.read<MainCubit>().getCommercialAdByID(widget.id);
@@ -50,18 +52,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         centerTitle: true,
         title: Text(LocalizationService.translate(StringsManager.productDetails)),
         actions: [
-          IconButton(onPressed: (){}, icon: SvgPicture.asset(AssetsManager.share, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),))
+          IconButton(
+            onPressed: () => shareButton('${AppConstants.baseUrl + EndPoints.getCommercialAd}/${widget.id}', 'Check this out on Wikala!!'),
+            icon: SvgPicture.asset(AssetsManager.share, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),)
+          )
         ],
       ),
       body: BlocConsumer<MainCubit, MainCubitStates>(
         listener: (context, state){
           if(state is MainGetCommercialAdByIDSuccessState){
             dataModel = state.specificAdDataModel;
+            isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == dataModel!.result!.ad!.id!);
             PairOfIdAndName pair = getTypeById(dataModel!.result!.ad!.typeId!);
             typeData = getProductType(pair.name);
-            log('entering checker');
+            MainCubit.get(context).addToRecentlyViewed(dataModel!.result!.ad!.id!);
             if(typeData.type == 'Auction'){
-            log('inside the chcker');
               MainCubit.get(context).getAuctionsForAd(dataModel!.result!.ad!.id!);
             }
           }
@@ -77,13 +82,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DefaultProductDetailsHeaderSection(previewImages: dataModel!.result!.ad!.images!, typeData: typeData, ad: dataModel!.result!.ad! ,),
+                      DefaultProductDetailsHeaderSection(previewImages: dataModel!.result!.ad!.images!, typeData: typeData, ad: dataModel!.result!.ad!,),
                       if(typeData.type == 'Auction')
                       ConditionalBuilder(
                         condition: MainCubit.get(context).auctionsDataModel != null && MainCubit.get(context).auctionsDataModel!.result.isNotEmpty && state is !MainGetAuctionsForAdLoadingState,
                         fallback: (context){
                           if(state is MainGetAuctionsForAdLoadingState){
-                            //log(MainCubit.get(context).auctionsDataModel!.result.isNotEmpty.toString());
                             return Center(child: CircularProgressIndicator(),);
                           }
                           return SizedBox();
@@ -94,7 +98,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             Row(
                               children: [
                                 CircleAvatar(
-                                  backgroundImage: MainCubit.get(context).auctionsDataModel!.result.first.user.image != null? NetworkImage(AppConstants.baseImageUrl + MainCubit.get(context).auctionsDataModel!.result.first.user.image!):svg_provider.Svg(AssetsManager.defaultAvatar),
+                                  backgroundImage: MainCubit.get(context).auctionsDataModel!.result.first.user!.image != null? NetworkImage(AppConstants.baseImageUrl + MainCubit.get(context).auctionsDataModel!.result.first.user!.image!):svg_provider.Svg(AssetsManager.defaultAvatar),
+                                ),
+                                Text(MainCubit.get(context).auctionsDataModel!.result.first.user!.name, style: Theme.of(context).textTheme.titleLarge,),
+                                Spacer(),
+                                Column(
+                                  children: [
+                                  ],
                                 )
                               ],
                             )
@@ -141,7 +151,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           DefaultUserCard(
                             hasMargin: false,
                             hasUnderline: false,
-                            user: dataModel!.result!.ad!.user!,
+                            id: dataModel!.result!.ad!.user!.id,
+                            name: dataModel!.result!.ad!.user!.name,
+                            image: dataModel!.result!.ad!.user!.image,
                           ),
                         ],
                         fullContent: []
@@ -165,7 +177,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   height: AppSizesDouble.s60,
                   child: Row(
                     children: [
-                      if(dataModel!.result!.ad!.contactMethod == 'phone')
+                      if(dataModel!.result!.ad!.contactMethod == 'chat')
                       Expanded(
                         child: DefaultAuthButton(
                           onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.chat, arguments: dataModel!.result!.ad!.user!.id))),
@@ -179,15 +191,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                       ),
                       SizedBox(width: AppSizesDouble.s10,),
-                      if(dataModel!.result!.ad!.contactMethod == 'chat')
+                      if(dataModel!.result!.ad!.contactMethod == 'phone')
                       Expanded(
                         child: DefaultAuthButton(
-                          onPressed: () async{
-                            final Uri uri = Uri(scheme: 'tel', path: dataModel!.result!.ad!.user!.phone!.toString());
-                            if(await canLaunchUrl(uri)){
-                              await launchUrl(uri);
-                            }
-                          },
+                          onPressed: () async => await FlutterPhoneDirectCaller.callNumber(dataModel!.result!.ad!.user!.phone!.toString()),
                           title: StringsManager.call,
                           icon: AssetsManager.call,
                           iconColor: ColorsManager.white,
