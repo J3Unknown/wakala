@@ -6,7 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/home/data/categories_data_model.dart';
-import 'package:wakala/home/presentation/data/search_screen_arguments.dart';
+import 'package:wakala/home/data/search_screen_arguments.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/colors_manager.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
@@ -83,7 +84,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     backgroundColor: ColorsManager.white,
                     checkmarkColor: ColorsManager.white,
                     selectedColor: ColorsManager.primaryColor,
-                    label: Text(StringsManager.all,),
+                    label: Text(LocalizationService.translate(StringsManager.all),),
                     selected: selectedMainCategoryIndex == -1,
                     labelStyle: TextStyle(color: selectedMainCategoryIndex == -1 ? ColorsManager.white : ColorsManager.black),
                   ),
@@ -135,7 +136,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     child: Column(
                       children: [
                         ListTile(
-                          title: Text(StringsManager.all),
+                          title: Text(LocalizationService.translate(StringsManager.all)),
                           onTap: (){
                             setState(() {
                               selectedSubCategoryIndex = -1;

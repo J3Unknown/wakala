@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/utilities/local/locale_changer.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/local/shared_preferences.dart';
 import 'package:wakala/utilities/network/dio.dart';
 import 'package:wakala/utilities/network/end_points.dart';
@@ -70,15 +71,15 @@ class AuthCubit extends Cubit<AuthStates>{
 
   void sendVerificationCode(String phoneNumber) {
     emit(AuthSendingOtpCodeLoadingState());
-    DioHelper.postData(url: EndPoints.sendOtpRegister, data: {'phone':phoneNumber}).then((value){
-      if(value.data['success']){
-        otpCode = value.data['result']['otpCode'];
-        log(otpCode.toString());
+    DioHelper.postData(url: EndPoints.sendOtpRegister, data: {KeysManager.phone:phoneNumber}).then((value){
+      if(value.data[KeysManager.success]){
+        otpCode = value.data[KeysManager.result][KeysManager.otpCode];
+        //log(otpCode.toString());
         emit(AuthSendingOtpCodeSuccessState());
       } else {
         emit(AuthSendingOtpCodeErrorState());
         showToastMessage(
-          msg: value.data['msg'],
+          msg: value.data[KeysManager.msg],
           toastState: ToastState.warning,
         );
       }
@@ -89,15 +90,13 @@ class AuthCubit extends Cubit<AuthStates>{
     emit(AuthSendingOtpCodeLoadingState());
     DioHelper.postData(
       url: EndPoints.sendOtp,
-      data: {
-        'phone': phone
-      },
+      data: {KeysManager.phone: phone},
     ).then((value){
-      if(value.data['success']){
-        otpCode = value.data['result']['otp_code'];
+      if(value.data[KeysManager.success]){
+        otpCode = value.data[KeysManager.result][KeysManager.otpUnderscoreCode];
         emit(AuthSendingOtpCodeSuccessState());
       } else {
-        showToastMessage(msg: value.data['msg'], toastState: ToastState.error);
+        showToastMessage(msg: value.data[KeysManager.msg], toastState: ToastState.error);
         emit(AuthSendingOtpCodeErrorState());
       }
     });
@@ -108,14 +107,14 @@ class AuthCubit extends Cubit<AuthStates>{
     DioHelper.postData(
       url: EndPoints.resetPassword,
       data: {
-        'phone':phone,
-        'password':password,
-        'password_confirmation':passwordConfirmation,
-        'otpCode':otpCode
+        KeysManager.phone:phone,
+        KeysManager.password:password,
+        KeysManager.passwordConfirmation:passwordConfirmation,
+        KeysManager.otpCode:otpCode
       }
     ).then((value){
       showToastMessage(
-        msg: 'Password Was set Successfully!',
+        msg: LocalizationService.translate(StringsManager.passwordSetSuccessfully),
         toastState: ToastState.success
       );
     });
@@ -126,18 +125,18 @@ class AuthCubit extends Cubit<AuthStates>{
     DioHelper.postData(
       url: EndPoints.register,
       data: {
-        'phone': phone,
-        'password': password,
-        'name': name,
-        'type':'user',
-        'otpCode':otpCode
+        KeysManager.phone: phone,
+        KeysManager.password: password,
+        KeysManager.name: name,
+        KeysManager.type: KeysManager.user,
+        KeysManager.otpCode: otpCode
       }
     ).then((value){
       Repo.profileDataModel = ProfileDataModel.fromJson(value.data);
       _loginCaches();
       emit(AuthSignUpSuccessState());
     }).catchError((e){
-      showToastMessage(msg: "An Error occurred, please try again later", toastState: ToastState.error);
+      showToastMessage(msg: LocalizationService.translate(StringsManager.errorOccurred), toastState: ToastState.error);
     });
   }
   void _loginCaches(){
@@ -157,21 +156,21 @@ class AuthCubit extends Cubit<AuthStates>{
     DioHelper.postData(
       url: EndPoints.login,
       data: {
-        'phone': parsedPhone,
-        'password': password
+        KeysManager.phone: parsedPhone,
+        KeysManager.password: password
       }
     ).then((value){
-      if(value.data['success']){
+      if(value.data[KeysManager.success]){
         Repo.profileDataModel = ProfileDataModel.fromJson(value.data);
         _loginCaches();
         emit(AuthLoginSuccessState());
       } else {
-        showToastMessage(msg: "couldn't login: ${value.data['msg']}", toastState: ToastState.error);
+        showToastMessage(msg: "${LocalizationService.translate(StringsManager.couldNotLogin)} ${value.data[KeysManager.msg]}", toastState: ToastState.error);
         emit(AuthLoginErrorState());
       }
     }).catchError((e){
       log(e.toString());
-        showToastMessage(msg: "An Error occurred, Check you credentials again!!", toastState: ToastState.error);
+        showToastMessage(msg: LocalizationService.translate(StringsManager.errorInCredentials), toastState: ToastState.error);
         emit(AuthLoginErrorState());
     });
   }

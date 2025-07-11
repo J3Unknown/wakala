@@ -22,6 +22,10 @@ class AppConstants{
   static bool finishedOnBoarding = false;
   static String token = '';
 
+  static const List<String> supportedImageFormats = ['jpg', 'jpeg', 'png', 'webp'];
+
+  static List<PairOfIdAndName> paymentOptions = [PairOfIdAndName.fromJson({'id':1,'name':'Cash'})];
+
 }
 
 PairOfIdAndName getTypeById(int id){
@@ -36,11 +40,13 @@ PairOfIdAndName getTypeById(int id){
       return productsTypes[2];
   }
 }
+
 List<PairOfIdAndName> productsTypes = [
   PairOfIdAndName.fromJson({'id':1, 'name':'Exchange'}),
   PairOfIdAndName.fromJson({'id':2, 'name':'Auction'}),
   PairOfIdAndName.fromJson({'id':3, 'name':'Sale'}),
 ];
+
 class ProductTypeData{
   String type = "sale";
   Color color = ColorsManager.amber;

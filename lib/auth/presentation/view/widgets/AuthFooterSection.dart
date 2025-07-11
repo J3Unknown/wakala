@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/values_manager.dart';
@@ -22,7 +23,7 @@ class AuthFooterSection extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(_title, style: _textStyle??Theme.of(context).textTheme.titleMedium,),
+          Text(LocalizationService.translate(_title), style: _textStyle??Theme.of(context).textTheme.titleMedium,),
           SizedBox(
             height: AppSizesDouble.s25,
             child: TextButton(
@@ -31,7 +32,7 @@ class AuthFooterSection extends StatelessWidget {
               ),
               onPressed: _onPressed,
               child: Text(
-                _buttonTitle,
+                LocalizationService.translate(_buttonTitle),
                 style: _textStyle?.copyWith(color: ColorsManager.primaryColor)??Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor)
               )
             ),

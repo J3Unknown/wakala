@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localization/flutter_localization.dart';
 
 import '../../../../utilities/local/localization_services.dart';
 import '../../../../utilities/resources/colors_manager.dart';

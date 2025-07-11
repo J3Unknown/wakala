@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/profile/data/add_address_arguments.dart';
 import 'package:wakala/profile/presentation/view/widgets/default_address_list_element.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
@@ -27,27 +29,30 @@ class AddressesListScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
-        child: CustomScrollView(
-          slivers: [
-            SliverList.separated(
-              separatorBuilder: (context, index) => SizedBox(height: AppSizesDouble.s10,),
-              itemCount: Repo.profileDataModel!.result!.address.length,
-              itemBuilder: (context, index) => DefaultAddressListElement(
-                address: Repo.profileDataModel!.result!.address[index]!,
-              )
-            ),
-            SliverToBoxAdapter(
-              child: TextButton(
-                onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.addAddress, arguments: AddAddressArguments(isEdit: false)))),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(AssetsManager.add, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),),
-                    Text(LocalizationService.translate(StringsManager.addAddress), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),)
-                  ],
+        child: BlocBuilder(
+          bloc: MainCubit.get(context),
+          builder: (context, state) => CustomScrollView(
+            slivers: [
+              SliverList.separated(
+                separatorBuilder: (context, index) => SizedBox(height: AppSizesDouble.s10,),
+                itemCount: Repo.profileDataModel!.result!.address.length,
+                itemBuilder: (context, index) => DefaultAddressListElement(
+                  address: Repo.profileDataModel!.result!.address[index]!,
                 )
               ),
-            )
-          ],
+              SliverToBoxAdapter(
+                child: TextButton(
+                  onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.addAddress, arguments: AddAddressArguments(isEdit: false)))),
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(AssetsManager.add, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),),
+                      Text(LocalizationService.translate(StringsManager.addAddress), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),)
+                    ],
+                  )
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

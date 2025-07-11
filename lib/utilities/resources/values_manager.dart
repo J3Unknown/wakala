@@ -30,6 +30,7 @@ class AppSizesDouble{
   static const double s0 = 0;
   static const double s0_6 = 0.6;
   static const double s0_7 = 0.7;
+  static const double s0_8 = 0.8;
   static const double s1_5 = 1.5;
   static const double s1 = 1;
   static const double s2 = 2;
@@ -49,6 +50,7 @@ class AppSizesDouble{
   static const double s40 = 40;
   static const double s45 = 45;
   static const double s50 = 50;
+  static const double s57 = 57;
   static const double s60 = 60;
   static const double s70 = 70;
   static const double s80 = 80;

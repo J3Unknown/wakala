@@ -250,25 +250,25 @@ class _ReportAlertState extends State<ReportAlert> {
         ],
       ),
       actions: [
-          DefaultAuthButton(
-            onPressed: (){
-              if(selection != null){
-                MainCubit.get(context).report(
-                  option: selection!,
-                  reportedId: int.parse(widget.reportedId),
-                  reportType: widget.reportType,
-                  notes: _notesController.text
-                );
-                Navigator.of(context).pop();
-              } else {
-                showToastMessage(msg: 'Please select an option first', toastState: ToastState.warning);
-              }
-            },
-            backgroundColor: ColorsManager.primaryColor,
-            foregroundColor: ColorsManager.white,
-            hasBorder: false,
-            title: LocalizationService.translate(StringsManager.submit)
-          )
+        DefaultAuthButton(
+          onPressed: (){
+            if(selection != null){
+              MainCubit.get(context).report(
+                option: selection!,
+                reportedId: int.parse(widget.reportedId),
+                reportType: widget.reportType,
+                notes: _notesController.text
+              );
+              Navigator.of(context).pop();
+            } else {
+              showToastMessage(msg: 'Please select an option first', toastState: ToastState.warning);
+            }
+          },
+          backgroundColor: ColorsManager.primaryColor,
+          foregroundColor: ColorsManager.white,
+          hasBorder: false,
+          title: LocalizationService.translate(StringsManager.submit)
+        )
       ],
     );
   }

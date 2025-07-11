@@ -25,6 +25,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   int? id;
   late bool isEdit;
 
+  late GlobalKey<FormState> _formKey;
   late final TextEditingController _streetController;
   late final TextEditingController _blockNoController;
   late final TextEditingController _buildingNoController;
@@ -34,6 +35,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
   @override
   void initState() {
+    _formKey = GlobalKey();
     _streetController = TextEditingController();
     _blockNoController = TextEditingController();
     _buildingNoController = TextEditingController();
@@ -52,14 +54,14 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       isEdit = args.isEdit;
       if(args.address != null){
         id = args.address?.id;
-        _streetController = TextEditingController(text: args.address?.street);
+        _streetController.text =  args.address?.street??'';
         selectedCity = args.address?.regionParent!.id;
         selectedRegion = args.address?.region!.id;
-        _blockNoController = TextEditingController(text: args.address?.blockNo);
-        _buildingNoController = TextEditingController(text: args.address?.buildingNo);
-        _flatNoController = TextEditingController(text: args.address?.flatNo);
-        _floorNoController = TextEditingController(text: args.address?.floorNo);
-        _noteController = TextEditingController(text: args.address?.notes);
+        _blockNoController.text = args.address?.blockNo??'';
+        _buildingNoController.text = args.address?.buildingNo??'';
+        _flatNoController.text = args.address?.flatNo??'';
+        _floorNoController.text = args.address?.floorNo??'';
+        _noteController.text = args.address?.notes??'';
       }
     }
     super.didChangeDependencies();
@@ -124,52 +126,88 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                       selectedRegion = value;
                     });
                   }
-                ):
-                Center(child: CircularProgressIndicator(),),
+                ): Center(child: CircularProgressIndicator(),),
               SizedBox(height: AppSizesDouble.s10,),
-              DefaultTextInputField(
-                controller: _blockNoController,
-                obscured: false,
-                hintText: 'Block Number',
-                borderColor: ColorsManager.grey3,
-                isOutlined: true,
-                keyboardType: TextInputType.number,
-              ),
-              SizedBox(height: AppSizesDouble.s10,),
-              DefaultTextInputField(
-                controller: _streetController,
-                obscured: false,
-                hintText: 'Street',
-                borderColor: ColorsManager.grey3,
-                isOutlined: true,
-                keyboardType: TextInputType.text,
-              ),
-              SizedBox(height: AppSizesDouble.s10,),
-              DefaultTextInputField(
-                controller: _buildingNoController,
-                obscured: false,
-                hintText: 'Building Number',
-                borderColor: ColorsManager.grey3,
-                isOutlined: true,
-                keyboardType: TextInputType.number,
-              ),
-              SizedBox(height: AppSizesDouble.s10,),
-              DefaultTextInputField(
-                controller: _floorNoController,
-                obscured: false,
-                hintText: 'Floor Number',
-                borderColor: ColorsManager.grey3,
-                isOutlined: true,
-                keyboardType: TextInputType.number,
-              ),
-              SizedBox(height: AppSizesDouble.s10,),
-              DefaultTextInputField(
-                controller: _flatNoController,
-                obscured: false,
-                hintText: 'Flat Number',
-                borderColor: ColorsManager.grey3,
-                isOutlined: true,
-                keyboardType: TextInputType.number,
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    DefaultTextInputField(
+                      controller: _blockNoController,
+                      obscured: false,
+                      hintText: 'Block Number',
+                      borderColor: ColorsManager.grey3,
+                      isOutlined: true,
+                      keyboardType: TextInputType.number,
+                      validator: (value){
+                        if(value != null && value.isEmpty){
+                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: AppSizesDouble.s10,),
+                    DefaultTextInputField(
+                      controller: _streetController,
+                      obscured: false,
+                      hintText: 'Street',
+                      borderColor: ColorsManager.grey3,
+                      isOutlined: true,
+                      keyboardType: TextInputType.text,
+                      validator: (value){
+                        if(value != null && value.isEmpty){
+                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: AppSizesDouble.s10,),
+                    DefaultTextInputField(
+                      controller: _buildingNoController,
+                      obscured: false,
+                      hintText: 'Building Number',
+                      borderColor: ColorsManager.grey3,
+                      isOutlined: true,
+                      keyboardType: TextInputType.number,
+                      validator: (value){
+                        if(value != null && value.isEmpty){
+                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: AppSizesDouble.s10,),
+                    DefaultTextInputField(
+                      controller: _floorNoController,
+                      obscured: false,
+                      hintText: 'Floor Number',
+                      borderColor: ColorsManager.grey3,
+                      isOutlined: true,
+                      keyboardType: TextInputType.number,
+                      validator: (value){
+                        if(value != null && value.isEmpty){
+                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: AppSizesDouble.s10,),
+                    DefaultTextInputField(
+                      controller: _flatNoController,
+                      obscured: false,
+                      hintText: 'Flat Number',
+                      borderColor: ColorsManager.grey3,
+                      isOutlined: true,
+                      keyboardType: TextInputType.number,
+                      validator: (value){
+                        if(value != null && value.isEmpty){
+                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                )
               ),
               SizedBox(height: AppSizesDouble.s10,),
               DefaultTextInputField(
@@ -182,23 +220,12 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
               ),
               SizedBox(height: AppSizesDouble.s10,),
               DefaultAuthButton(
-                onPressed: (){ //TODO: Add the EDIT functionalities
-                  if(isEdit){
-                    cubit.editAddress(
-                      regionId: selectedRegion!,
-                      id: id!,
-                      blockNo: _blockNoController.text.isNotEmpty?int.parse(_blockNoController.text):null,
-                      buildingNo: _buildingNoController.text.isNotEmpty?int.parse(_buildingNoController.text):null,
-                      flatNo: _flatNoController.text.isNotEmpty?int.parse(_flatNoController.text):null,
-                      floorNo: _floorNoController.text.isNotEmpty?int.parse(_floorNoController.text):null,
-                      street: _streetController.text,
-                      notes: _noteController.text
-                    );
-                  } else{
-                    if(selectedCity != null && selectedRegion != null){
-                      cubit.addAddress(
-                        cityId: selectedCity!,
+                onPressed: (){
+                  if(_formKey.currentState!.validate()){
+                    if(isEdit){
+                      cubit.editAddress(
                         regionId: selectedRegion!,
+                        id: id!,
                         blockNo: _blockNoController.text.isNotEmpty?int.parse(_blockNoController.text):null,
                         buildingNo: _buildingNoController.text.isNotEmpty?int.parse(_buildingNoController.text):null,
                         flatNo: _flatNoController.text.isNotEmpty?int.parse(_flatNoController.text):null,
@@ -207,10 +234,23 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                         notes: _noteController.text
                       );
                     } else{
-                      if(selectedCity == null){
-                        showToastMessage(msg: 'select a city first', toastState: ToastState.warning);
-                      } else {
-                        showToastMessage(msg: 'select a region first', toastState: ToastState.warning);
+                      if(selectedCity != null && selectedRegion != null){
+                        log(selectedRegion.toString());
+                        cubit.addAddress(
+                          regionId: selectedRegion!,
+                          blockNo:_blockNoController.text.trim(),
+                          buildingNo: _buildingNoController.text.trim(),
+                          flatNo: _flatNoController.text.trim(),
+                          floorNo: _floorNoController.text.trim(),
+                          street: _streetController.text.trim(),
+                          notes: _noteController.text.trim()
+                        );
+                      } else{
+                        if(selectedCity == null){
+                          showToastMessage(msg: 'select a city first', toastState: ToastState.warning);
+                        } else {
+                          showToastMessage(msg: 'select a region first', toastState: ToastState.warning);
+                        }
                       }
                     }
                   }

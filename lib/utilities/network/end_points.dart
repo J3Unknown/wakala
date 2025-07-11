@@ -49,8 +49,7 @@ class EndPoints{
   static const String recentlyViewed = ''; //TODO: Get the correct end point after is created
 
   //*Favorite Chats
-  static const String getAndAddFavorite = 'favorite-ads';
-  static const String deleteFavorite = 'favorite-ads';
+  static const String favorites = 'favorite-ads';
 
   //*notifications
   static const String notifications = 'notifications';

@@ -9,6 +9,7 @@ import 'package:wakala/chat/data/chat_screen_arguments.dart';
 import 'package:wakala/chat/data/chats_data_model.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/colors_manager.dart';
 import 'package:wakala/utilities/resources/components.dart';
@@ -34,7 +35,6 @@ class _ChatScreenState extends State<ChatScreen> {
   String? _receiverImage;
   Chat? _chat;
 
-  //TODO: Update it to receive the full chat not only _chat.messages list
   @override
   void didChangeDependencies() {
     ChatScreenArgument? args = ModalRoute.of(context)!.settings.arguments as ChatScreenArgument?;
@@ -43,15 +43,15 @@ class _ChatScreenState extends State<ChatScreen> {
       _receiverName = args.name;
       _receiverImage = args.image;
       _chat = args.chat??Chat(
-          sender: User(
-            id: Repo.profileDataModel!.result!.id,
-            name: Repo.profileDataModel!.result!.name,
-            phone: Repo.profileDataModel!.result!.phone,
-            image: Repo.profileDataModel!.result!.image
-          ),
-          receiver: User(id: args.id, name: args.name, image: args.image),
-          messages: []
-      );;
+        sender: User(
+          id: Repo.profileDataModel!.result!.id,
+          name: Repo.profileDataModel!.result!.name,
+          phone: Repo.profileDataModel!.result!.phone,
+          image: Repo.profileDataModel!.result!.image
+        ),
+        receiver: User(id: args.id, name: args.name, image: args.image),
+        messages: []
+      );
     }
     super.didChangeDependencies();
   }
@@ -95,7 +95,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                   );
                 },
-                itemCount: _chat != null?_chat!.messages.length:0,
+                itemCount: _chat != null?_chat!.messages.length:AppSizes.s0,
               ),
             ),
             DefaultChatSendButton(receiverId: _receiverId, chat: _chat!,)
@@ -126,16 +126,15 @@ class _DefaultChatSendButtonState extends State<DefaultChatSendButton> {
   Widget build(BuildContext context) {
     return BlocConsumer<MainCubit, MainCubitStates>(
       listener: (context, state){
-        //TODO: Change the state into the correct state after finishing the check
-        if(state is MainSendMessageErrorState || state is MainSendMessageSuccessState){
+        if(state is MainSendMessageSuccessState){
           bool isValid = widget.chat.messages.isNotEmpty;
           widget.chat.messages.add(
             Message(
-              id:isValid?widget.chat.messages.last.id+1:0,
+              id:isValid?widget.chat.messages.last.id+AppSizes.s1:AppSizes.s0,
               senderId: Repo.profileDataModel!.result!.id,
               receiverId: widget.receiverId,
               message: MainCubit.get(context).pickedFiles != null?MainCubit.get(context).pickedFiles!.name:_messageController.text,
-              messageType: MainCubit.get(context).pickedFiles == null?'Text':'File',
+              messageType: MainCubit.get(context).pickedFiles == null?KeysManager.text:KeysManager.file,
               createdAt: DateTime.now().toString(),
               updatedAt: DateTime.now().toString(),
               sender: isValid?(widget.chat.messages.last.receiverId == Repo.profileDataModel!.result!.id?widget.chat.messages.last.sender:widget.chat.messages.last.receiver):widget.chat.sender,
@@ -160,24 +159,24 @@ class _DefaultChatSendButtonState extends State<DefaultChatSendButton> {
                 controller: _messageController,
                 isOutlined: true,
                 obscured: false,
-                minLines: 1,
-                maxLines: 5,
-                hintText: 'Type something...',
+                minLines: AppSizes.s1,
+                maxLines: AppSizes.s6,
+                hintText: LocalizationService.translate(StringsManager.typeSomething),
                 suffixIcon: AssetsManager.attachment,
                 onSuffixPressed: () => MainCubit.get(context).getChatAttachment(),
               )
             ),
-            SizedBox(width: 10,),
+            SizedBox(width: AppSizesDouble.s10,),
             SizedBox(
-              height: 57,
-              width: 57,
+              height: AppSizesDouble.s57,
+              width: AppSizesDouble.s57,
               child: IconButton.filled(
                 onPressed: (){
                   if(_messageController.text.trim().isNotEmpty || MainCubit.get(context).pickedFiles != null){
                     MainCubit.get(context).sendMessage(
                       widget.receiverId,
                       MainCubit.get(context).pickedFiles?? _messageController.text,
-                      MainCubit.get(context).pickedFiles == null? 'Text':'File'
+                      MainCubit.get(context).pickedFiles == null? KeysManager.text:KeysManager.file
                     );
                   }
                 },
@@ -246,10 +245,10 @@ class ReceiverChatCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           CircleAvatar(
-            radius: 20,
+            radius: AppSizesDouble.s20,
             backgroundImage: _user.image != null? NetworkImage(AppConstants.baseImageUrl + _user.image!):svg_picture.Svg(AssetsManager.defaultAvatar),
           ),
-          SizedBox(width: 10,),
+          SizedBox(width: AppSizesDouble.s10,),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -267,13 +266,13 @@ class ReceiverChatCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppSizesDouble.s8)
                     ),
                     width: double.infinity,
-                    child: _message.messageType != 'File'?
-                    Text(_message.message, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorsManager.black),)
-                    : DefaultChatFile(file: _message.message,),
+                    child: _message.messageType != KeysManager.file?
+                    Text(_message.message, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorsManager.black),) :
+                    DefaultChatFile(file: _message.message,),
                   ),
                 ),
               ),
-              SizedBox(height: 5,),
+              SizedBox(height: AppSizesDouble.s5,),
               Text(DateFormat(StringsManager.dateFormat).format(DateTime.parse(_message.createdAt)), style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorsManager.grey))
             ],
           ),
@@ -282,6 +281,7 @@ class ReceiverChatCard extends StatelessWidget {
     );
   }
 }
+
 class SenderChatCard extends StatelessWidget {
   const SenderChatCard({
     super.key,
@@ -316,17 +316,17 @@ class SenderChatCard extends StatelessWidget {
                     ),
                     padding: EdgeInsets.all(AppPaddings.p10),
                     decoration: BoxDecoration(
-                        color: ColorsManager.primaryColor,
-                        borderRadius: BorderRadius.circular(AppSizesDouble.s8)
+                      color: ColorsManager.primaryColor,
+                      borderRadius: BorderRadius.circular(AppSizesDouble.s8)
                     ),
                     width: double.infinity,
-                    child: _message.messageType != 'File'?
+                    child: _message.messageType != KeysManager.file?
                     Text(_message.message, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorsManager.white),) :
                     DefaultChatFile(file: _message.message,),
                   ),
                 ),
               ),
-              SizedBox(height: 5,),
+              SizedBox(height: AppSizesDouble.s5,),
               Text(DateFormat(StringsManager.dateFormat).format(DateTime.parse(_message.createdAt)), style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorsManager.grey))
             ],
           ),

@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
-import 'package:wakala/home/data/specific_ad_data_model.dart';
 import 'package:wakala/profile/presentation/view/widgets/profile_screen_arguments.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
@@ -12,7 +11,7 @@ import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/values_manager.dart';
 
 class DefaultUserCard extends StatelessWidget {
-  DefaultUserCard({
+  const DefaultUserCard({
     super.key,
     this.hasMargin = true,
     this.hasUnderline = true,
@@ -23,9 +22,9 @@ class DefaultUserCard extends StatelessWidget {
 
   final bool hasMargin;
   final bool hasUnderline;
-  int id;
-  String? image;
-  String name;
+  final int id;
+  final String? image;
+  final String name;
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -39,10 +38,10 @@ class DefaultUserCard extends StatelessWidget {
         child: Row(
           children: [
             CircleAvatar(
-              radius: 25,
+              radius: AppSizesDouble.s25,
               backgroundImage: image != null? NetworkImage(AppConstants.baseImageUrl + image!):Svg(AssetsManager.defaultAvatar),
             ),
-            SizedBox(width: 5,),
+            SizedBox(width: AppSizesDouble.s5,),
             Text(name, style: Theme.of(context).textTheme.titleMedium)
           ],
         ),

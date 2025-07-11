@@ -52,13 +52,13 @@ class AuthLayout extends StatelessWidget {
                   DefaultAuthButton(
                     onPressed: () => Navigator.push(context,RoutesGenerator.getRoute(RouteSettings(name: Routes.login))),
                     icon: AssetsManager.phoneIcon,
-                    title: LocalizationService.translate(StringsManager.signInWithPhone),
+                    title: StringsManager.signInWithPhone,
                   ),
-                  DefaultAuthButton(
-                    onPressed: (){},
-                    icon: AssetsManager.googleIcon,
-                    title: LocalizationService.translate(StringsManager.signInWithGoogle),
-                  ),
+                  // DefaultAuthButton(
+                  //   onPressed: (){},
+                  //   icon: AssetsManager.googleIcon,
+                  //   title: StringsManager.signInWithGoogle,
+                  // ),
                ]
               ),
               AuthSection(
@@ -67,20 +67,20 @@ class AuthLayout extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(bottom: AppPaddings.p20),
                     child: AuthFooterSection(
-                      title: LocalizationService.translate(StringsManager.notAMemberYet),
-                      buttonTitle: LocalizationService.translate(StringsManager.signUp),
+                      title: StringsManager.notAMemberYet,
+                      buttonTitle: StringsManager.signUp,
                       onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.signUp))),
                       textStyle: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                   AuthFooterSection(
-                    title: LocalizationService.translate(StringsManager.byContinueYouAgree),
-                    buttonTitle: LocalizationService.translate(StringsManager.termsOfService),
+                    title: StringsManager.byContinueYouAgree,
+                    buttonTitle: StringsManager.termsOfService,
                     onPressed: (){},
                   ),
                   AuthFooterSection(
-                    title: LocalizationService.translate(StringsManager.andOur),
-                    buttonTitle: LocalizationService.translate(StringsManager.privacyPolicy),
+                    title:StringsManager.andOur,
+                    buttonTitle: StringsManager.privacyPolicy,
                     onPressed: (){},
                   ),
                 ]

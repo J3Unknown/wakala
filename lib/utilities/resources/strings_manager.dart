@@ -21,8 +21,8 @@ class StringsManager{
   static const String save = 'Save';
   static const String share = 'Share';
   static const String productDetails = 'Product Details';
-  static const String english = 'English'; //! not translated
-  static const String arabic = 'عربي'; //! not translated
+  static const String english = 'English'; //! not translated (displayed as it is)
+  static const String arabic = 'عربي'; //! not translated (displayed as it is)
   static const String emptyFieldMessage = 'This field can not be empty';
   static const String passwordMismatchMessage = 'Password Mismatch';
   static const String showVerifiedAccountsFirst = 'Show Verified Accounts First';
@@ -31,17 +31,24 @@ class StringsManager{
   static const String editProduct = 'Edit Product';
   static const String dateFormat = 'dd - MM - yyyy';
   static const String all = 'All';
-  static const String addAuction = 'Add Auction'; //! not added to translation yet
-  static const String putAuctionPrice = 'Put Auction Price'; //! not added to translation yet
-  static const String auctionPriceWarning = 'The Price Can not be lower than the Lowest Auction Price'; //! not added to translation yet
+  static const String addAuction = 'Add Auction';
+  static const String putAuctionPrice = 'Put Auction Price';
+  static const String auctionPriceWarning = 'The Price Can not be lower than the Lowest Auction Price';
+  static const String canNotLaunch = 'can not launch';
+  static const String errorOccurred = 'An Error occurred, please try again later';
+  static const String couldNotLogin = "Couldn't login:";
+  static const String errorInCredentials = "An Error occurred, Check you credentials again!!";
+  static const String loginSuccess = "login Success";
+  static const String checkThisOut = "check this on Wikala";
+  static const String description = 'Description';
 
   //*address
   static const String deleteAddress = 'Delete Address';
-  static const String selectAddress = 'Select Address'; //! not added to translation yet
+  static const String selectAddress = 'Select Address';
   static const String deleteAddressWarning = 'Do You want to really delete this Address?';
-  static const String region = 'region'; //! not added to translation yet
-  static const String cities = 'cities'; //! not added to translation yet
-  static const String noAddressesWarning = 'There are no Addresses Yet!!, Try Add One First'; //! not added to translation yet
+  static const String region = 'region';
+  static const String cities = 'cities';
+  static const String noAddressesWarning = 'There are no Addresses Yet!!, Try Add One First';
 
   //*searching
   static const String searchHint = 'what are you looking for?';
@@ -53,11 +60,20 @@ class StringsManager{
   static const String showAll = 'show all';
 
   //*post Screen
-  static const String addType = 'Add Type'; //! not added to translation yet
-  static const String exchangeItem = 'Exchange Item'; //! not added to translation yet
-  static const String lowestAuctionPrice = 'Lowest Auction Price'; //! not added to translation yet
-  static const String productType = 'Product Type'; //! not added to translation yet
-  static const String cashOptions = 'Cash Options'; //! not added to translation yet
+  static const String addType = 'Add Type';
+  static const String exchangeItem = 'Exchange Item';
+  static const String lowestAuctionPrice = 'Lowest Auction Price';
+  static const String productType = 'Product Type';
+  static const String cashOptions = 'Cash Options';
+  static const String adAddedSuccessfully = 'Ad Was Added Successfully';
+  static const String negotiable = 'Negotiable';
+  static const String contactMethod = 'Contact Method';
+  static const String phone = 'phone';
+  static const String oneCategorySelectionWarning = 'Make Sure to select at least 1 category';
+  static const String twoImagesWarning = 'Select at least 2 images (Main Image Preview, and one product image)';
+  static const String titleMustBeAdded = 'Title Must be Added';
+  static const String descriptionMustBeAdded = 'Description must be added';
+  static const String selectYourAddress = 'select your address';
 
 
   //*Auth
@@ -93,6 +109,10 @@ class StringsManager{
   static const String oneSpecialCharacterWarning = 'Password must contain at least 1 special character';
   static const String oneUppercaseCharacterWarning = 'Password must have at least 1 Uppercase character';
   static const String invalidOtp = 'Invalid OTP';
+  static const String passwordSetSuccessfully = 'Password Was set Successfully!';
+  static const String theImage = 'The Image:';
+  static const String greaterThanOneMB = 'is greater than 1 MB';
+  static const String unsupportedFormat = 'has an unsupported format!';
 
   //* more Screen
   static const String notificationsSettings = 'Notifications Settings';
@@ -109,11 +129,14 @@ class StringsManager{
   static const String profile = 'Profile';
   static const String editProfile = 'Edit My Profile';
   static const String loginMessage = 'Please Login First To Proceed into this action';
-  static const String contactUs = 'Contact Our technical support team now'; //! not added to translation yet
-  static const String whatsapp = 'Whatsapp'; //! not added to translation yet
-  static const String facebook = 'Facebook'; //! not added to translation yet
-  static const String instagram = 'Instagram'; //! not added to translation yet
-  static const String youtube = 'Youtube'; //! not added to translation yet
+  static const String contactUs = 'Contact Our technical support team now';
+  static const String whatsapp = 'Whatsapp';
+  static const String facebook = 'Facebook';
+  static const String instagram = 'Instagram';
+  static const String youtube = 'Youtube';
+
+  //*Chat Screen
+  static const String typeSomething = 'Type something...';
 
   //*Profile
   static const String follow = 'Follow';
@@ -137,6 +160,43 @@ class KeysManager{
   static const String searchBarHeroTag = 'Search-Bar';
   static const String en = 'en';
   static const String ar = 'ar';
+  static const String success = 'success';
+  static const String result = 'result';
+  static const String otpCode = 'otpCode';
+  static const String otpUnderscoreCode = 'otp_code';
+  static const String passwordConfirmation = 'password_confirmation';
+  static const String msg = 'msg';
+  static const String password = 'password';
+  static const String id = 'id';
+  static const String phone = 'phone';
+  static const String image = 'image';
+  static const String name = 'name';
+  static const String user = 'user';
+  static const String type = 'type';
+  static const String text = 'text';
+  static const String file = 'file';
+  static const String ad = 'ad';
+  static const String title = 'title';
+  static const String description = 'description';
+  static const String negotiable = 'negotiable';
+  static const String mainImage = 'mainImage';
+  static const String images = 'images';
+  static const String price = 'price';
+  static const String lowestAuctionPrice = 'lowest_auction_price';
+  static const String changeUnderscoreProduct = 'change_product';
+  static const String categoryUnderscoreId = 'category_id';
+  static const String startUnderscoreDate = 'start_date';
+  static const String endUnderscoreDate = 'end_date';
+  static const String contactUnderscoreMethod = 'contact_method';
+  static const String userUnderscoreId = 'user_id';
+  static const String minUnderscorePrice = 'min_price';
+  static const String maxUnderscorePrice = 'max_price';
+  static const String cityUnderscoreId = 'city_id';
+  static const String typeUnderscoreId = 'type_id';
+  static const String regionUnderscoreId = 'region_id';
+  static const String search = 'search';
+  static const String page = 'page';
+  static const String lang = 'lang';
 
   //?caches
   static String isGuest = 'guest';
@@ -145,7 +205,5 @@ class KeysManager{
   static const String locale = 'language';
   static const String isNotificationsActive = 'isNotificationsActive';
   static const String token = 'token';
-  static const String phone = 'phone';
-  static const String password = 'password';
   static const String userId = 'userId';
 }

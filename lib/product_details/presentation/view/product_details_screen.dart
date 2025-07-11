@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart' as svg_provider;
-import 'package:url_launcher/url_launcher.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/chat/presentation/view/widgets/default_user_card.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';

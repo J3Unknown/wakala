@@ -25,7 +25,7 @@ class DefaultAddressListElement extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text('${address.regionParent!.name??''} ${address.region!.name??''} ${address.blockNo??''} ${address.street}'),
+          Text('${address.regionParent!.name??''} ${address.region!.name??''} ${address.blockNo??''} ${address.street??''}'),
           Spacer(),
           if(canEdit)
           IconButton(

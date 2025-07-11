@@ -8,9 +8,19 @@ import '../../../cubit/main_cubit.dart';
 import '../widgets/search_button.dart';
 
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    context.read<MainCubit>().getHomeCommercialAds();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     MainCubit cubit = MainCubit.get(context);
@@ -24,16 +34,18 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               children: [
                 CategoriesScroll(catList: cubit.homePageDataModel!.result!.categories, isList: true,),
-                if(cubit.isCategorySelected)
-                Align(alignment: Alignment.centerLeft, child: DefaultFilterButton(categories: cubit.homePageDataModel!.result!.categories![cubit.categoryIndex])),
-                SearchButton(selectedCategory: cubit.homePageDataModel!.result!.categories![cubit.isCategorySelected? cubit.categoryIndex: 0],),
+                ConditionalBuilder(
+                  condition: cubit.categoriesDataModel != null,
+                  fallback: (context) => Center(child: CircularProgressIndicator(),),
+                  builder: (context) => SearchButton()
+                ),
                 AdsBannerSection(slider: cubit.homePageDataModel!.result!.sliders!.first),
                 ConditionalBuilder(
                   condition: cubit.homePageDataModel!.result!.homePageProducts != null &&  cubit.homePageDataModel!.result!.homePageProducts!.isNotEmpty,
                   fallback: (context) {
                     return Center(child: Padding(
                       padding: EdgeInsets.symmetric(horizontal:  AppPaddings.p5),
-                      child: FittedBox(child: Text('There is No Suggestions Yet!!!!', style: Theme.of(context).textTheme.headlineMedium,)),
+                      child: FittedBox(child: Text('There are No Suggestions Yet!!!!', style: Theme.of(context).textTheme.headlineMedium,)),
                     ),);
                   },
                   builder: (context) => ListView(
@@ -44,9 +56,9 @@ class HomeScreen extends StatelessWidget {
                 ),
                 AdsBannerSection(slider: cubit.homePageDataModel!.result!.sliders!.last),
                 ConditionalBuilder(
-                  condition: cubit.commercialAdDataModel != null,
+                  condition: cubit.homeScreenAdsDataModel != null,
                   fallback: (context) => Center(child: CircularProgressIndicator(),),
-                  builder: (context) => HorizontalProductList(products: cubit.commercialAdDataModel!.result!.commercialAdsItems!,)
+                  builder: (context) => HorizontalProductList(products: cubit.homeScreenAdsDataModel!.result!.commercialAdsItems!,)
                 ),
               ],
             ),

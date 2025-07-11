@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/profile/presentation/view/widgets/profile_screen_arguments.dart';
 
@@ -10,7 +9,6 @@ import '../../../../utilities/local/localization_services.dart';
 import '../../../../utilities/resources/alerts.dart';
 import '../../../../utilities/resources/assets_manager.dart';
 import '../../../../utilities/resources/colors_manager.dart';
-import '../../../../utilities/resources/components.dart';
 import '../../../../utilities/resources/repo.dart';
 import '../../../../utilities/resources/routes_manager.dart';
 import '../../../../utilities/resources/strings_manager.dart';
@@ -42,60 +40,58 @@ class DefaultAuthenticatedMoreScreen extends StatelessWidget {
         DefaultMoreTile(
           onTap: () => showDialog(context: context, builder: (context) => NotificationsAlert()),
           iconPath: AssetsManager.notificationsIcon,
-          title: LocalizationService.translate(StringsManager.notificationsSettings),
+          title: StringsManager.notificationsSettings,
           hasRightIcon: false,
         ),
         DefaultMoreTile(
           onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.myAds))),
           iconPath: AssetsManager.libraryAdd,
-          title: LocalizationService.translate(StringsManager.myAds),
+          title: StringsManager.myAds,
         ),
         DefaultMoreTile(
           onTap: (){
             Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.recentlyViewing)));
           },
           iconPath: AssetsManager.eyeVisibilityOff,
-          title: LocalizationService.translate(StringsManager.recentlyViewed),
+          title: StringsManager.recentlyViewed,
         ),
         DefaultMoreTile(
           onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.saved))),
           iconPath: AssetsManager.saved,
-          title: LocalizationService.translate(StringsManager.saved),
+          title: StringsManager.saved,
         ),
         DefaultMoreTile(
           onTap: (){
             showDialog(
-                context: context,
-                builder: (context) => LanguageAlert()
+              context: context,
+              builder: (context) => LanguageAlert()
             );
           },
           iconPath: AssetsManager.language,
-          title: LocalizationService.translate(StringsManager.language),
+          title: StringsManager.language,
           hasRightIcon: false,
         ),
         DefaultMoreTile(
           onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.support))),
           iconPath: AssetsManager.supportAgent,
-          title: LocalizationService.translate(StringsManager.support),
+          title: StringsManager.support,
         ),
         DefaultMoreTile(
           onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.aboutUs))),
           iconPath: AssetsManager.aboutUs,
-          title: LocalizationService.translate(StringsManager.aboutUs),
+          title: StringsManager.aboutUs,
         ),
         DefaultMoreTile(
           onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.termsAndConditions))),
           iconPath: AssetsManager.termsAndConditions,
-          title: LocalizationService.translate(StringsManager.termsAndConditions),
+          title: StringsManager.termsAndConditions,
         ),
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: IntrinsicWidth(
             child: DefaultAuthButton(
-              onPressed: () async{
-                await MainCubit.get(context).logOut();
-              },
-              title: LocalizationService.translate(StringsManager.logout),
+              onPressed: () async => await MainCubit.get(context).logOut(),
+              title: StringsManager.logout,
               backgroundColor: ColorsManager.transparent,
               icon: AssetsManager.logout,
               hasBorder: false,

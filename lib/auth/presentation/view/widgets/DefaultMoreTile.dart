@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 
 import '../../../../utilities/resources/colors_manager.dart';
 import '../../../../utilities/resources/icons_manager.dart';
@@ -36,7 +37,7 @@ class DefaultMoreTile extends StatelessWidget {
           children: [
             SvgPicture.asset(iconPath, width: AppSizesDouble.s25, height: AppSizesDouble.s25,),
             SizedBox(width: AppSizesDouble.s5,),
-            Text(title, style: Theme.of(context).textTheme.bodyLarge,),
+            Text(LocalizationService.translate(title), style: Theme.of(context).textTheme.bodyLarge,),
             if(hasRightIcon)
               Spacer(),
             if(hasRightIcon)

@@ -66,7 +66,7 @@ class _OtpScreenState extends State<OtpScreen> {
     return BlocConsumer<AuthCubit, AuthStates>(
       listener: (context, state){
         if(state is AuthSignUpSuccessState){
-          showToastMessage(msg: "login Success", toastState: ToastState.success);
+          showToastMessage(msg: LocalizationService.translate(StringsManager.loginSuccess), toastState: ToastState.success);
           Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.home)));
         }
       },
@@ -124,7 +124,7 @@ class _OtpScreenState extends State<OtpScreen> {
                             onPressed: (){
                               if(int.parse(_otpController.text) != _authCubit.otpCode){
                                 showToastMessage(
-                                  msg: StringsManager.invalidOtp,
+                                  msg: LocalizationService.translate(StringsManager.invalidOtp),
                                   toastState: ToastState.info
                                 );
                               } else {

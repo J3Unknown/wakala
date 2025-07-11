@@ -1,7 +1,6 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakala/utilities/resources/components.dart';
 
@@ -62,10 +61,10 @@ class _SupportScreenState extends State<SupportScreen> {
                     if (await canLaunchUrl(uri)) {
                       await launchUrl(uri, mode: LaunchMode.externalApplication);
                     } else {
-                      showToastMessage(msg: 'can not launch $uri', toastState: ToastState.error);
+                      showToastMessage(msg: '${LocalizationService.translate(StringsManager.canNotLaunch)} $uri', toastState: ToastState.error);
                     }
                   },
-                  title: StringsManager.whatsapp,
+                  title: LocalizationService.translate(StringsManager.whatsapp),
                   icon: AssetsManager.whatsapp,
                   iconWidth: AppSizesDouble.s50,
                   backgroundColor: ColorsManager.primaryColor,
@@ -81,10 +80,10 @@ class _SupportScreenState extends State<SupportScreen> {
                     if (await canLaunchUrl(uri)) {
                       await launchUrl(uri, mode: LaunchMode.externalApplication);
                     } else {
-                      showToastMessage(msg: 'can not launch $uri', toastState: ToastState.error);
+                      showToastMessage(msg: '${LocalizationService.translate(StringsManager.canNotLaunch)} $uri', toastState: ToastState.error);
                     }
                   },
-                  title: StringsManager.facebook,
+                  title: LocalizationService.translate(StringsManager.facebook),
                   icon: AssetsManager.facebook,
                   iconColor: ColorsManager.white,
                   backgroundColor: ColorsManager.primaryColor,
@@ -101,10 +100,10 @@ class _SupportScreenState extends State<SupportScreen> {
                       if (await canLaunchUrl(uri)) {
                         await launchUrl(uri, mode: LaunchMode.externalApplication);
                       } else {
-                        showToastMessage(msg: 'can not launch $uri', toastState: ToastState.error);
+                        showToastMessage(msg: '${LocalizationService.translate(StringsManager.canNotLaunch)} $uri', toastState: ToastState.error);
                       }
                     },
-                    title: StringsManager.instagram,
+                    title: LocalizationService.translate(StringsManager.instagram,),
                     icon: AssetsManager.instagram,
                     backgroundColor: ColorsManager.primaryColor,
                     iconColor: ColorsManager.white,
@@ -121,10 +120,10 @@ class _SupportScreenState extends State<SupportScreen> {
                       if (await canLaunchUrl(uri)) {
                         await launchUrl(uri, mode: LaunchMode.externalApplication);
                       } else {
-                        showToastMessage(msg: 'can not launch $uri', toastState: ToastState.error);
+                        showToastMessage(msg: '${LocalizationService.translate(StringsManager.canNotLaunch)} $uri', toastState: ToastState.error);
                       }
                     },
-                    title: StringsManager.youtube,
+                    title: LocalizationService.translate(StringsManager.youtube),
                     icon: AssetsManager.youtube,
                     iconColor: ColorsManager.white,
                     iconWidth: AppSizesDouble.s40,

@@ -40,8 +40,6 @@ class _PostScreenContentState extends State<PostScreenContent> {
   List<int?> selections = [];
   List<List<Categories>> subCategoryLevels = [];
 
-  List<PairOfIdAndName> paymentOptions = [PairOfIdAndName.fromJson({'id':1,'name':'Cash'})];
-
   String typeHint = '';
   TextInputType typeKeyboard = TextInputType.number;
 
@@ -126,31 +124,35 @@ class _PostScreenContentState extends State<PostScreenContent> {
                 padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
                 width: double.infinity,
                 height: AppSizesDouble.s60,
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: AppSizesDouble.s25,
-                      backgroundImage: Repo.profileDataModel!.result!.image != null?NetworkImage(Repo.profileDataModel!.result!.image!): svg_provider.Svg(AssetsManager.defaultAvatar),
-                    ),
-                    SizedBox(width: AppSizesDouble.s5,),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(Repo.profileDataModel!.result!.name, style: Theme.of(context).textTheme.titleMedium),
-                        if(Repo.profileDataModel!.result!.bio!= null)
-                        Text(Repo.profileDataModel!.result!.bio!, style: Theme.of(context).textTheme.bodyMedium),
-                      ],
-                    ),
-                    Spacer(),
-                    TextButton(
-                      onPressed: () async{
-                        await MainCubit.get(context).logOut();
-                        navigateToAuthLayout(context);
-                      },
-                      child: Text('Change\nAccount', style: TextStyle(color: ColorsManager.primaryColor),)
-                    )
-                  ],
+                child: ConditionalBuilder(
+                  condition: Repo.profileDataModel != null,
+                  fallback: (context) => Center(child: CircularProgressIndicator(),),
+                  builder: (context) => Row(
+                    children: [
+                      CircleAvatar(
+                        radius: AppSizesDouble.s25,
+                        backgroundImage: Repo.profileDataModel!.result!.image != null?NetworkImage(Repo.profileDataModel!.result!.image!): svg_provider.Svg(AssetsManager.defaultAvatar),
+                      ),
+                      SizedBox(width: AppSizesDouble.s5,),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(Repo.profileDataModel!.result!.name, style: Theme.of(context).textTheme.titleMedium),
+                          if(Repo.profileDataModel!.result!.bio!= null)
+                          Text(Repo.profileDataModel!.result!.bio!, style: Theme.of(context).textTheme.bodyMedium),
+                        ],
+                      ),
+                      Spacer(),
+                      TextButton(
+                        onPressed: () async{
+                          await MainCubit.get(context).logOut();
+                          navigateToAuthLayout(context);
+                        },
+                        child: Text('Change\nAccount', style: TextStyle(color: ColorsManager.primaryColor),)
+                      )
+                    ],
+                  ),
                 ),
               ),
               SizedBox(height: AppSizesDouble.s10,),
@@ -359,15 +361,14 @@ class _PostScreenContentState extends State<PostScreenContent> {
               SizedBox(height: AppSizesDouble.s15,),
               DefaultPairDropDownMenu(
                 title: StringsManager.cashOptions,
-                items: paymentOptions,
-                onChanged: (value) => null,
-                selectedItem: paymentOptions[0].id,
+                items: AppConstants.paymentOptions,
+                onChanged: (value){},
+                selectedItem: AppConstants.paymentOptions.first.id,
                 borderColor: ColorsManager.grey5,
               ),
-              //ItemsDropDownMenu(title: 'Payment Method', items: ['Cash'], selectedItem: paymentSelectedItem, onChange: (value){}),
               DefaultCheckBox(
                 value: negotiable,
-                title: 'Negotiable',
+                title: StringsManager.negotiable,
                 onChanged: (value){
                   setState(() {
                     negotiable = value!;
@@ -377,11 +378,11 @@ class _PostScreenContentState extends State<PostScreenContent> {
               SizedBox(height: AppSizesDouble.s15,),
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Contact Method', style: Theme.of(context).textTheme.titleMedium,)
+                child: Text(LocalizationService.translate(StringsManager.contactMethod), style: Theme.of(context).textTheme.titleMedium,)
               ),
               RadioListTile.adaptive(
-                value: 0,
-                title: Text('Phone'),
+                value: AppSizes.s0,
+                title: Text(LocalizationService.translate(StringsManager.phone)),
                 activeColor: ColorsManager.primaryColor,
                 contentPadding: EdgeInsets.symmetric(horizontal: AppPaddings.p5),
                 onChanged: (value){
@@ -392,9 +393,9 @@ class _PostScreenContentState extends State<PostScreenContent> {
                 groupValue: isPhoneContact,
               ),
               RadioListTile.adaptive(
-                value: 1,
+                value: AppSizes.s1,
                 contentPadding: EdgeInsets.symmetric(horizontal: AppPaddings.p5),
-                title: Text('Chat'),
+                title: Text(LocalizationService.translate(StringsManager.chat)),
                 activeColor: ColorsManager.primaryColor,
                 onChanged: (value){
                   setState(() {
@@ -407,7 +408,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
               DefaultAuthButton(
                 onPressed: (){
                   if(
-                  selections.length == 1 && selections[0] == null ||
+                  selections.length == 1 && selections.first == null ||
                   cubit.adImagesList.length < 2 ||
                   _titleController.text.isEmpty ||
                   typeSelectedItem == null ||
@@ -415,26 +416,25 @@ class _PostScreenContentState extends State<PostScreenContent> {
                   selectedAddress == null ||
                   _priceController.text.isEmpty
                   ){
-                    log('entered if zone');
-                    if(selections.length == 1 && selections[0] == null){
+                    if(selections.length == 1 && selections.first == null){
                       showToastMessage(
-                        msg: 'Make Sure to select at least 1 category',
+                        msg: LocalizationService.translate(StringsManager.oneCategorySelectionWarning),
                       );
                     } else if(cubit.adImagesList.length < 2){
                       showToastMessage(
-                        msg: 'Select at least 2 images (Main Image Preview, and one product image)',
+                        msg: LocalizationService.translate(StringsManager.twoImagesWarning),
                       );
                     } else if(_titleController.text.isEmpty){
                       showToastMessage(
-                        msg: 'Title Must be Added',
+                        msg: LocalizationService.translate(StringsManager.titleMustBeAdded),
                       );
                     } else if(_descriptionController.text.isEmpty){
                       showToastMessage(
-                        msg: 'Description must be added',
+                        msg: LocalizationService.translate(StringsManager.descriptionMustBeAdded),
                       );
                     } else if(selectedAddress == null){
                       showToastMessage(
-                        msg: 'select your address',
+                        msg: LocalizationService.translate(StringsManager.selectYourAddress),
                       );
                     }else if(typeSelectedItem == null){
                       showToastMessage(
@@ -456,7 +456,6 @@ class _PostScreenContentState extends State<PostScreenContent> {
                       }
                     }
                   } else {
-                    log('entered cubit zone');
                     cubit.postAd(
                       categoryId: selections.last!,
                       typeId: typeSelectedItem!,
@@ -467,8 +466,8 @@ class _PostScreenContentState extends State<PostScreenContent> {
                       images: cubit.adImagesList.sublist(1),
                       cityId: selectedAddress!.regionParent!.id??13,
                       regionId: selectedAddress!.region!.id??14,
-                      endDate: DateTime.now(),
-                      startDate: DateTime.now(),
+                      endDate: DateTime.now().toString(),
+                      startDate: DateTime.now().toString(),
                       exchangeItem: typeSelectedItem == 0?_priceController.text:null,
                       lowestAuction: typeSelectedItem == 1?_priceController.text:null,
                       negotiable: negotiable?1:0,

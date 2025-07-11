@@ -12,7 +12,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/home/data/home_screen_data_model.dart';
-import 'package:wakala/home/presentation/data/search_screen_arguments.dart';
+import 'package:wakala/home/data/search_screen_arguments.dart';
 import 'package:wakala/saved/data/saved_ads_data_model.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
@@ -800,7 +800,7 @@ class _ExpandableListState extends State<ExpandableList> {
           padding: EdgeInsets.symmetric(horizontal: widget.padding, vertical: AppPaddings.p5),
           width: double.infinity,
           color: widget.titleHasHeader? ColorsManager.grey4:ColorsManager.transparent,
-          child: Text(widget.title, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
+          child: Text(LocalizationService.translate(widget.title), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
         ),
         ConditionalBuilder(
           condition: isExpanded,
@@ -877,7 +877,7 @@ class DefaultTitledIconButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(imagePath,),
-          Text(title),
+          Text(LocalizationService.translate(title)),
         ],
       ),
     );
@@ -1051,7 +1051,7 @@ class _DefaultCheckBoxState extends State<DefaultCheckBox> {
             side: BorderSide(color: ColorsManager.primaryColor, width: 2),
             onChanged: widget.onChanged
         ),
-        Text(widget.title, style: Theme.of(context).textTheme.titleMedium,)
+        Text(LocalizationService.translate(widget.title), style: Theme.of(context).textTheme.titleMedium,)
       ],
     );
   }

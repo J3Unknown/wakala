@@ -34,7 +34,7 @@ class _HomeLayoutState extends State<HomeLayout> {
         return Scaffold(
           appBar: cubit.currentIndex != AppSizes.s2?AppBar(
             title: shouldBeSearchBar(cubit)?
-              CustomSearchBar(searchController: _searchController, onChange: () => _deBouncer.run((){})):
+              CustomSearchBar(searchController: _searchController, onChange: () => _deBouncer.run((){})): //TODO: run the commercial products' search
               SvgPicture.asset(AssetsManager.appIcon,width: AppSizesDouble.s25, height: AppSizesDouble.s25, fit: BoxFit.contain,),
             actions: !shouldBeSearchBar(cubit)?[
               IconButton(

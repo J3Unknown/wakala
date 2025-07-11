@@ -24,7 +24,7 @@ class DefaultInputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$_title *'),
+        Text('${LocalizationService.translate(_title)} *'),
         TextFormField(
           controller: _controller,
           keyboardType: _keyboardType,
@@ -37,7 +37,7 @@ class DefaultInputField extends StatelessWidget {
           decoration: InputDecoration(
             filled: true,
             fillColor: ColorsManager.loginButtonBackgroundColor,
-            hintText: _hint,
+            hintText: LocalizationService.translate(_hint??''),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppSizesDouble.s10),
               borderSide: BorderSide(color: ColorsManager.grey3, width: AppSizesDouble.s2)

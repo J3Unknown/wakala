@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wakala/about_us/data/about_us_data_model.dart';
 import 'package:wakala/auth/data/profile_data_model.dart';
@@ -26,11 +27,15 @@ import 'package:wakala/product_details/data/auctions_data_model.dart';
 import 'package:wakala/profile/data/cities_and_regions_dataModel.dart';
 import 'package:wakala/profile/data/followings_data_model.dart';
 import 'package:wakala/saved/data/saved_ads_data_model.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/network/dio.dart';
 import 'package:wakala/utilities/network/end_points.dart';
 import 'package:wakala/utilities/resources/components.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/repo.dart';
+
+import '../../utilities/resources/strings_manager.dart';
+import '../../utilities/resources/values_manager.dart';
 
 class MainCubit extends Cubit<MainCubitStates>{
   MainCubit(): super(MainInitialState());
@@ -139,10 +144,10 @@ class MainCubit extends Cubit<MainCubitStates>{
     DioHelper.getData(
       path: EndPoints.subCategories,
       query: {
-        'category_id':categoryId
+        KeysManager.categoryUnderscoreId:categoryId
       }
     ).then((value){
-      specificCategoriesDataModel = Categories.fromJson(value.data['result']);
+      specificCategoriesDataModel = Categories.fromJson(value.data[KeysManager.result]);
       emit(MainGetSubCategoriesSuccessState(specificCategoriesDataModel));
     });
   }
@@ -168,21 +173,21 @@ class MainCubit extends Cubit<MainCubitStates>{
       currentCommercialAdsPage++;
       emit(MainGetCommercialAdLoadingMoreState());
     } else {
-      currentSearchCommercialAdsPage = 1;
+      currentSearchCommercialAdsPage = AppSizes.s1;
       searchCommercialAdsHasMore = true;
       emit(MainGetCommercialAdLoadingState());
     }
 
     final queryParams = {
-      'page': currentCommercialAdsPage,
-      'category_id': categoryId,
-      'user_id': userId,
-      'search': search,
-      'min_price': minPrice,
-      'max_price': maxPrice,
-      'city_id': cityId,
-      'region_id': regionId,
-      'type_id': typeId,
+      KeysManager.page: currentCommercialAdsPage,
+      KeysManager.categoryUnderscoreId: categoryId,
+      KeysManager.userUnderscoreId: userId,
+      KeysManager.search: search,
+      KeysManager.minUnderscorePrice: minPrice,
+      KeysManager.maxUnderscorePrice: maxPrice,
+      KeysManager.cityUnderscoreId: cityId,
+      KeysManager.regionUnderscoreId: regionId,
+      KeysManager.typeUnderscoreId: typeId,
     };
 
     DioHelper.getData(
@@ -241,15 +246,15 @@ class MainCubit extends Cubit<MainCubitStates>{
     }
 
     final queryParams = {
-      'page': currentCommercialAdsPage,
-      'category_id': categoryId,
-      'user_id': userId,
-      'search': search,
-      'min_price': minPrice,
-      'max_price': maxPrice,
-      'city_id': cityId,
-      'region_id': regionId,
-      'type_id': typeId,
+      KeysManager.page: currentCommercialAdsPage,
+      KeysManager.categoryUnderscoreId: categoryId,
+      KeysManager.userUnderscoreId: userId,
+      KeysManager.search: search,
+      KeysManager.minUnderscorePrice: minPrice,
+      KeysManager.maxUnderscorePrice: maxPrice,
+      KeysManager.cityUnderscoreId: cityId,
+      KeysManager.regionUnderscoreId: regionId,
+      KeysManager.typeUnderscoreId: typeId,
     };
 
     DioHelper.getData(
@@ -264,7 +269,7 @@ class MainCubit extends Cubit<MainCubitStates>{
         homeScreenAdsDataModel = newData;
       }
 
-      homeCommercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) < (newData.result?.pagination.lastPage ?? 0);
+      homeCommercialAdsHasMore = (newData.result?.pagination.currentPage ?? AppSizes.s0) < (newData.result?.pagination.lastPage ?? AppSizes.s0);
 
       homeCommercialAdsIsLoadingMore = false;
       emit(MainGetCommercialAdSuccessState());
@@ -308,15 +313,15 @@ class MainCubit extends Cubit<MainCubitStates>{
     }
 
     final queryParams = {
-      'page': currentCommercialAdsPage,
-      'category_id': categoryId,
-      'user_id': userId,
-      'search': search,
-      'min_price': minPrice,
-      'max_price': maxPrice,
-      'city_id': cityId,
-      'region_id': regionId,
-      'type_id': typeId,
+      KeysManager.page: currentCommercialAdsPage,
+      KeysManager.categoryUnderscoreId: categoryId,
+      KeysManager.userUnderscoreId: userId,
+      KeysManager.search: search,
+      KeysManager.minUnderscorePrice: minPrice,
+      KeysManager.maxUnderscorePrice: maxPrice,
+      KeysManager.cityUnderscoreId: cityId,
+      KeysManager.regionUnderscoreId: regionId,
+      KeysManager.typeUnderscoreId: typeId,
     };
 
     DioHelper.getData(
@@ -331,7 +336,7 @@ class MainCubit extends Cubit<MainCubitStates>{
         commercialAdDataModel = newData;
       }
 
-      commercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) < (newData.result?.pagination.lastPage ?? 0);
+      commercialAdsHasMore = (newData.result?.pagination.currentPage ?? AppSizes.s0) < (newData.result?.pagination.lastPage ?? AppSizes.s0);
 
       commercialAdsIsLoadingMore = false;
       emit(MainGetCommercialAdSuccessState());
@@ -365,7 +370,7 @@ class MainCubit extends Cubit<MainCubitStates>{
     }
 
     final data = {
-      'page': currentMyAdsPage,
+      KeysManager.page: currentMyAdsPage,
     };
 
     DioHelper.getData(
@@ -380,7 +385,7 @@ class MainCubit extends Cubit<MainCubitStates>{
         commercialAdDataModel = newData;
       }
 
-      commercialAdsHasMore = (newData.result?.pagination.currentPage ?? 0) < (newData.result?.pagination.lastPage ?? 0);
+      commercialAdsHasMore = (newData.result?.pagination.currentPage ?? AppSizes.s0) < (newData.result?.pagination.lastPage ?? AppSizes.s0);
 
       commercialAdsIsLoadingMore = false;
       emit(MainGetMyAdsSuccessState());
@@ -421,7 +426,7 @@ class MainCubit extends Cubit<MainCubitStates>{
       DioHelper.postData(
         url: EndPoints.updateLang,
         data: {
-          'lang':locale
+          KeysManager.lang:locale
         },
       ).then((value){
         emit(MainUpdateLangSuccessState());
@@ -441,8 +446,8 @@ class MainCubit extends Cubit<MainCubitStates>{
     DioHelper.postData(
       url: EndPoints.createPassword,
       data: {
-        'password': password,
-        'password_confirmation': passwordConfirmation
+        KeysManager.password: password,
+        KeysManager.passwordConfirmation: passwordConfirmation
       }
     ).then((value){
       emit(MainCreatePasswordSuccessState());
@@ -454,9 +459,9 @@ class MainCubit extends Cubit<MainCubitStates>{
     DioHelper.postData(
       url: EndPoints.createPassword,
       data: {
-        'name': name,
-        'phone': phone,
-        'image':image,
+        KeysManager.name: name,
+        KeysManager.phone: phone,
+        KeysManager.image:image,
       }
     ).then((value){
       emit(MainEditAccountSuccessState());
@@ -493,7 +498,7 @@ class MainCubit extends Cubit<MainCubitStates>{
     emit(MainGetRegionsLoadingState());
     DioHelper.getData(
       path: EndPoints.cities,
-      query: {'id':id}
+      query: {KeysManager.id:id}
     ).then((value){
       regions = CitiesAndRegionsDataModel.fromJson(value.data);
       emit(MainGetRegionsSuccessState());
@@ -504,7 +509,7 @@ class MainCubit extends Cubit<MainCubitStates>{
     emit(MainDeleteAddressLoadingState());
     DioHelper.deleteData(
       url: EndPoints.deleteMyRegion,
-      query: {'id':id}
+      query: {KeysManager.id:id}
     ).then((value){
       Repo.profileDataModel!.result!.address.removeWhere((e) => e!.id == id);
       emit(MainDeleteAddressSuccessState());
@@ -527,7 +532,7 @@ class MainCubit extends Cubit<MainCubitStates>{
       if(images != null) selectedImages.addAll(images);
     }
     if(selectedImages.isNotEmpty){
-      final List<String> allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+      final List<String> allowedExtensions = AppConstants.supportedImageFormats;
       for(var e in selectedImages){
         if(adImagesList.length == 8) {
           emit(MainUploadAdImagesSuccessState());
@@ -540,9 +545,9 @@ class MainCubit extends Cubit<MainCubitStates>{
           adImagesList.add(image);
         } else {
           if(fileSizeInMB < 1){
-            showToastMessage(msg: 'The Image: ${e.name} is greater than 1 MB');
+            showToastMessage(msg: '${LocalizationService.translate(StringsManager.theImage)} ${e.name} ${LocalizationService.translate(StringsManager.greaterThanOneMB)}');
           } else {
-            showToastMessage(msg: 'The Image: ${e.name} has an unsupported format!');
+            showToastMessage(msg: '${LocalizationService.translate(StringsManager.theImage)} ${e.name} ${LocalizationService.translate(StringsManager.unsupportedFormat)}');
           }
         }
       }
@@ -563,8 +568,10 @@ class MainCubit extends Cubit<MainCubitStates>{
     emit(MainSaveAdLoadingState());
     DioHelper.postData(
       url: EndPoints.savedAds,
-      data: {'id':id,}
+      data: {KeysManager.id:id,}
     ).then((value){
+      getSavedAds();
+      //savedAdsDataModel!.result!.add(SavedAd.fromJson(value.data['result']));
       emit(MainSaveAdSuccessState());
     });
   }
@@ -573,8 +580,9 @@ class MainCubit extends Cubit<MainCubitStates>{
     emit(MainUnSaveAdLoadingState());
     DioHelper.postData(
       url: EndPoints.savedAds,
-      data: {'id':id,}
+      data: {KeysManager.id:id,}
     ).then((value){
+      getSavedAds();
       emit(MainUnSaveAdSuccessState());
     });
   }
@@ -595,32 +603,52 @@ class MainCubit extends Cubit<MainCubitStates>{
     price,
     lowestAuction,
     exchangeItem
-  }){
+  }) async {
     emit(MainPostAdLoadingState());
+
+    List<MultipartFile> partImages = [];
+    for(var i in images) {
+      partImages.add(
+        await MultipartFile.fromFile(
+          i.path,
+          filename: i.path.split('/').last,
+          contentType: getAcceptedMediaType(mainImage.path.split('/').last.split('.').last)
+        )
+      );
+    }
+
+    MultipartFile partMainImage = await MultipartFile.fromFile(
+        mainImage.path,
+        filename: mainImage.path.split('/').last,
+        contentType: getAcceptedMediaType(mainImage.path.split('/').last.split('.').last)
+    );
+    
     DioHelper.postData(
       url: EndPoints.saveAd,
+      options: Options(contentType: 'multipart/form-data'),
       data: {
-        'category_id':categoryId,
-        'type_id':typeId,
-        'title':title,
-        'description':description,
-        'contact_method':contactMethod,
-        'negotiable':negotiable,
-        'start_date':startDate,
-        'end_date':endDate,
-        'mainImage':mainImage,
-        'images':images,
-        'city_id':cityId,
-        'region_id':regionId,
-        'price':price,
-        'lowest_auction_price':lowestAuction,
-        'change_product':exchangeItem
+        KeysManager.categoryUnderscoreId: categoryId,
+        KeysManager.typeUnderscoreId: typeId,
+        KeysManager.title: title,
+        KeysManager.description: description,
+        KeysManager.contactUnderscoreMethod: contactMethod,
+        KeysManager.negotiable: negotiable,
+        KeysManager.startUnderscoreDate: startDate,
+        KeysManager.endUnderscoreDate: endDate,
+        KeysManager.mainImage: partMainImage,
+        KeysManager.images: partImages,
+        KeysManager.cityUnderscoreId: cityId,
+        KeysManager.regionUnderscoreId: regionId,
+        KeysManager.price: price,
+        KeysManager.lowestAuctionPrice: lowestAuction,
+        KeysManager.changeUnderscoreProduct: exchangeItem
       }
     ).then((value){
-      showToastMessage(msg: 'Ad Was Added Successfully', toastState: ToastState.success);
+      showToastMessage(msg: LocalizationService.translate(StringsManager.adAddedSuccessfully), toastState: ToastState.success);
       emit(MainPostAdSuccessState());
       changeBottomNavBarIndex(0);
     }).catchError((e){
+      log(e.toString());
       if (e is DioException) {
         log("Dio Error: ${e.message}");
         log("Status Code: ${e.response?.statusCode}");
@@ -631,23 +659,41 @@ class MainCubit extends Cubit<MainCubitStates>{
     });
   }
 
-  //TODO: check on after checking on the error
+  MediaType getAcceptedMediaType(String extension){
+    MediaType mediaType;
+
+    switch (extension) {
+      case '.jpg':
+      case '.jpeg':
+        mediaType = MediaType('image', 'jpeg');
+        break;
+      case '.png':
+        mediaType = MediaType('image', 'png');
+        break;
+      case '.webp':
+        mediaType = MediaType('image', 'webp');
+        break;
+      default:
+        mediaType = MediaType('image','jpg');
+        break;
+    }
+    return mediaType;
+  }
+
   void addAddress({
-    required int cityId,
     required int regionId,
-    int? blockNo,
-    String? street,
-    int? buildingNo,
-    int? floorNo,
-    int? flatNo,
-    String? notes,
+    required String blockNo,
+    required String street,
+    required String buildingNo,
+    required String floorNo,
+    required String flatNo,
+    required String notes,
   }){
     emit(MainAddAddressLoadingState());
     DioHelper.postData(
       url: EndPoints.addMyRegion,
       data: {
         'id':regionId,
-        'region_parent':cityId,
         'block_no':blockNo,
         'street':street,
         'building_no':buildingNo,
@@ -657,11 +703,19 @@ class MainCubit extends Cubit<MainCubitStates>{
       }
     ).then((value){
       log(value.data.toString());
-      if(value.data['success']){
+      if(value.data[KeysManager.success]){
         Repo.profileDataModel!.result!.address.add(Address.fromJson(value.data));
         emit(MainAddAddressSuccessState());
       } else {
         emit(MainAddAddressErrorState());
+      }
+    }).catchError((e){
+      log(e.toString());
+      if (e is DioException) {
+        log("Dio Error: ${e.message}");
+        log("Status Code: ${e.response?.statusCode}");
+      } else {
+        log("Non-Dio Error: $e");
       }
     });
   }
@@ -691,7 +745,7 @@ class MainCubit extends Cubit<MainCubitStates>{
       }
     ).then((value){
       log(value.data.toString());
-      if(value.data['success']){
+      if(value.data[KeysManager.success]){
         Repo.profileDataModel!.result!.address.add(Address.fromJson(value.data));
         emit(MainAddAddressSuccessState());
       } else {
@@ -807,6 +861,10 @@ class MainCubit extends Cubit<MainCubitStates>{
 
   void sendMessage(int receiverId, message, String messageType){
     emit(MainSendMessageLoadingState());
+    log(AppConstants.baseUrl + EndPoints.chat);
+    log(receiverId.toString());
+    log(messageType);
+    log(message.toString());
     DioHelper.postData(
       url: EndPoints.chat,
       data: {

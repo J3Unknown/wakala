@@ -65,7 +65,7 @@ class SignUpScreen extends StatelessWidget {
                             key: _formKey,
                             child: Column(
                               children: [
-                                DefaultInputField(controller: _nameController, title: LocalizationService.translate(StringsManager.fullName), hint: LocalizationService.translate(StringsManager.nameHintText),),
+                                DefaultInputField(controller: _nameController, title: StringsManager.fullName, hint: StringsManager.nameHintText,),
                                 SizedBox(height: AppSizesDouble.s20,),
                                 DefaultPhoneInputField(phoneNumberController: _phoneController),
                                 DefaultPasswordInputField(passwordController: _passwordController, cubit: AuthCubit.get(context)),
@@ -84,7 +84,7 @@ class SignUpScreen extends StatelessWidget {
                                 AuthCubit.get(context).sendVerificationCode(_phoneController.text);
                               }
                             },
-                            title: LocalizationService.translate(StringsManager.signUp),
+                            title: StringsManager.signUp,
                             hasBorder: false,
                             foregroundColor: ColorsManager.white,
                             backgroundColor: ColorsManager.primaryColor,

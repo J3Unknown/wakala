@@ -36,7 +36,7 @@ class DefaultNonAuthenticatedMoreScreen extends StatelessWidget {
             onPressed: () {
               navigateToAuthLayout(context);
             },
-            title: LocalizationService.translate(StringsManager.login),
+            title: StringsManager.login,
             foregroundColor: ColorsManager.white,
             backgroundColor: ColorsManager.primaryColor,
             hasBorder: false,
@@ -51,35 +51,35 @@ class DefaultNonAuthenticatedMoreScreen extends StatelessWidget {
               style: TextButton.styleFrom(
                 foregroundColor: ColorsManager.primaryColor,
               ),
-              child: Text(StringsManager.signUp, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
+              child: Text(LocalizationService.translate(StringsManager.signUp), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),),
             )
           ],
         ),
         DefaultMoreTile(
           onTap: () => showDialog(context: context, builder: (context) => LoginAlert()),
           iconPath: AssetsManager.eyeVisibilityOff,
-          title: LocalizationService.translate(StringsManager.recentlyViewed),
+          title: StringsManager.recentlyViewed,
         ),
         DefaultMoreTile(
           onTap: () => showDialog(context: context, builder: (context) => LanguageAlert()),
           iconPath: AssetsManager.language,
-          title: LocalizationService.translate(StringsManager.language),
+          title: StringsManager.language,
           hasRightIcon: false,
         ),
         DefaultMoreTile(
           onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.support))),
           iconPath: AssetsManager.supportAgent,
-          title: LocalizationService.translate(StringsManager.support),
+          title: StringsManager.support,
         ),
         DefaultMoreTile(
           onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.aboutUs))),
           iconPath: AssetsManager.aboutUs,
-          title: LocalizationService.translate(StringsManager.aboutUs),
+          title: StringsManager.aboutUs,
         ),
         DefaultMoreTile(
           onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.termsAndConditions))),
           iconPath: AssetsManager.termsAndConditions,
-          title: LocalizationService.translate(StringsManager.termsAndConditions),
+          title: StringsManager.termsAndConditions,
         ),
       ],
     );
