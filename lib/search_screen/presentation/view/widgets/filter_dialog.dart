@@ -124,7 +124,7 @@ class _FilterDialogState extends State<FilterDialog> {
                   }
                 ),
                 SizedBox(height: AppSizesDouble.s20,),
-                Text('Price', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
+                Text(LocalizationService.translate(StringsManager.price), style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),),
                 SizedBox(height: AppSizesDouble.s10,),
                 Form(
                   key: _formKey,
@@ -134,12 +134,12 @@ class _FilterDialogState extends State<FilterDialog> {
                         child: DefaultFilterInputField(
                           controller: _minPriceController,
                           keyboardType: TextInputType.number,
-                          hint: 'Min',
+                          hint: StringsManager.min,
                           validator: (String? value){
                             if(_minPriceController.text.trim().isEmpty){
                               return null;
                             } else if(int.parse(_minPriceController.text) > int.parse(_maxPriceController.text)){
-                              showToastMessage(msg: 'Minimum Price can\'t be greater than the Maximum Price!!', toastState: ToastState.warning);
+                              showToastMessage(msg: LocalizationService.translate(StringsManager.minimumPriceWarning), toastState: ToastState.warning);
                               return '';
                             }
                             return null;
@@ -147,7 +147,7 @@ class _FilterDialogState extends State<FilterDialog> {
                         ),
                       ),
                       SizedBox(width: AppSizesDouble.s5,),
-                      Expanded(child: DefaultFilterInputField(controller: _maxPriceController, keyboardType: TextInputType.number, hint: 'Max',))
+                      Expanded(child: DefaultFilterInputField(controller: _maxPriceController, keyboardType: TextInputType.number, hint: StringsManager.max,))
                     ],
                   ),
                 ),
@@ -206,7 +206,7 @@ class _FilterDialogState extends State<FilterDialog> {
                       Navigator.of(context).pop();
                     }
                   },
-                  title: LocalizationService.translate(StringsManager.confirm),
+                  title: StringsManager.confirm,
                   backgroundColor: ColorsManager.primaryColor,
                   hasBorder: false,
                   foregroundColor: ColorsManager.white,

@@ -44,7 +44,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
     return BlocConsumer<MainCubit, MainCubitStates>(
       listener: (context, state) {
         if(state is MainCreatePasswordSuccessState){
-          showToastMessage(msg: 'Password Updated Successfully', toastState: ToastState.success);
+          showToastMessage(msg: LocalizationService.translate(StringsManager.passwordUpdatedSuccessfully), toastState: ToastState.success);
           _passwordController.clear();
           _confirmPasswordController.clear();
         }

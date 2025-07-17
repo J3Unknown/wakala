@@ -28,11 +28,12 @@ class SavedAd{
     adId = json['ad_id'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    ad = Ad.fromJson(json['ad']);
+    ad = json['ad'] != null?Ad.fromJson(json['ad']):null;
   }
 }
 
 class Ad{
+  late int isCommercial;
   int? id;
   int? userId;
   int? categoryId;
@@ -55,6 +56,7 @@ class Ad{
 
   Ad.fromJson(Map<String, dynamic> json){
     id = json['id'];
+    isCommercial = json['is_commercial']??0;
     userId = json['user_id'];
     categoryId = json['category_id'];
     typeId = json['type_id'];

@@ -60,7 +60,7 @@ class _AddAuctionAlertState extends State<AddAuctionAlert> {
               ),
             ),
             Text(
-              '${StringsManager.lowestAuctionPrice} ${widget.lowestAuctionPrice} ${StringsManager.egp}',
+              '${LocalizationService.translate(StringsManager.lowestAuctionPrice)} ${widget.lowestAuctionPrice} ${LocalizationService.translate(StringsManager.egp)}',
               style: TextStyle(
                 color: ColorsManager.deepRed
               ),

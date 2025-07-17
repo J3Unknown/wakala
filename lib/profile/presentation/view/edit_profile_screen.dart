@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wakala/auth/data/create_password_screen_arguments.dart';
+import 'package:intl/intl.dart';
 import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
@@ -25,13 +28,17 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _fullNameController;
   late final TextEditingController _bioController;
-  late final TextEditingController _dateOfBirthController;
+  String? _dateOfBirth;
   late final TextEditingController _phoneController;
   late final TextEditingController _emailController;
   late final GlobalKey<FormState> _formKey;
   @override
   void initState() {
     _formKey = GlobalKey();
+    _fullNameController = TextEditingController();
+    _bioController = TextEditingController();
+    _phoneController = TextEditingController();
+    _emailController = TextEditingController();
     super.initState();
   }
 
@@ -39,152 +46,191 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void didChangeDependencies() {
     final ProfileDataModel? args = ModalRoute.of(context)!.settings.arguments! as ProfileDataModel?;
     if(args != null){
-      _fullNameController = TextEditingController(text: args.result!.name);
-      _bioController = TextEditingController(text: args.result!.bio);
-      _dateOfBirthController = TextEditingController(text: args.result!.dateOfBirth);
-      _phoneController = TextEditingController(text: args.result!.phone);
-      _emailController = TextEditingController(text: args.result!.email);
+      _fullNameController.text = args.result!.name;
+      _bioController.text =  args.result!.bio??'';
+      _dateOfBirth =  args.result!.dateOfBirth;
+      _phoneController.text = args.result!.phone;
+      _emailController.text = args.result!.email??'';
     }
     super.didChangeDependencies();
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
-            child: Text(StringsManager.editProfile, style: Theme.of(context).textTheme.titleLarge,),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: InkWell(
-                splashColor: ColorsManager.transparent,
-                onTap: (){},
-                child: Stack(
-                  alignment: Alignment.bottomLeft,
-                  children: [
-                    SizedBox(
-                      width: AppSizesDouble.s100,
-                      height: AppSizesDouble.s100,
-                      child: ClipOval(
-                        child: Repo.profileDataModel!.result!.image != null? Image.network(Repo.profileDataModel!.result!.image!, fit: BoxFit.cover,):SvgPicture.asset(AssetsManager.defaultAvatar)
-                      ),
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (pop, value){
+        MainCubit.get(context).profileImage = null;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
+              child: Text(StringsManager.editProfile, style: Theme.of(context).textTheme.titleLarge,),
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BlocBuilder(
+                bloc: MainCubit.get(context),
+                builder: (context, state) => Center(
+                  child: InkWell(
+                    splashColor: ColorsManager.transparent,
+                    onTap: (){
+                      MainCubit.get(context).getProfilePhoto();
+                    },
+                    child: Stack(
+                      alignment: Alignment.bottomLeft,
+                      children: [
+                        SizedBox(
+                          width: AppSizesDouble.s100,
+                          height: AppSizesDouble.s100,
+                          child: ClipOval(
+                            child: Repo.profileDataModel!.result!.image != null || MainCubit.get(context).profileImage != null?
+                            (Repo.profileDataModel!.result!.image != null?Image.network(Repo.profileDataModel!.result!.image!, fit: BoxFit.cover,):Image.file(MainCubit.get(context).profileImage!, fit: BoxFit.cover,)):
+                            SvgPicture.asset(AssetsManager.defaultAvatar)
+                          ),
+                        ),
+                        Positioned(
+                          bottom: AppSizesDouble.s5,
+                          left: AppSizesDouble.s5,
+                          child: CircleAvatar(
+                            radius: AppSizesDouble.s12,
+                            backgroundColor: ColorsManager.white,
+                            child: CircleAvatar(
+                              radius: AppSizesDouble.s10,
+                              backgroundColor: ColorsManager.primaryColor,
+                              child: SvgPicture.asset(AssetsManager.add, colorFilter: ColorFilter.mode(ColorsManager.white, BlendMode.srcIn),),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Positioned(
-                      bottom: AppSizesDouble.s5,
-                      left: AppSizesDouble.s5,
-                      child: CircleAvatar(
-                        radius: AppSizesDouble.s12,
-                        backgroundColor: ColorsManager.white,
-                        child: CircleAvatar(
-                          radius: AppSizesDouble.s10,
-                          backgroundColor: ColorsManager.primaryColor,
-                          child: SvgPicture.asset(AssetsManager.add, colorFilter: ColorFilter.mode(ColorsManager.white, BlendMode.srcIn),),
+                  ),
+                ),
+              ),
+              SizedBox(height: AppSizesDouble.s15,),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    DefaultTextInputField(
+                      controller: _fullNameController,
+                      hintText: StringsManager.fullName,
+                      obscured: false,
+                      validator: (String? value){
+                        if(value!.isEmpty) {
+                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: AppSizesDouble.s20,),
+                    DefaultTextInputField(
+                      obscured: false,
+                      controller: _bioController,
+                      hintText: StringsManager.bio,
+                    ),
+                    SizedBox(height: AppSizesDouble.s20,),
+                    InkWell(
+                      onTap: () {
+                        showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now()
+                        ).then((value){
+                          if(value != null){
+                            setState(() {
+                              _dateOfBirth = '';
+                              _dateOfBirth = DateFormat(StringsManager.dateFormat).format(value);
+                            });
+                          }
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(AppPaddings.p10),
+                        alignment: AlignmentDirectional.centerStart,
+                        height: AppSizesDouble.s57,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+                          color: ColorsManager.loginButtonBackgroundColor
+                        ),
+                        child: Text(
+                          _dateOfBirth??LocalizationService.translate(StringsManager.dateOfBirth),
+                          style: TextStyle(color: ColorsManager.grey2),
                         ),
                       ),
                     ),
+                    SizedBox(height: AppSizesDouble.s20,),
+                    DefaultTextInputField(
+                      obscured: false,
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      hintText: StringsManager.hintText,
+                      validator: (String? value){
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: AppSizesDouble.s10,),
+                    DefaultTextInputField(
+                      obscured: false,
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      hintText: StringsManager.email,
+                    ),
                   ],
                 ),
               ),
-            ),
-            SizedBox(height: AppSizesDouble.s15,),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  DefaultTextInputField(
-                    controller: _fullNameController,
-                    hintText: StringsManager.fullName,
-                    obscured: false,
-                    validator: (String? value){
-                      if(value!.isEmpty) {
-                        return LocalizationService.translate(StringsManager.emptyFieldMessage);
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: AppSizesDouble.s20,),
-                  DefaultTextInputField(
-                    obscured: false,
-                    controller: _bioController,
-                    hintText: StringsManager.bio,
-                  ),
-                  SizedBox(height: AppSizesDouble.s20,),
-                  DefaultTextInputField(
-                    obscured: false,
-                    controller: _dateOfBirthController,
-                    hintText: StringsManager.dateOfBirth,
-                  ),
-                  SizedBox(height: AppSizesDouble.s20,),
-                  DefaultTextInputField(
-                    obscured: false,
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    hintText: StringsManager.hintText,
-                    validator: (String? value){
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: AppSizesDouble.s10,),
-                  DefaultTextInputField(
-                    obscured: false,
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    hintText: StringsManager.email,
-                  ),
-                ],
-              ),
-            ),
-            IntrinsicWidth(
-              child: TextButton(
-                onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.addressesList))),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(AssetsManager.add, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),),
-                    Text(LocalizationService.translate(StringsManager.addAddress), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),)
-                  ],
-                )
-              ),
-            ),
-            DefaultAuthButton(
-              onPressed: (){
-                if(_formKey.currentState!.validate()){
-                  MainCubit.get(context).editProfile(
-                    name: _fullNameController.text,
-                    phone: _phoneController.text,
-                  );
-                }
-              },
-              title: StringsManager.save,
-              height: AppSizesDouble.s60,
-              hasBorder: false,
-              backgroundColor: ColorsManager.primaryColor,
-              foregroundColor: ColorsManager.white,
-            ),
-            SizedBox(height: AppSizesDouble.s20,),
-            _buildCreatePasswordButton(context),
-            IntrinsicWidth(
-              child: TextButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => DeleteAccountAlert()
+              IntrinsicWidth(
+                child: TextButton(
+                  onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.addressesList))),
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(AssetsManager.add, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),),
+                      Text(LocalizationService.translate(StringsManager.addAddress), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),)
+                    ],
+                  )
                 ),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(AssetsManager.trash,),
-                    Text(LocalizationService.translate(StringsManager.deleteMyAccount), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.red),)
-                  ],
-                )
               ),
-            ),
-          ],
+              DefaultAuthButton(
+                onPressed: (){
+                  if(_formKey.currentState!.validate()){
+                    MainCubit.get(context).editProfile(
+                      name: _fullNameController.text,
+                      phone: _phoneController.text,
+                    );
+                  }
+                },
+                title: StringsManager.save,
+                height: AppSizesDouble.s60,
+                hasBorder: false,
+                backgroundColor: ColorsManager.primaryColor,
+                foregroundColor: ColorsManager.white,
+              ),
+              SizedBox(height: AppSizesDouble.s20,),
+              _buildCreatePasswordButton(context),
+              IntrinsicWidth(
+                child: TextButton(
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) => DeleteAccountAlert()
+                  ),
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(AssetsManager.trash,),
+                      Text(LocalizationService.translate(StringsManager.deleteMyAccount), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.red),)
+                    ],
+                  )
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

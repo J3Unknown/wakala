@@ -6,12 +6,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart' as svg_provider;
+import 'package:intl/intl.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/chat/presentation/view/widgets/default_user_card.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/home/data/commercial_ad_data_model.dart';
 import 'package:wakala/home/data/specific_ad_data_model.dart';
+import 'package:wakala/product_details/data/auctions_data_model.dart';
 import 'package:wakala/product_details/presentation/view/widgets/DefaultProductDetailsHeaderSection.dart';
 import 'package:wakala/product_details/presentation/view/widgets/add_auction_alert.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
@@ -61,10 +63,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         listener: (context, state){
           if(state is MainGetCommercialAdByIDSuccessState){
             dataModel = state.specificAdDataModel;
-            isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == dataModel!.result!.ad!.id!);
+            log(dataModel!.result!.ad!.id.toString());
             PairOfIdAndName pair = getTypeById(dataModel!.result!.ad!.typeId!);
             typeData = getProductType(pair.name);
-            MainCubit.get(context).addToRecentlyViewed(dataModel!.result!.ad!.id!);
             if(typeData.type == 'Auction'){
               MainCubit.get(context).getAuctionsForAd(dataModel!.result!.ad!.id!);
             }
@@ -92,24 +93,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           return SizedBox();
                         },
                         builder: (context) => ExpandableList(
-                          title: 'Auctions',
+                          title: StringsManager.auction,
                           previewObject: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  backgroundImage: MainCubit.get(context).auctionsDataModel!.result.first.user!.image != null? NetworkImage(AppConstants.baseImageUrl + MainCubit.get(context).auctionsDataModel!.result.first.user!.image!):svg_provider.Svg(AssetsManager.defaultAvatar),
-                                ),
-                                Text(MainCubit.get(context).auctionsDataModel!.result.first.user!.name, style: Theme.of(context).textTheme.titleLarge,),
-                                Spacer(),
-                                Column(
-                                  children: [
-                                  ],
-                                )
-                              ],
+                            DefaultAuctionCard(
+                              auction: MainCubit.get(context).auctionsDataModel!.result.first,
                             )
                           ],
                           fullContent: [
-                            Text('full Content')
+                            ...List.generate(
+                              MainCubit.get(context).auctionsDataModel!.result.length,
+                              (index) => DefaultAuctionCard(
+                                auction: MainCubit.get(context).auctionsDataModel!.result[index],
+                              )
+                            )
                           ]
                         )
                       ),
@@ -126,7 +122,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       //   ]
                       // ),
                       ExpandableList(
-                        title: 'Description',
+                        title: StringsManager.description,
                         previewObject: [
                           Text(dataModel!.result!.ad!.description!, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
                         ],
@@ -134,18 +130,18 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           Text(dataModel!.result!.ad!.description!)
                         ]
                       ),
-                      ExpandableList(
-                        isExpandable: false,
-                        title: 'Address',
-                        previewObject: [
-                          Text('User Address')
-                        ],
-                        fullContent: []
-                      ),
+                      // ExpandableList(
+                      //   isExpandable: false,
+                      //   title: 'Address',
+                      //   previewObject: [
+                      //     dataModel!.result!.ad!.city
+                      //   ],
+                      //   fullContent: []
+                      // ),
                       if(dataModel!.result!.ad!.user!=null)
                       ExpandableList(
                         isExpandable: false,
-                        title: 'Advertiser',
+                        title: StringsManager.advertiser,
                         previewObject: [
                           DefaultUserCard(
                             hasMargin: false,
@@ -159,7 +155,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       ExpandableList(
                         isExpandable: false,
-                        title: 'Related Ads',
+                        title: StringsManager.relatedAds,
                         previewObject: [
                           HorizontalProductList(products: dataModel!.result!.relatedAds!,),
                         ],
@@ -239,6 +235,33 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class DefaultAuctionCard extends StatelessWidget {
+  const DefaultAuctionCard({
+    super.key,
+    required this.auction
+  });
+
+  final Auction auction;
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        CircleAvatar(
+          backgroundImage: auction.user!.image != null? NetworkImage(AppConstants.baseImageUrl + MainCubit.get(context).auctionsDataModel!.result.first.user!.image!):svg_provider.Svg(AssetsManager.defaultAvatar),
+        ),
+        Text(auction.user!.name, style: Theme.of(context).textTheme.titleLarge,),
+        Spacer(),
+        Column(
+          children: [
+            Text(DateFormat('HH:mm').format(DateTime.parse(auction.createdAt!))),
+            Text(auction.price!, style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor),),
+          ],
+        )
+      ],
     );
   }
 }

@@ -61,12 +61,7 @@ class DefaultAuthenticatedMoreScreen extends StatelessWidget {
           title: StringsManager.saved,
         ),
         DefaultMoreTile(
-          onTap: (){
-            showDialog(
-              context: context,
-              builder: (context) => LanguageAlert()
-            );
-          },
+          onTap: () => showDialog(context: context, builder: (context) => LanguageAlert()),
           iconPath: AssetsManager.language,
           title: StringsManager.language,
           hasRightIcon: false,

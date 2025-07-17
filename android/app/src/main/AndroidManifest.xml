@@ -42,7 +42,7 @@
                 <data
                     android:scheme="https"
                     android:host="wikala.org"
-                    android:pathPrefix="/wikala/api/profile" />
+                    android:pathPrefix="/wikala/api/profile/show" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

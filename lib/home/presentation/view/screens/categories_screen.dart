@@ -106,7 +106,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                   }
                                   selectedSubCategoryIndex = -1;
                                 } else {
-                                  Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(categories[index].id!, categories: categories[index]))));
+                                  Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(categories[index].id!,))));
                                 }
                               });
                             }
@@ -176,7 +176,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                         allSecondSubCategories.addAll(i.subCategories??[]);
                                       }
                                     } else{
-                                      Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments:SearchScreenArguments(categories[selectedMainCategoryIndex].subCategories![index].id!, categories: categories[selectedMainCategoryIndex].subCategories![index]) )));
+                                      Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments:SearchScreenArguments(categories[selectedMainCategoryIndex].subCategories![index].id!))));
                                     }
                                   } else {
                                     if(allSubCategories[index].endPoint != 1){
@@ -186,7 +186,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                         allSecondSubCategories.add(i);
                                       }
                                     } else{
-                                      Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(categories[index].id!, categories: categories[index]))));
+                                      Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(categories[index].id!))));
                                     }
                                   }
                                 });
@@ -209,7 +209,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       ),
                       itemCount: allSecondSubCategories.length,
                       itemBuilder: (context, index) => InkWell(
-                        onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(allSecondSubCategories[index].id!, categories: allSecondSubCategories[index])))),
+                        onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(allSecondSubCategories[index].id!)))),
                         child: Padding(
                           padding: EdgeInsets.all(AppSizesDouble.s8),
                           child: Column(

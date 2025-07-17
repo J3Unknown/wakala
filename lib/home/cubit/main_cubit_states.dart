@@ -51,8 +51,6 @@ class MainGetCommercialAdErrorState extends MainCubitStates{}
 
 class MainGetMyAdsLoadingState extends MainCubitStates{}
 
-class MainGetMyAdsLoadingMoreState extends MainCubitStates{}
-
 class MainGetMyAdsSuccessState extends MainCubitStates{}
 
 class MainGetMyAdsErrorState extends MainCubitStates{}
@@ -216,11 +214,23 @@ class MainAddAddressSuccessState extends MainCubitStates{}
 
 class MainAddAddressErrorState extends MainCubitStates{}
 
+class MainEditAddressLoadingState extends MainCubitStates{}
+
+class MainEditAddressSuccessState extends MainCubitStates{}
+
+class MainEditAddressErrorState extends MainCubitStates{}
+
 class MainPostAdLoadingState extends MainCubitStates{}
 
 class MainPostAdSuccessState extends MainCubitStates{}
 
 class MainPostAdErrorState extends MainCubitStates{}
+
+class MainEditAdLoadingState extends MainCubitStates{}
+
+class MainEditAdSuccessState extends MainCubitStates{}
+
+class MainEditAdErrorState extends MainCubitStates{}
 
 class MainHideAdLoadingState extends MainCubitStates{}
 
@@ -239,4 +249,16 @@ class MainGetReportLoadingState extends MainCubitStates{}
 class MainGetReportSuccessState extends MainCubitStates{}
 
 class MainGetReportErrorState extends MainCubitStates{}
+
+class MainGetRecentlyViewedLoadingState extends MainCubitStates{}
+
+class MainGetRecentlyViewedSuccessState extends MainCubitStates{}
+
+class MainGetRecentlyViewedErrorState extends MainCubitStates{}
+
+class MainPickProfileImageLoadingState extends MainCubitStates{}
+
+class MainPickProfileImageSuccessState extends MainCubitStates{}
+
+class MainPickProfileImageErrorState extends MainCubitStates{}
 

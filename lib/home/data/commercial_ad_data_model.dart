@@ -7,8 +7,7 @@ class CommercialAdDataModel {
 
   CommercialAdDataModel.fromJson(Map<String, dynamic> json) {
     success = json['success'];
-    result =
-    json['result'] != null ? Result.fromJson(json['result']) : null;
+    result = json['result'] != null ? Result.fromJson(json['result']) : null;
     msg = json['msg'];
   }
 
@@ -45,6 +44,7 @@ class CommercialAdItem {
   String? description;
   String? contactMethod;
   late int negotiable;
+  late int isCommercial;
   String? status;
   String? startDate;
   String? endDate;
@@ -74,6 +74,7 @@ class CommercialAdItem {
     endDate = json['end_date'];
     mainImage = json['main_image'];
     createdAt = json['created_at'];
+    isCommercial= json['is_commercial']??0;
     updatedAt = json['updated_at'];
     if(json['ads_type'] != null) {
       adsType = PairOfIdAndName.fromJson(json['ads_type']);

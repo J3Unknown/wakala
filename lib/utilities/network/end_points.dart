@@ -28,6 +28,9 @@ class EndPoints{
   //*attributes
   static const String attributes = 'attributes_by_category';
 
+  //*recently viewed
+  static const String recentlyViewed = 'recently-viewed-ads';
+
   //*Followings
   static const String followAndUnfollow = 'follow';
   static const String following = 'follow/following';
@@ -46,7 +49,6 @@ class EndPoints{
 
   //*Save Ads
   static const String savedAds = 'saved-ads';
-  static const String recentlyViewed = ''; //TODO: Get the correct end point after is created
 
   //*Favorite Chats
   static const String favorites = 'favorite-ads';

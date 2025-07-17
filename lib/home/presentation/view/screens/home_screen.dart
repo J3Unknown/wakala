@@ -2,6 +2,8 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/resources/strings_manager.dart';
 import '../../../../utilities/resources/components.dart';
 import '../../../../utilities/resources/values_manager.dart';
 import '../../../cubit/main_cubit.dart';
@@ -18,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
-    context.read<MainCubit>().getHomeCommercialAds();
     super.initState();
   }
   @override
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
             child: Column(
               children: [
-                CategoriesScroll(catList: cubit.homePageDataModel!.result!.categories, isList: true,),
+                CategoriesScroll(catList: cubit.homePageDataModel!.result!.categories, isList: true, instantSearch: true,),
                 ConditionalBuilder(
                   condition: cubit.categoriesDataModel != null,
                   fallback: (context) => Center(child: CircularProgressIndicator(),),
@@ -43,10 +44,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ConditionalBuilder(
                   condition: cubit.homePageDataModel!.result!.homePageProducts != null &&  cubit.homePageDataModel!.result!.homePageProducts!.isNotEmpty,
                   fallback: (context) {
-                    return Center(child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal:  AppPaddings.p5),
-                      child: FittedBox(child: Text('There are No Suggestions Yet!!!!', style: Theme.of(context).textTheme.headlineMedium,)),
-                    ),);
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal:  AppPaddings.p5),
+                        child: FittedBox(child: Text(LocalizationService.translate(StringsManager.noSuggestions), style: Theme.of(context).textTheme.headlineMedium,)),
+                      ),
+                    );
                   },
                   builder: (context) => ListView(
                     physics: NeverScrollableScrollPhysics(),
@@ -56,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 AdsBannerSection(slider: cubit.homePageDataModel!.result!.sliders!.last),
                 ConditionalBuilder(
-                  condition: cubit.homeScreenAdsDataModel != null,
+                  condition: cubit.homeScreenAdsDataModel != null && state is !MainGetCommercialAdLoadingState,
                   fallback: (context) => Center(child: CircularProgressIndicator(),),
                   builder: (context) => HorizontalProductList(products: cubit.homeScreenAdsDataModel!.result!.commercialAdsItems!,)
                 ),

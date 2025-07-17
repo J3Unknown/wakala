@@ -43,7 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if(!_isOther){
       _profileDataModel = args.profileDataModel;
       log(_profileDataModel!.result!.id.toString());
-      MainCubit.get(context).getMyAds();
+      if(MainCubit.get(context).myAdsDataModel == null){
+        MainCubit.get(context).getMyAds();
+      }
     } else {
       id = args.id;
       if(_profileDataModel == null){
@@ -155,6 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       )
                     ),
                   ),
+                  if(!_isOther)
                   SliverProductsList(isOthers: _isOther, state: state,),
                 ],
               ),
@@ -166,16 +169,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Expanded(
                       child: DefaultAuthButton(
                         onPressed: () {
-                          Chat? chat;
-                          if(MainCubit.get(context).chatsDataModel != null && MainCubit.get(context).chatsDataModel!.result!.chats.isNotEmpty){
-                            for (var e in MainCubit.get(context).chatsDataModel!.result!.chats) {
-                              if(e.receiver!.id == _profileDataModel!.result!.id){
-                                chat = e;
-                                break;
+                          if(AppConstants.isAuthenticated){
+                            Chat? chat;
+                            if(MainCubit.get(context).chatsDataModel != null && MainCubit.get(context).chatsDataModel!.result!.chats.isNotEmpty){
+                              for (var e in MainCubit.get(context).chatsDataModel!.result!.chats) {
+                                if(e.receiver!.id == _profileDataModel!.result!.id){
+                                  chat = e;
+                                  break;
+                                }
                               }
                             }
+                            Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.chat, arguments: ChatScreenArgument(_profileDataModel!.result!.id, _profileDataModel!.result!.name, _profileDataModel!.result!.image, chat))));
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) => LoginAlert()
+                            );
                           }
-                          Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.chat, arguments: ChatScreenArgument(_profileDataModel!.result!.id, _profileDataModel!.result!.name, _profileDataModel!.result!.image, chat))));
                         },
                         icon: AssetsManager.chatsIcon,
                         iconColor: ColorsManager.white,
@@ -189,7 +199,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(width: AppSizesDouble.s10,),
                     Expanded(
                       child: DefaultAuthButton(
-                        onPressed: () async => await FlutterPhoneDirectCaller.callNumber(_profileDataModel!.result!.phone.toString()),
+                        onPressed: () async {
+                          if(AppConstants.isAuthenticated){
+                            await FlutterPhoneDirectCaller.callNumber(_profileDataModel!.result!.phone.toString());
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) => LoginAlert()
+                            );
+                          }
+                        },
                         icon: AssetsManager.call,
                         title: LocalizationService.translate(StringsManager.call),
                         backgroundColor: ColorsManager.primaryColor,
@@ -244,7 +263,6 @@ class ImageHeaderSection extends StatelessWidget {
               Positioned(
                 top: MediaQuery.of(context).padding.top + kToolbarHeight,
                 right: AppPaddings.p10,
-                // padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10, vertical: 80),
                 child: Column(
                   children: [
                     IconButton.filled(
@@ -278,7 +296,7 @@ class ImageHeaderSection extends StatelessWidget {
         if(profileDataModel.result!.address.isNotEmpty)
         Padding(
           padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15,),
-          child: Text('${profileDataModel.result!.address[0]!.region!.name}${profileDataModel.result!.address[0]!.street??' '}', style: Theme.of(context).textTheme.bodyLarge, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+          child: Text('${profileDataModel.result!.address[0]!.region!.name} ${profileDataModel.result!.address[0]!.street??' '}', style: Theme.of(context).textTheme.bodyLarge, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
         ),
       ],
     );
@@ -291,21 +309,18 @@ class SliverProductsList extends StatelessWidget {
   final MainCubitStates state;
   @override
   Widget build(BuildContext context) {
-    log(state.toString());
-    return SliverToBoxAdapter(
-      child: ConditionalBuilder(
-        condition: MainCubit.get(context).myAdsDataModel != null && state is !MainGetMyAdsLoadingState,
-        fallback: (context) {
-          if(state is MainGetMyAdsLoadingState){
-            return Center(child: CircularProgressIndicator(),);
-          }
-          return Center(child: Text('No Items Yet'));
-        },
-        builder: (context) => SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) => HorizontalProductCard(commercialItem: MainCubit.get(context).myAdsDataModel!.result!.commercialAdsItems![index], isRecentlyViewing: isOthers),
-            childCount: 10
-          ),
+    return ConditionalBuilder(
+      condition: MainCubit.get(context).myAdsDataModel != null && state is !MainGetMyAdsLoadingState,
+      fallback: (context) {
+        if(state is MainGetMyAdsLoadingState){
+          return SliverToBoxAdapter(child: Center(child: CircularProgressIndicator(),));
+        }
+        return SliverToBoxAdapter(child: Center(child: Text(LocalizationService.translate(StringsManager.noItemsYet))));
+      },
+      builder: (context) => SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => HorizontalProductCard(commercialItem: MainCubit.get(context).myAdsDataModel!.result[index], isRecentlyViewing: isOthers),
+          childCount: MainCubit.get(context).myAdsDataModel!.result.length
         ),
       ),
     );

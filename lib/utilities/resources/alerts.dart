@@ -204,7 +204,7 @@ class DeleteAccountAlert extends StatelessWidget {
 }
 
 class ReportAlert extends StatefulWidget {
-  ReportAlert({super.key, required this.reportType, required this.reportedId});
+  const ReportAlert({super.key, required this.reportType, required this.reportedId});
   final String reportType;
   final String reportedId;
 
@@ -220,34 +220,37 @@ class _ReportAlertState extends State<ReportAlert> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Report', textAlign: TextAlign.center,),
+      title: Text(LocalizationService.translate(StringsManager.report), textAlign: TextAlign.center,),
       backgroundColor: ColorsManager.white,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ...List.generate(
-            MainCubit.get(context).reportOptionsDataModel!.options.length,
-            (index) {
-              final option = MainCubit.get(context).reportOptionsDataModel!.options[index];
-              return RadioListTile.adaptive(
-                value: option.id,
-                title: Text(AppConstants.locale == 'ar'?option.titleAR:option.titleEn),
-                groupValue: selection,
-                onChanged: (value){
-                  setState(() {
-                    selection = value;
-                  });
-                }
-              );
-            }
-          ),
-          DefaultTextInputField(
-            controller: _notesController,
-            obscured: false,
-            maxLines: 5,
-            isOutlined: true,
-          ),
-        ],
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ...List.generate(
+              MainCubit.get(context).reportOptionsDataModel!.options.length,
+              (index) {
+                final option = MainCubit.get(context).reportOptionsDataModel!.options[index];
+                return RadioListTile.adaptive(
+                  activeColor: ColorsManager.primaryColor,
+                  value: option.id,
+                  title: Text(AppConstants.locale == 'ar'?option.titleAR:option.titleEn),
+                  groupValue: selection,
+                  onChanged: (value){
+                    setState(() {
+                      selection = value;
+                    });
+                  }
+                );
+              }
+            ),
+            DefaultTextInputField(
+              controller: _notesController,
+              obscured: false,
+              maxLines: 5,
+              isOutlined: true,
+            ),
+          ],
+        ),
       ),
       actions: [
         DefaultAuthButton(
@@ -261,13 +264,13 @@ class _ReportAlertState extends State<ReportAlert> {
               );
               Navigator.of(context).pop();
             } else {
-              showToastMessage(msg: 'Please select an option first', toastState: ToastState.warning);
+              showToastMessage(msg: LocalizationService.translate(StringsManager.selectOptionWarning), toastState: ToastState.warning);
             }
           },
           backgroundColor: ColorsManager.primaryColor,
           foregroundColor: ColorsManager.white,
           hasBorder: false,
-          title: LocalizationService.translate(StringsManager.submit)
+          title: StringsManager.submit
         )
       ],
     );

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -34,15 +36,27 @@ class _DefaultProductDetailsHeaderSectionState extends State<DefaultProductDetai
 
   @override
   void initState() {
-    isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == widget.ad.id!);
+    if(MainCubit.get(context).savedAdsDataModel != null){
+      _checkIfSaved();
+    }
     super.initState();
+  }
+
+  _checkIfSaved() {
+    isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) {
+      return e.adId == widget.ad.id!;
+    });
   }
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<MainCubit, MainCubitStates>(
       listener: (context, state) {
         if(state is MainSaveAdSuccessState || state is MainUnSaveAdSuccessState){
-          isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == widget.ad.id!);
+          _checkIfSaved();
+        }
+
+        if(state is MainGetSavedAdsSuccessState){
+          _checkIfSaved();
         }
       },
       builder: (context, state) => Column(
@@ -74,12 +88,14 @@ class _DefaultProductDetailsHeaderSectionState extends State<DefaultProductDetai
                           borderRadius: BorderRadius.circular(AppSizesDouble.s8),
                           color: widget.typeData.color
                         ),
-                        child: Text(widget.typeData.type),
+                        child: Text(LocalizationService.translate(widget.typeData.type)),
                       ),
                     ),
                     if(!isSaved)
                     IconButton.filled(
-                      onPressed: () => MainCubit.get(context).saveAd(widget.ad.id!),
+                      onPressed: () {
+                        MainCubit.get(context).saveAd(widget.ad.id!);
+                      },
                       icon: SvgPicture.asset(AssetsManager.saved, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),),
                       style: IconButton.styleFrom(
                         backgroundColor: ColorsManager.white,
@@ -124,7 +140,7 @@ class _DefaultProductDetailsHeaderSectionState extends State<DefaultProductDetai
                 Text(widget.ad.title!, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600),),
                 Text(widget.ad.description!, style: Theme.of(context).textTheme.titleMedium,),
                 if(widget.typeData.type == 'Sale')
-                  Text('${widget.ad.price!} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.bold)),
+                Text('${widget.ad.price!} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.bold)),
                 Text(DateFormat('dd - MM - yyyy').format(DateTime.parse(widget.ad.createdAt!)), style: Theme.of(context).textTheme.titleMedium,),
               ],
             ),

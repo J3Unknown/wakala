@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,16 +17,39 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClientMixin{
   final TextEditingController _searchController = TextEditingController();
   Categories? selectedCategory;
   List<Categories>? categories;
   late int selectedCategoryId;
 
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     context.read<MainCubit>().categoryIndex = -1;
+    _scrollController.addListener(scrollListener);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void scrollListener() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      context.read<MainCubit>().getSearchCommercialAds(
+        loadMore: true,
+        search: _searchController.text,
+        categoryId: selectedCategoryId != -1?selectedCategoryId:null,
+      );
+    }
   }
 
   @override
@@ -52,6 +77,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build;
     return Hero(
       tag: KeysManager.searchBarHeroTag,
       child: Scaffold(
@@ -90,10 +116,16 @@ class _SearchScreenState extends State<SearchScreen> {
                       return Center(child: CircularProgressIndicator(),);
                     },
                     builder: (context) => VerticalProductsList(
+                      scrollController: _scrollController,
                       isRecentlyViewed: true,
                       items: MainCubit.get(context).searchScreenAdsDataModel!.result!.commercialAdsItems!,
                     ),
                   )
+                ),
+                if(MainCubit.get(context).searchCommercialAdsIsLoadingMore)
+                Padding(
+                  padding: const EdgeInsets.all(AppPaddings.p10),
+                  child: Center(child: CircularProgressIndicator(),),
                 )
               ],
             ),

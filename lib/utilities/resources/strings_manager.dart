@@ -21,8 +21,8 @@ class StringsManager{
   static const String save = 'Save';
   static const String share = 'Share';
   static const String productDetails = 'Product Details';
-  static const String english = 'English'; //! not translated (displayed as it is)
-  static const String arabic = 'عربي'; //! not translated (displayed as it is)
+  static const String english = 'English'; //? not translated (displayed as it is)
+  static const String arabic = 'عربي'; //? not translated (displayed as it is)
   static const String emptyFieldMessage = 'This field can not be empty';
   static const String passwordMismatchMessage = 'Password Mismatch';
   static const String showVerifiedAccountsFirst = 'Show Verified Accounts First';
@@ -41,6 +41,16 @@ class StringsManager{
   static const String loginSuccess = "login Success";
   static const String checkThisOut = "check this on Wikala";
   static const String description = 'Description';
+  static const String noSuggestions = 'There are no suggestions yet!!';
+  static const String sale = 'Sale';
+  static const String exchange = 'Exchange';
+  static const String auction = 'Auction';
+  static const String cash = 'Cash';
+  static const String noItemsYet = 'No Items Yet';
+  static const String min = 'Min';
+  static const String max = 'Max';
+  static const String minimumPriceWarning = 'Minimum Price can\'t be greater than the Maximum Price!!';
+  static const String selectOptionWarning = 'Please select an option first';
 
   //*address
   static const String deleteAddress = 'Delete Address';
@@ -49,6 +59,12 @@ class StringsManager{
   static const String region = 'region';
   static const String cities = 'cities';
   static const String noAddressesWarning = 'There are no Addresses Yet!!, Try Add One First';
+  static const String blockNumber = 'Block Number';
+  static const String street = 'Street';
+  static const String buildingNumber = 'Building Number';
+  static const String floorNumber = 'Floor Number';
+  static const String flatNumber = 'Flat Number';
+  static const String notes = 'Notes';
 
   //*searching
   static const String searchHint = 'what are you looking for?';
@@ -74,6 +90,23 @@ class StringsManager{
   static const String titleMustBeAdded = 'Title Must be Added';
   static const String descriptionMustBeAdded = 'Description must be added';
   static const String selectYourAddress = 'select your address';
+  static const String theImage = 'The Image:';
+  static const String selectAdType = 'select ad type';
+  static const String addExchangeItem = 'Add the Exchange Item';
+  static const String addLowestAuctionPrice = 'Add the lowest Auction Price';
+  static const String addProductPrice = 'Add the product price';
+  static const String zeroPriceWarning = 'Price must be greater than zero';
+  static const String greaterThanOneMB = 'is greater than 1 MB';
+  static const String unsupportedFormat = 'has an unsupported format!';
+  static const String unSave = 'Unsave';
+  static const String add = 'Add';
+  static const String title = 'Title';
+  static const String advertiser = 'Advertiser';
+  static const String relatedAds = 'Related Ads';
+  static const String clickOnImageToDelete = 'Click on the image to delete';
+  static const String editWarning = "Don't change unless you want to change it, otherwise the Original Content will be used";
+  static const String changeAccount = 'Change\nAccount';
+  static const String imagePickingWarning = 'The maximum file size accepted is 1MB, \nand the accepted formats are JPG, PNG, and WEBP.\n\nNote: the first image is the Main Preview Image.';
 
 
   //*Auth
@@ -110,9 +143,6 @@ class StringsManager{
   static const String oneUppercaseCharacterWarning = 'Password must have at least 1 Uppercase character';
   static const String invalidOtp = 'Invalid OTP';
   static const String passwordSetSuccessfully = 'Password Was set Successfully!';
-  static const String theImage = 'The Image:';
-  static const String greaterThanOneMB = 'is greater than 1 MB';
-  static const String unsupportedFormat = 'has an unsupported format!';
 
   //* more Screen
   static const String notificationsSettings = 'Notifications Settings';
@@ -153,6 +183,7 @@ class StringsManager{
   static const String addressList = 'Address List';
   static const String addressInformation = 'Address Information';
   static const String createPassword = 'Create Password';
+  static const String passwordUpdatedSuccessfully = 'Password Updated Successfully';
 
 }
 
@@ -168,8 +199,12 @@ class KeysManager{
   static const String msg = 'msg';
   static const String password = 'password';
   static const String id = 'id';
+  static const String adId = 'ad_id';
   static const String phone = 'phone';
   static const String image = 'image';
+  static const String bio = 'bio';
+  static const String dateOfBirth = 'date_of_birth';
+  static const String email = 'email';
   static const String name = 'name';
   static const String user = 'user';
   static const String type = 'type';
@@ -197,6 +232,7 @@ class KeysManager{
   static const String search = 'search';
   static const String page = 'page';
   static const String lang = 'lang';
+  static const String isCommercial = 'is_commercial';
 
   //?caches
   static String isGuest = 'guest';

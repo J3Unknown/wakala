@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
+import 'package:wakala/chat/data/chat_screen_arguments.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/home/data/specific_ad_data_model.dart';
 import 'package:wakala/utilities/network/end_points.dart';
@@ -12,6 +15,7 @@ import 'package:wakala/utilities/resources/colors_manager.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/icons_manager.dart';
 
+import '../../../chat/data/chats_data_model.dart';
 import '../../../home/cubit/main_cubit.dart';
 import '../../../utilities/local/localization_services.dart';
 import '../../../utilities/resources/alerts.dart';
@@ -31,20 +35,27 @@ class CommercialDetails extends StatefulWidget {
 class _CommercialDetailsState extends State<CommercialDetails> {
   final PageController _pageController = PageController();
   SpecificAdDataModel? _specificAdDataModel;
+  bool isSaved = false;
   @override
   void initState() {
     MainCubit.get(context).getCommercialAdByID(widget.id);
     super.initState();
   }
+
+ _checkIfSaved(){
+    isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) {
+      return e.adId == _specificAdDataModel!.result!.ad!.id;
+    });
+ }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(onPressed: () =>Navigator.pop(context), icon: Icon(IconsManager.closeIcon)),
+        leading: IconButton(onPressed: ()=> Navigator.pop(context), icon: Icon(IconsManager.closeIcon)),
         actions: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
-            child: Text(StringsManager.commercialAdDetails, style: Theme.of(context).textTheme.titleLarge,),
+            child: Text(LocalizationService.translate(StringsManager.commercialAdDetails), style: Theme.of(context).textTheme.titleLarge,),
           ),
         ],
       ),
@@ -52,6 +63,15 @@ class _CommercialDetailsState extends State<CommercialDetails> {
         listener: (context, state) {
           if(state is MainGetCommercialAdByIDSuccessState){
             _specificAdDataModel = state.specificAdDataModel;
+            if(MainCubit.get(context).savedAdsDataModel != null){
+              _checkIfSaved();
+            } else {
+              MainCubit.get(context).getSavedAds();
+            }
+          }
+
+          if(state is MainGetSavedAdsSuccessState || state is MainSaveAdSuccessState || state is MainUnSaveAdSuccessState){
+            _checkIfSaved();
           }
         },
         builder: (context, state) => ConditionalBuilder(
@@ -134,14 +154,29 @@ class _CommercialDetailsState extends State<CommercialDetails> {
                       },
                       imagePath: AssetsManager.hide,
                     ),
+                    !isSaved?
                     DefaultTitledIconButton(
                       title: StringsManager.save,
-                      onPressed: (){},
+                      onPressed: () {
+                        if(AppConstants.isAuthenticated){
+                          MainCubit.get(context).saveAd(_specificAdDataModel!.result!.ad!.id!);
+                        } else{
+                          showDialog(
+                            context: context,
+                            builder: (context) => LoginAlert()
+                          );
+                        }
+                      },
                       imagePath: AssetsManager.saved,
+                    ):
+                    DefaultTitledIconButton(
+                      title: StringsManager.unSave,
+                      onPressed: () => MainCubit.get(context).unSaveAd(_specificAdDataModel!.result!.ad!.id!),
+                      imagePath: AssetsManager.savedFilled,
                     ),
                     DefaultTitledIconButton(
                       title: StringsManager.share,
-                      onPressed: () => shareButton('${AppConstants.baseUrl + EndPoints.getCommercialAd}/${_specificAdDataModel!.result!.ad!.id}', LocalizationService.translate(StringsManager.checkThisOut)), //TODO: check on the destination url
+                      onPressed: () => shareButton('${AppConstants.baseUrl + EndPoints.getCommercialAd}/${_specificAdDataModel!.result!.ad!.id}', LocalizationService.translate(StringsManager.checkThisOut)),
                       imagePath: AssetsManager.share,
                     ),
                   ],
@@ -166,7 +201,22 @@ class _CommercialDetailsState extends State<CommercialDetails> {
                           icon: AssetsManager.chatsIcon,
                           iconColor: ColorsManager.white,
                           hasBorder: false,
-                          onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.chat, arguments: _specificAdDataModel!.result!.ad!.user!.id))),
+                          onPressed: () {
+                            if(AppConstants.isAuthenticated){
+                              Chat? chat;
+                              if(MainCubit.get(context).chatsDataModel != null && MainCubit.get(context).chatsDataModel!.result!.chats.isNotEmpty){
+                                for (var e in MainCubit.get(context).chatsDataModel!.result!.chats) {
+                                  if(e.receiver!.id == _specificAdDataModel!.result!.ad!.user!.id){
+                                    chat = e;
+                                    break;
+                                  }
+                                }
+                              }
+                              Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.chat, arguments: ChatScreenArgument(_specificAdDataModel!.result!.ad!.user!.id, _specificAdDataModel!.result!.ad!.user!.name, _specificAdDataModel!.result!.ad!.user!.image, chat))));
+                            } else {
+                              showDialog(context: context, builder: (context) => LoginAlert());
+                            }
+                          },
                           title: StringsManager.message,
                           height: AppSizesDouble.s60,
                         ),
@@ -179,7 +229,13 @@ class _CommercialDetailsState extends State<CommercialDetails> {
                           icon: AssetsManager.call,
                           iconColor: ColorsManager.white,
                           hasBorder: false,
-                          onPressed: () async => await FlutterPhoneDirectCaller.callNumber(_specificAdDataModel!.result!.ad!.user!.phone!.toString()),
+                          onPressed: () async {
+                            if(AppConstants.isAuthenticated){
+                              await FlutterPhoneDirectCaller.callNumber(_specificAdDataModel!.result!.ad!.user!.phone!.toString());
+                            } else {
+                              showDialog(context: context, builder: (context) => LoginAlert());
+                            }
+                          },
                           title: StringsManager.call,
                           height: AppSizesDouble.s60,
                         ),

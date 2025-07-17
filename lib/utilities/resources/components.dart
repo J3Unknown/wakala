@@ -31,11 +31,12 @@ import 'icons_manager.dart';
 
 //* Categories Scroll
 class CategoriesScroll extends StatelessWidget {
-  const CategoriesScroll({super.key, this.categories, this.catList, this.isList = false});
+  const CategoriesScroll({super.key, this.categories, this.catList, this.isList = false, this.instantSearch = false});
 
   final bool isList;
   final List<Categories>? catList;
   final Categories? categories;
+  final bool instantSearch;
   @override
   Widget build(BuildContext context) {
     MainCubit cubit = MainCubit.get(context);
@@ -51,7 +52,12 @@ class CategoriesScroll extends StatelessWidget {
             itemCount: !isList?categories!.subCategories!.length:catList!.length,
             itemBuilder: (context, index) => CategoryButton(
               category: !isList? categories!.subCategories![index]:catList![index],
-              onPress: () => cubit.changeCategorySelection(index),
+              onPress: () {
+                cubit.changeCategorySelection(index);
+                if(instantSearch){
+                  cubit.getHomeCommercialAds();
+                }
+              },
               index: index,
               selectedCategory: cubit.categoryIndex,
             )
@@ -294,10 +300,9 @@ class TopSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            //TODO: get the categories based on the given top section category Id then navigate to search screen
             Text(_topSection.name, style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600),),
             Spacer(),
-            TextButton(onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(_topSection.categoryId)))), child: Text(StringsManager.showAll, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),))
+            TextButton(onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.search, arguments: SearchScreenArguments(_topSection.categoryId)))), child: Text(LocalizationService.translate(StringsManager.showAll), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),))
           ],
         ),
         SizedBox(
@@ -402,7 +407,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                 SizedBox(
                   height: AppSizesDouble.s180,
                   width: double.infinity,
-                  child: Image.network(AppConstants.baseImageUrl + widget.commercialAdType.mainImage!, fit: BoxFit.cover,),
+                  child: Image.network(AppConstants.baseImageUrl + (widget.commercialAdType.mainImage??''), fit: BoxFit.cover,),
                 ),
                 IntrinsicWidth(
                   child: Container(
@@ -412,7 +417,7 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
                       borderRadius: BorderRadius.circular(AppSizesDouble.s8),
                       color: _typeData.color
                     ),
-                    child: Text(_typeData.type),
+                    child: Text(LocalizationService.translate(_typeData.type)),
                   ),
                 ),
               ],
@@ -446,86 +451,110 @@ class HorizontalProductCard extends StatefulWidget {
     super.key,
     required this.commercialItem,
     required this.isRecentlyViewing,
-    this.isSaved = false
   });
   final CommercialAdItem commercialItem;
   final bool isRecentlyViewing;
-  final bool isSaved;
 
   @override
   State<HorizontalProductCard> createState() => _HorizontalProductCardState();
 }
 class _HorizontalProductCardState extends State<HorizontalProductCard> {
   late ProductTypeData typeData;
+  bool isSaved = false;
   @override
   void initState() {
     typeData = getProductType(widget.commercialItem.adsType?.name);
+    if(context.read<MainCubit>().savedAdsDataModel != null){
+      _checkIfSaved();
+    } else {
+      context.read<MainCubit>().getSavedAds();
+    }
     super.initState();
   }
+
+  _checkIfSaved() => isSaved = context.read<MainCubit>().savedAdsDataModel!.result!.any((e) => e.adId == widget.commercialItem.id);
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: (){
-        Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: widget.commercialItem.id)));
+    return BlocConsumer<MainCubit, MainCubitStates>(
+      listener: (context, state) {
+        if(state is MainGetSavedAdsSuccessState){
+          _checkIfSaved();
+        }
       },
-      child: Container(
-        margin: EdgeInsets.all(AppSizesDouble.s10),
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        width: double.infinity,
-        height: AppSizesDouble.s200,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppSizesDouble.s8),
-          border: Border.all(color: ColorsManager.grey)
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                Image.network(AppConstants.baseImageUrl + widget.commercialItem.mainImage!, width: MediaQuery.of(context).size.width/2.5, height: 200, fit: BoxFit.cover,),
-                IntrinsicWidth(
-                  child: Container(
-                    margin: EdgeInsets.all(AppPaddings.p10),
-                    padding: EdgeInsets.symmetric(horizontal: AppSizesDouble.s15, vertical: AppSizesDouble.s5),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppSizesDouble.s8),
-                      color: typeData.color
-                    ),
-                    child: Text(typeData.type),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(width: AppSizesDouble.s10,),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (context, state) => InkWell(
+        onTap: (){
+          Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: widget.commercialItem.id)));
+        },
+        child: Container(
+          margin: EdgeInsets.all(AppSizesDouble.s10),
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          width: double.infinity,
+          height: AppSizesDouble.s200,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+            border: Border.all(color: ColorsManager.grey)
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
                 children: [
-                  Text(widget.commercialItem.title, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w500), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
-                  SizedBox(height: AppSizesDouble.s10,),
-                  if(widget.commercialItem.description != null)
-                    Text(widget.commercialItem.description!, style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
-                  if(widget.commercialItem.description != null)
-                    SizedBox(height: AppSizesDouble.s10,),
-                  Text('${widget.commercialItem.price} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.w600), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
-                  SizedBox(height: AppSizesDouble.s10,),
-                  Text('${widget.commercialItem.city!.name}, ${widget.commercialItem.region!.name}', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
-                  SizedBox(height: AppSizesDouble.s5,),
-                  Text(DateFormat(StringsManager.dateFormat).format(DateTime.parse(widget.commercialItem.createdAt!)), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
+                  Image.network(AppConstants.baseImageUrl + (widget.commercialItem.mainImage??''), width: MediaQuery.of(context).size.width/2.5, height: 200, fit: BoxFit.cover,),
+                  IntrinsicWidth(
+                    child: Container(
+                      margin: EdgeInsets.all(AppPaddings.p10),
+                      padding: EdgeInsets.symmetric(horizontal: AppSizesDouble.s15, vertical: AppSizesDouble.s5),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+                        color: typeData.color
+                      ),
+                      child: Text(LocalizationService.translate(typeData.type)),
+                    ),
+                  ),
                 ],
               ),
-            ),
-            if(!widget.isRecentlyViewing)
-            IconButton(
-              onPressed: () {
-                Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.fullPost)));
-              },
-              icon: SvgPicture.asset(AssetsManager.edit)
-            ),
-            if(widget.isRecentlyViewing)
-            IconButton(onPressed: (){}, icon: SvgPicture.asset(widget.isSaved? AssetsManager.savedFilled:AssetsManager.saved))
-          ],
+              SizedBox(width: AppSizesDouble.s10,),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.commercialItem.title, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w500), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    SizedBox(height: AppSizesDouble.s10,),
+                    if(widget.commercialItem.description != null)
+                    Text(widget.commercialItem.description!, style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    if(widget.commercialItem.description != null)
+                    SizedBox(height: AppSizesDouble.s10,),
+                    Text('${widget.commercialItem.price} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.w600), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    SizedBox(height: AppSizesDouble.s10,),
+                    Text('${widget.commercialItem.city!.name}, ${widget.commercialItem.region!.name}', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    SizedBox(height: AppSizesDouble.s5,),
+                    Text(DateFormat(StringsManager.dateFormat).format(DateTime.parse(widget.commercialItem.createdAt!)), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
+                  ],
+                ),
+              ),
+              if(!widget.isRecentlyViewing)
+              IconButton(
+                onPressed: () {
+                  Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.fullPost, arguments: widget.commercialItem)));
+                },
+                icon: SvgPicture.asset(AssetsManager.edit)
+              ),
+              if(widget.isRecentlyViewing)
+              IconButton(
+                onPressed: () {
+                  if(isSaved){
+                    MainCubit.get(context).unSaveAd(widget.commercialItem.id);
+                    isSaved = false;
+                  } else {
+                    MainCubit.get(context).saveAd(widget.commercialItem.id);
+                    isSaved = true;
+                  }
+                },
+                icon: SvgPicture.asset(isSaved? AssetsManager.savedFilled:AssetsManager.saved)
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -533,18 +562,19 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
 }
 
 class VerticalProductsList extends StatelessWidget {
-const VerticalProductsList({super.key, required this.items, required this.isRecentlyViewed, this.isSaved = false, this.scrollable = true});
+const VerticalProductsList({super.key, required this.items, required this.isRecentlyViewed, this.scrollController, this.scrollable = true});
   final bool isRecentlyViewed;
-  final bool isSaved;
   final List<CommercialAdItem> items;
   final bool scrollable;
+  final ScrollController? scrollController;
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      controller: scrollController,
       shrinkWrap: !scrollable,
       physics: !scrollable?NeverScrollableScrollPhysics():null,
       itemCount: items.length,
-      itemBuilder: (context, index) =>  HorizontalProductCard(commercialItem: items[index], isRecentlyViewing: isRecentlyViewed, isSaved: isSaved)
+      itemBuilder: (context, index) =>  HorizontalProductCard(commercialItem: items[index], isRecentlyViewing: isRecentlyViewed)
     );
   }
 }
@@ -565,21 +595,20 @@ class _SavedAdCardState extends State<SavedAdCard> {
   @override
   void initState() {
     typeData = getProductType(getTypeById(widget.ad.id!).name);
-    isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == widget.ad.id!);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<MainCubit, MainCubitStates>(
-      listener: (context, state){
-        if(state is MainSaveAdSuccessState || state is MainUnSaveAdSuccessState){
-          isSaved = MainCubit.get(context).savedAdsDataModel!.result!.any((e) => e.id == widget.ad.id!);
-        }
-      },
+      listener: (context, state){},
       builder: (context, state) => InkWell(
         onTap: (){
-          log(typeData.toString());
-          Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: widget.ad.id)));
+          if(widget.ad.ad!.isCommercial == 1){
+            Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.commercialDetails, arguments: widget.ad.adId)));
+          } else {
+            Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: widget.ad.adId)));
+          }
         },
         child: Container(
           margin: EdgeInsets.all(AppSizesDouble.s10),
@@ -604,7 +633,7 @@ class _SavedAdCardState extends State<SavedAdCard> {
                         borderRadius: BorderRadius.circular(AppSizesDouble.s8),
                         color: typeData.color
                       ),
-                      child: Text(typeData.type),
+                      child: Text(LocalizationService.translate(typeData.type)),
                     ),
                   ),
                 ],
@@ -618,9 +647,9 @@ class _SavedAdCardState extends State<SavedAdCard> {
                     Text(widget.ad.ad!.title!, style: Theme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w500), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                     SizedBox(height: AppSizesDouble.s10,),
                     if(widget.ad.ad!.description != null)
-                      Text(widget.ad.ad!.description!, style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    Text(widget.ad.ad!.description!, style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                     if(widget.ad.ad!.description != null)
-                      SizedBox(height: AppSizesDouble.s10,),
+                    SizedBox(height: AppSizesDouble.s10,),
                     Text('${widget.ad.ad!.price} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.w600), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                     SizedBox(height: AppSizesDouble.s10,),
                     Text('${widget.ad.ad!.cityId}, ${widget.ad.ad!.regionId}', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
@@ -629,20 +658,12 @@ class _SavedAdCardState extends State<SavedAdCard> {
                   ],
                 ),
               ),
-              if(!isSaved)
-                IconButton(
-                  onPressed: () {
-                    MainCubit.get(context).saveAd(widget.ad.id!);
-                  },
-                  icon: SvgPicture.asset(AssetsManager.saved)
-                ),
-              if(isSaved)
-                IconButton(
-                  onPressed: () {
-                    MainCubit.get(context).unSaveAd(widget.ad.id!);
-                  },
-                  icon: SvgPicture.asset(AssetsManager.savedFilled)
-                ),
+              IconButton(
+                onPressed: () {
+                  MainCubit.get(context).unSaveAd(widget.ad.id!, isSaveScreen: true);
+                },
+                icon: SvgPicture.asset(AssetsManager.savedFilled)
+              ),
             ],
           ),
         ),
@@ -705,7 +726,7 @@ class DefaultFilterInputField extends StatelessWidget {
       decoration: InputDecoration(
         filled: true,
         fillColor: ColorsManager.loginButtonBackgroundColor,
-        hintText: _hint,
+        hintText: LocalizationService.translate(_hint??''),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSizesDouble.s10),
           borderSide: BorderSide(color: ColorsManager.grey3, width: AppSizesDouble.s2)
@@ -898,6 +919,7 @@ class DefaultTextInputField extends StatelessWidget {
     this.onSuffixPressed,
     this.suffixIcon = '',
     this.borderColor = ColorsManager.grey2,
+    this.ignorePointer = false,
     this.minLines,
   });
 
@@ -912,6 +934,7 @@ class DefaultTextInputField extends StatelessWidget {
   final VoidCallback? onSuffixPressed;
   final String suffixIcon;
   final Color borderColor;
+  final bool ignorePointer;
 
   @override
   Widget build(BuildContext context) {
@@ -919,6 +942,7 @@ class DefaultTextInputField extends StatelessWidget {
       minLines: minLines,
       controller: controller,
       keyboardType: keyboardType,
+      ignorePointers: ignorePointer,
       validator: validator,
       maxLines: maxLines,
       obscureText: obscured,

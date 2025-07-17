@@ -17,6 +17,7 @@ class DefaultAuthButton extends StatelessWidget {
     double height = 70,
     Color? iconColor,
     double iconWidth = 30,
+    bool pressCondition = false,
   }) : _onPressed=onPressed,
         _foregroundColor=foregroundColor,
         _backgroundColor=backgroundColor,
@@ -25,7 +26,8 @@ class DefaultAuthButton extends StatelessWidget {
         _title=title,
         _height=height,
         _iconColor=iconColor,
-        _iconWidth=iconWidth;
+        _iconWidth=iconWidth,
+        _pressCondition=pressCondition;
 
   final VoidCallback _onPressed;
   final Color _backgroundColor;
@@ -36,13 +38,14 @@ class DefaultAuthButton extends StatelessWidget {
   final double _height;
   final bool _hasBorder;
   final double _iconWidth;
+  final bool _pressCondition;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: _height,
-      child: ElevatedButton.icon(
+      child: !_pressCondition?ElevatedButton.icon(
         label: FittedBox(child: Text(LocalizationService.translate(_title), style: Theme.of(context).textTheme.titleLarge!.copyWith(color: _foregroundColor),)),
         icon: _icon!=null? SvgPicture.asset(_icon, colorFilter: _iconColor != null?ColorFilter.mode(_iconColor, BlendMode.srcIn):null,width: _iconWidth,):SizedBox(),
         onPressed: _onPressed,
@@ -56,7 +59,7 @@ class DefaultAuthButton extends StatelessWidget {
           ),
           padding: EdgeInsets.all(AppPaddings.p10)
         ),
-      ),
+      ):Center(child: CircularProgressIndicator(),),
     );
   }
 }

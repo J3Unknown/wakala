@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/local/shared_preferences.dart';

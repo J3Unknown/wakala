@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wakala/home/data/commercial_ad_data_model.dart';
 
 import '../../../../utilities/local/localization_services.dart';
 import '../../../../utilities/resources/strings_manager.dart';
@@ -6,8 +7,8 @@ import '../../../../utilities/resources/values_manager.dart';
 import '../widgets/post_screen_content.dart';
 
 class FullPostScreen extends StatefulWidget {
-  const FullPostScreen({super.key});
-
+  const FullPostScreen({super.key, this.ad});
+  final CommercialAdItem? ad;
   @override
   State<FullPostScreen> createState() => _FullPostScreenState();
 }
@@ -24,7 +25,7 @@ class _FullPostScreenState extends State<FullPostScreen> {
           ),
         ],
       ),
-      body: PostScreenContent(),
+      body: PostScreenContent(item: widget.ad,),
     );
   }
 }

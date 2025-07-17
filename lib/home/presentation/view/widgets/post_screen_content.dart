@@ -26,8 +26,8 @@ import '../../../cubit/main_cubit_states.dart';
 import '../../../data/categories_data_model.dart';
 
 class PostScreenContent extends StatefulWidget {
-  const PostScreenContent({super.key});
-
+  const PostScreenContent({super.key, this.item});
+  final CommercialAdItem? item;
   @override
   State<PostScreenContent> createState() => _PostScreenContentState();
 }
@@ -54,6 +54,15 @@ class _PostScreenContentState extends State<PostScreenContent> {
 
   @override
   void initState() {
+    if(widget.item != null){
+      _titleController.text = widget.item!.title;
+      _descriptionController.text = widget.item!.description!;
+      _priceController.text = widget.item!.price.toString();
+      negotiable = widget.item!.negotiable == 1;
+      isPhoneContact = widget.item!.contactMethod == 'phone'?0:1;
+      typeSelectedItem = widget.item!.adsType!.id;
+
+    }
     selections = [];
     subCategoryLevels = [];
     cubit = MainCubit.get(context);
@@ -79,7 +88,6 @@ class _PostScreenContentState extends State<PostScreenContent> {
       });
     }
   }
-
   void _onCategorySelected(int level, int? categoryId) async {
     setState(() {
       subCategoryLevels = subCategoryLevels.sublist(0, level + 1);
@@ -91,6 +99,12 @@ class _PostScreenContentState extends State<PostScreenContent> {
     if (categoryId != null) {
       await _fetchSubCategories(categoryId);
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+
+    super.didChangeDependencies();
   }
 
   @override
@@ -149,7 +163,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                           await MainCubit.get(context).logOut();
                           navigateToAuthLayout(context);
                         },
-                        child: Text('Change\nAccount', style: TextStyle(color: ColorsManager.primaryColor),)
+                        child: Text(LocalizationService.translate(StringsManager.changeAccount), style: TextStyle(color: ColorsManager.primaryColor),)
                       )
                     ],
                   ),
@@ -160,7 +174,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                 subCategoryLevels.length,
                 (level){
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
+                    padding: EdgeInsets.only(bottom: AppPaddings.p20),
                     child: ItemsDropDownMenu(
                       isEnabled: state is !MainGetSubCategoriesLoadingState,
                       items: subCategoryLevels[level],
@@ -170,7 +184,8 @@ class _PostScreenContentState extends State<PostScreenContent> {
                   );
                 }
               ),
-              SizedBox(height: AppSizesDouble.s15,),
+              Text(LocalizationService.translate(StringsManager.editWarning), style: Theme.of(context).textTheme.labelSmall!.copyWith(color: ColorsManager.deepRed),),
+              SizedBox(height: AppSizesDouble.s20,),
               IntrinsicHeight(
                 child: DottedBorder(
                   color: ColorsManager.grey,
@@ -187,8 +202,9 @@ class _PostScreenContentState extends State<PostScreenContent> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(AssetsManager.addImage),
-                        Text('The maximum file size accepted is 1MB, \nand the accepted formats are JPG, PNG, and WEBP.\n\nNote: the first image is the Main Preview Image', textAlign: TextAlign.center, style: TextStyle(color: ColorsManager.grey2),),
+                        Text(LocalizationService.translate(StringsManager.imagePickingWarning), textAlign: TextAlign.center, style: TextStyle(color: ColorsManager.grey2),),
                         SizedBox(height: AppSizesDouble.s15,),
+                        Text(LocalizationService.translate(StringsManager.editWarning), style: Theme.of(context).textTheme.labelSmall!.copyWith(color: ColorsManager.deepRed), textAlign: TextAlign.center,),
                         ElevatedButton.icon(
                           icon: Icon(IconsManager.addIcon, color: ColorsManager.white,),
                           onPressed: () => cubit.pickAdsImages(),
@@ -198,15 +214,15 @@ class _PostScreenContentState extends State<PostScreenContent> {
                               borderRadius: BorderRadius.circular(AppSizesDouble.s8)
                             )
                           ),
-                          label: Text('Add', style: TextStyle(color: ColorsManager.white),),
+                          label: Text(LocalizationService.translate(StringsManager.add), style: TextStyle(color: ColorsManager.white),),
                         )
                       ],
                     ):
                     Column(
                       children: [
                         Wrap(
-                          runSpacing: 8,
-                          spacing: 8,
+                          runSpacing: AppSizesDouble.s8,
+                          spacing: AppSizesDouble.s8,
                           children: List.generate(
                             cubit.adImagesList.length,
                             (index) => InkWell(
@@ -221,15 +237,15 @@ class _PostScreenContentState extends State<PostScreenContent> {
                                   borderRadius: BorderRadius.circular(AppSizesDouble.s8),
                                   border: Border.all(color: ColorsManager.primaryColor)
                                 ),
-                                child: Image.file(cubit.adImagesList[index], fit: BoxFit.cover, height: 70, width: 70,),
+                                child: Image.file(cubit.adImagesList[index], fit: BoxFit.cover, height: AppSizesDouble.s70, width: AppSizesDouble.s70,),
                               ),
                             )
                           ),
                         ),
                         SizedBox(height: AppSizesDouble.s10,),
-                        Text('Click on the image to delete', textAlign: TextAlign.center, style: TextStyle(color: ColorsManager.grey2),),
+                        Text(LocalizationService.translate(StringsManager.clickOnImageToDelete), textAlign: TextAlign.center, style: TextStyle(color: ColorsManager.grey2),),
                         SizedBox(height: AppSizesDouble.s5,),
-                        if(cubit.adImagesList.length < 8)
+                        if(cubit.adImagesList.length < AppSizesDouble.s8)
                         ElevatedButton.icon(
                           icon: Icon(IconsManager.addIcon, color: ColorsManager.white,),
                           onPressed: () => cubit.pickAdsImages(),
@@ -239,7 +255,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                                 borderRadius: BorderRadius.circular(AppSizesDouble.s8)
                             )
                           ),
-                          label: Text('Add', style: TextStyle(color: ColorsManager.white),),
+                          label: Text(LocalizationService.translate(StringsManager.add), style: TextStyle(color: ColorsManager.white),),
                         ),
                       ],
                     ),
@@ -252,64 +268,67 @@ class _PostScreenContentState extends State<PostScreenContent> {
                 isOutlined: true,
                 borderColor: ColorsManager.grey5,
                 obscured: false,
-                hintText: 'Title',
+                hintText: StringsManager.title,
               ),
               SizedBox(height: AppSizesDouble.s15,),
               DefaultTextInputField(
                 controller: _descriptionController,
                 isOutlined: true,
                 borderColor: ColorsManager.grey5,
-                hintText: 'Description',
+                hintText: StringsManager.description,
                 obscured: false,
                 maxLines: 5,
               ),
               SizedBox(height: AppSizesDouble.s15,),
-              Wrap(
-                alignment: WrapAlignment.start,
-                runSpacing: 8,
-                spacing: 5,
-                children: [
-                  //ItemsDropDownMenu(isExpanded: false, title: 'Condition', items: [], selectedItem: null, onChange: (value){}),
-                  //ItemsDropDownMenu(isExpanded: false, title: 'Warranty', items: [], selectedItem: null, onChange: (value){}),
-                  //ItemsDropDownMenu(isExpanded: false, title: 'Payment Option', items: [], selectedItem: null, onChange: (value){}),
-                  // DefaultPairDropDownMenu(
-                  //   title: StringsManager.addType,
-                  //   items: [],
-                  //   onChanged: (value){
-                  //
-                  //   },
-                  //   isExpanded: false,
-                  //   borderColor: ColorsManager.grey5,
-                  // ),
-                  DefaultPairDropDownMenu(
-                    title: StringsManager.productType,
-                    selectedItem: typeSelectedItem,
-                    isExpanded: false,
-                    borderColor: ColorsManager.grey5,
-                    items: productsTypes,
-                    onChanged: (value){
-                      setState(() {
-                        typeSelectedItem = value;
-                        if(typeSelectedItem == 1){
-                          _priceController.clear();
-                          typeHint = StringsManager.exchangeItem;
-                          typeKeyboard = TextInputType.text;
-                        } else if(typeSelectedItem == 2){
-                          _priceController.clear();
-                          typeHint = StringsManager.lowestAuctionPrice;
-                          typeKeyboard = TextInputType.number;
-                        } else{
-                          _priceController.clear();
-                          typeHint = StringsManager.price;
-                          typeKeyboard = TextInputType.number;
-                        }
-                      });
-                    }
-                  ),
-                ],
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  runSpacing: 8,
+                  spacing: 5,
+                  children: [
+                    //ItemsDropDownMenu(isExpanded: false, title: 'Condition', items: [], selectedItem: null, onChange: (value){}),
+                    //ItemsDropDownMenu(isExpanded: false, title: 'Warranty', items: [], selectedItem: null, onChange: (value){}),
+                    //ItemsDropDownMenu(isExpanded: false, title: 'Payment Option', items: [], selectedItem: null, onChange: (value){}),
+                    // DefaultPairDropDownMenu(
+                    //   title: StringsManager.addType,
+                    //   items: [],
+                    //   onChanged: (value){
+                    //
+                    //   },
+                    //   isExpanded: false,
+                    //   borderColor: ColorsManager.grey5,
+                    // ),
+                    DefaultPairDropDownMenu(
+                      title: StringsManager.productType,
+                      selectedItem: typeSelectedItem,
+                      isExpanded: false,
+                      borderColor: ColorsManager.grey5,
+                      items: productsTypes,
+                      onChanged: (value){
+                        setState(() {
+                          typeSelectedItem = value;
+                          if(typeSelectedItem == AppSizes.s1){
+                            _priceController.clear();
+                            typeHint = StringsManager.exchangeItem;
+                            typeKeyboard = TextInputType.text;
+                          } else if(typeSelectedItem == AppSizes.s2){
+                            _priceController.clear();
+                            typeHint = StringsManager.lowestAuctionPrice;
+                            typeKeyboard = TextInputType.number;
+                          } else{
+                            _priceController.clear();
+                            typeHint = StringsManager.price;
+                            typeKeyboard = TextInputType.number;
+                          }
+                        });
+                      }
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: AppSizesDouble.s15,),
-              selectedAddress == null?
+              if(selectedAddress == null)
               TextButton(
                 onPressed: () async{
                   final Address? address = await showDialog(
@@ -328,7 +347,10 @@ class _PostScreenContentState extends State<PostScreenContent> {
                     Text(LocalizationService.translate(StringsManager.addAddress), style: Theme.of(context).textTheme.titleMedium!.copyWith(color: ColorsManager.primaryColor),)
                   ],
                 ),
-              ):
+              ),
+              if(selectedAddress == null)
+              Text(LocalizationService.translate(StringsManager.editWarning), style: Theme.of(context).textTheme.labelSmall!.copyWith(color: ColorsManager.deepRed), textAlign: TextAlign.center,),
+              if(selectedAddress != null)
               Row(
                 children: [
                   Expanded(child: DefaultAddressListElement(address: selectedAddress!, canEdit: false,)),
@@ -377,7 +399,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
               ),
               SizedBox(height: AppSizesDouble.s15,),
               Align(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: Text(LocalizationService.translate(StringsManager.contactMethod), style: Theme.of(context).textTheme.titleMedium,)
               ),
               RadioListTile.adaptive(
@@ -408,19 +430,20 @@ class _PostScreenContentState extends State<PostScreenContent> {
               DefaultAuthButton(
                 onPressed: (){
                   if(
-                  selections.length == 1 && selections.first == null ||
+                 ( selections.length == 1 && selections.first == null ||
                   cubit.adImagesList.length < 2 ||
                   _titleController.text.isEmpty ||
                   typeSelectedItem == null ||
                   _descriptionController.text.isEmpty ||
                   selectedAddress == null ||
-                  _priceController.text.isEmpty
+                  _priceController.text.isEmpty) &&
+                   widget.item == null
                   ){
-                    if(selections.length == 1 && selections.first == null){
+                    if(selections.length == 1 && selections.first == null && widget.item == null){
                       showToastMessage(
                         msg: LocalizationService.translate(StringsManager.oneCategorySelectionWarning),
                       );
-                    } else if(cubit.adImagesList.length < 2){
+                    } else if(cubit.adImagesList.length < 2 && widget.item == null){
                       showToastMessage(
                         msg: LocalizationService.translate(StringsManager.twoImagesWarning),
                       );
@@ -432,47 +455,74 @@ class _PostScreenContentState extends State<PostScreenContent> {
                       showToastMessage(
                         msg: LocalizationService.translate(StringsManager.descriptionMustBeAdded),
                       );
-                    } else if(selectedAddress == null){
+                    } else if(selectedAddress == null && widget.item == null){
                       showToastMessage(
                         msg: LocalizationService.translate(StringsManager.selectYourAddress),
                       );
                     }else if(typeSelectedItem == null){
                       showToastMessage(
-                        msg: 'select ad type',
+                        msg: LocalizationService.translate(StringsManager.selectAdType),
                       );
                     } else if(_priceController.text.isEmpty){
                       if(typeSelectedItem == 1){
                         showToastMessage(
-                          msg: 'Add the Exchange Item',
+                          msg: LocalizationService.translate(StringsManager.addExchangeItem),
                         );
                       } else if(typeSelectedItem == 2){
                         showToastMessage(
-                          msg: 'Add the lowest Auction Price',
+                          msg: LocalizationService.translate(StringsManager.addLowestAuctionPrice),
                         );
                       } else{
                         showToastMessage(
-                          msg: 'Add the product price',
+                          msg: LocalizationService.translate(StringsManager.addProductPrice),
                         );
                       }
+                    } else if(typeSelectedItem == 3 && !(int.parse(_priceController.text) > 0)){
+                      showToastMessage(
+                        msg: LocalizationService.translate(StringsManager.zeroPriceWarning),
+                        toastState: ToastState.warning
+                      );
                     }
                   } else {
-                    cubit.postAd(
-                      categoryId: selections.last!,
-                      typeId: typeSelectedItem!,
-                      title: _titleController.text,
-                      description: _descriptionController.text,
-                      contactMethod: isPhoneContact == 0?'phone':'chat',
-                      mainImage: cubit.adImagesList.first,
-                      images: cubit.adImagesList.sublist(1),
-                      cityId: selectedAddress!.regionParent!.id??13,
-                      regionId: selectedAddress!.region!.id??14,
-                      endDate: DateTime.now().toString(),
-                      startDate: DateTime.now().toString(),
-                      exchangeItem: typeSelectedItem == 0?_priceController.text:null,
-                      lowestAuction: typeSelectedItem == 1?_priceController.text:null,
-                      negotiable: negotiable?1:0,
-                      price: typeSelectedItem == 2?_priceController.text:null
-                    );
+                    if(widget.item == null){
+                      cubit.postAd(
+                        categoryId: selections.last!,
+                        typeId: typeSelectedItem!,
+                        title: _titleController.text,
+                        description: _descriptionController.text,
+                        contactMethod: isPhoneContact == 0?StringsManager.phone:StringsManager.chat,
+                        mainImage: cubit.adImagesList.first,
+                        images: cubit.adImagesList.sublist(1),
+                        cityId: selectedAddress!.regionParent!.id??13,
+                        regionId: selectedAddress!.region!.id??14,
+                        endDate: DateTime.now().toString(),
+                        startDate: DateTime.now().toString(),
+                        exchangeItem: typeSelectedItem == 0?_priceController.text:null,
+                        lowestAuction: typeSelectedItem == 1?_priceController.text:null,
+                        negotiable: negotiable?1:0,
+                        price: typeSelectedItem == 2?_priceController.text:null
+                      );
+                    } else {
+                      log(widget.item!.id.toString());
+                      cubit.editAd(
+                        id: widget.item!.id,
+                        categoryId: selections.last??widget.item!.categoryId,
+                        typeId: typeSelectedItem!,
+                        title: _titleController.text,
+                        description: _descriptionController.text,
+                        contactMethod: isPhoneContact == 0?StringsManager.phone:StringsManager.chat,
+                        mainImage: cubit.adImagesList.isNotEmpty?cubit.adImagesList.first:null,
+                        images:  cubit.adImagesList.isNotEmpty?cubit.adImagesList.sublist(1):null,
+                        cityId: selectedAddress!= null? selectedAddress!.regionParent!.id!:widget.item!.cityId,
+                        regionId: selectedAddress != null? selectedAddress!.region!.id!:widget.item!.regionId,
+                        endDate: widget.item!.endDate,
+                        startDate: widget.item!.startDate,
+                        exchangeItem: typeSelectedItem == 0?_priceController.text:null,
+                        lowestAuction: typeSelectedItem == 1?_priceController.text:null,
+                        negotiable: negotiable?1:0,
+                        price: typeSelectedItem == 2?_priceController.text:null
+                      );
+                    }
                   }
                 },
                 title: StringsManager.save,
@@ -480,6 +530,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                 backgroundColor: ColorsManager.primaryColor,
                 foregroundColor: ColorsManager.white,
                 height: AppSizesDouble.s60,
+                pressCondition: state is MainPostAdLoadingState,
               )
             ],
           ),

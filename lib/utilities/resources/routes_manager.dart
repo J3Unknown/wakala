@@ -13,6 +13,7 @@ import 'package:wakala/chat/presentation/view/screens/chat_screen.dart';
 import 'package:wakala/chat/presentation/view/screens/chats_list_screen.dart';
 import 'package:wakala/commercial_details/presentation/view/commercial_details.dart';
 import 'package:wakala/home/data/categories_data_model.dart';
+import 'package:wakala/home/data/commercial_ad_data_model.dart';
 import 'package:wakala/home/presentation/view/home_layout.dart';
 import 'package:wakala/home/presentation/view/screens/full_post_screen.dart';
 import 'package:wakala/my_ads/presentation/view/my_ads_screen.dart';
@@ -81,7 +82,7 @@ class RoutesGenerator{
       case Routes.home:
         return MaterialPageRoute(builder: (_) => HomeLayout());
       case Routes.fullPost:
-        return MaterialPageRoute(builder: (_) => FullPostScreen());
+        return MaterialPageRoute(builder: (_) => FullPostScreen(ad: settings.arguments! as CommercialAdItem,));
       case Routes.search:
         return MaterialPageRoute(builder: (_) => SearchScreen(), settings: settings);
       case Routes.chatsList:

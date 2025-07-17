@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
@@ -33,7 +34,7 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
           actions: [
             Padding(
               padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
-              child: Text(StringsManager.myAds, style: Theme.of(context).textTheme.titleLarge,),
+              child: Text(LocalizationService.translate(StringsManager.myAds), style: Theme.of(context).textTheme.titleLarge,),
             ),
           ],
         ),
@@ -43,11 +44,11 @@ class _MyAdsScreenState extends State<MyAdsScreen> {
             if(state is MainGetMyAdsLoadingState){
               return Center(child: CircularProgressIndicator(),);
             }
-            return Center(child: Text('No Items Yet'));
+            return Center(child: Text(LocalizationService.translate(StringsManager.noItemsYet)));
           },
           builder: (context) => VerticalProductsList(
             isRecentlyViewed: false,
-            items: MainCubit.get(context).myAdsDataModel!.result!.commercialAdsItems!,
+            items: MainCubit.get(context).myAdsDataModel!.result,
           ),
         ),
       ),

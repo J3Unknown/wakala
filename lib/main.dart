@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +17,6 @@ import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/themes_manager.dart';
-//import 'package:uni_links/uni_links.dart';
 
 
 void main() async{
@@ -57,6 +57,7 @@ Future<void> loadLocalizations(LocaleChanger localeChanger)async{
   await localeChanger.initializeLocale();
   await LocalizationService().init();
 }
+
 Future<void> loadCaches() async{
   AppConstants.isGuest = await CacheHelper.getData(key: KeysManager.isGuest)??false;
   AppConstants.isAuthenticated = await CacheHelper.getData(key: KeysManager.isAuthenticated)??false;
@@ -79,45 +80,40 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  // late final StreamSubscription _sub;
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _handleIncomingLinks();
-  // }
-  //
-  // void _handleIncomingLinks() {
-  //   _sub = uriLinkStream.listen((Uri? uri) {
-  //     if (uri != null) {
-  //       log('Received deep link: $uri');
-  //
-  //       final pathSegments = uri.pathSegments;
-  //       if (
-  //         pathSegments.length == 4   &&
-  //         pathSegments[0]== 'wikala' &&
-  //         pathSegments[1]== 'api'    &&
-  //         pathSegments[2]== 'profile'
-  //       ) {
-  //         final userId = pathSegments[4];
-  //         Navigator.push(
-  //           navigatorKey.currentContext!,
-  //           RoutesGenerator.getRoute(RouteSettings(name: Routes.profile, arguments: ProfileScreenArguments(isOthers: true, id: int.parse(userId))))
-  //         );
-  //       }
-  //
-  //       // Add more cases if needed
-  //     }
-  //   }, onError: (err) {
-  //     log('Deep link error: $err');
-  //   });
-  // }
-  //
-  // @override
-  // void dispose() {
-  //   _sub.cancel();
-  //   super.dispose();
-  // }
+  final AppLinks _appLinks = AppLinks();
+  StreamSubscription<Uri>? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _linkSubscription = _appLinks.uriLinkStream.listen((Uri uri) {
+      _handleIncomingUri(uri);
+    });
+  }
+
+
+  void _handleIncomingUri(Uri uri) {
+    final pathSegments = uri.pathSegments;
+    
+    if (pathSegments.length >= 5 &&
+        pathSegments[1] == 'api' &&
+        pathSegments[2] == 'profile' &&
+        pathSegments[3] == 'show') {
+
+      final profileId = pathSegments[4];
+      debugPrint('Navigating to profile with ID: $profileId');
+
+      Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.profile, arguments: profileId)));
+    }
+  }
+
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +125,7 @@ class _MyAppState extends State<MyApp> {
           BlocProvider(create: (context) => MainCubit()
             ..getProfile()
             ..getHomeScreen()
-            ..getCommercialAds()
+            ..getHomeCommercialAds()
             ..getCategories()
             ..getFollowing(AppConstants.userId)
             ..getChats()

@@ -22,10 +22,12 @@ import 'package:wakala/home/presentation/view/screens/commercial_screen.dart';
 import 'package:wakala/home/presentation/view/screens/home_screen.dart';
 import 'package:wakala/home/presentation/view/screens/more_screen.dart';
 import 'package:wakala/home/presentation/view/screens/post_screen.dart';
+import 'package:wakala/my_ads/data/my_ads_data_model.dart';
 import 'package:wakala/notifications/presentation/view/notifications_screen.dart';
 import 'package:wakala/product_details/data/auctions_data_model.dart';
 import 'package:wakala/profile/data/cities_and_regions_dataModel.dart';
 import 'package:wakala/profile/data/followings_data_model.dart';
+import 'package:wakala/recently_viewed/data/recently_viewed_data_model.dart';
 import 'package:wakala/saved/data/saved_ads_data_model.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/network/dio.dart';
@@ -180,14 +182,14 @@ class MainCubit extends Cubit<MainCubitStates>{
 
     final queryParams = {
       KeysManager.page: currentCommercialAdsPage,
-      KeysManager.categoryUnderscoreId: categoryId,
-      KeysManager.userUnderscoreId: userId,
-      KeysManager.search: search,
-      KeysManager.minUnderscorePrice: minPrice,
-      KeysManager.maxUnderscorePrice: maxPrice,
-      KeysManager.cityUnderscoreId: cityId,
-      KeysManager.regionUnderscoreId: regionId,
-      KeysManager.typeUnderscoreId: typeId,
+      if(categoryId != null)KeysManager.categoryUnderscoreId: categoryId,
+      if(userId != null)KeysManager.userUnderscoreId: userId,
+      if(search != null)KeysManager.search: search,
+      if(minPrice != null)KeysManager.minUnderscorePrice: minPrice,
+      if(maxPrice != null)KeysManager.maxUnderscorePrice: maxPrice,
+      if(cityId != null)KeysManager.cityUnderscoreId: cityId,
+      if(regionId != null)KeysManager.regionUnderscoreId: regionId,
+      if(typeId != null)KeysManager.typeUnderscoreId: typeId,
     };
 
     DioHelper.getData(
@@ -247,14 +249,14 @@ class MainCubit extends Cubit<MainCubitStates>{
 
     final queryParams = {
       KeysManager.page: currentCommercialAdsPage,
-      KeysManager.categoryUnderscoreId: categoryId,
-      KeysManager.userUnderscoreId: userId,
-      KeysManager.search: search,
-      KeysManager.minUnderscorePrice: minPrice,
-      KeysManager.maxUnderscorePrice: maxPrice,
-      KeysManager.cityUnderscoreId: cityId,
-      KeysManager.regionUnderscoreId: regionId,
-      KeysManager.typeUnderscoreId: typeId,
+      if(categoryId != null)KeysManager.categoryUnderscoreId: categoryId,
+      if(userId != null)KeysManager.userUnderscoreId: userId,
+      if(search != null)KeysManager.search: search,
+      if(minPrice != null)KeysManager.minUnderscorePrice: minPrice,
+      if(maxPrice != null)KeysManager.maxUnderscorePrice: maxPrice,
+      if(cityId != null)KeysManager.cityUnderscoreId: cityId,
+      if(regionId != null)KeysManager.regionUnderscoreId: regionId,
+      if(typeId != null)KeysManager.typeUnderscoreId: typeId,
     };
 
     DioHelper.getData(
@@ -314,14 +316,15 @@ class MainCubit extends Cubit<MainCubitStates>{
 
     final queryParams = {
       KeysManager.page: currentCommercialAdsPage,
-      KeysManager.categoryUnderscoreId: categoryId,
-      KeysManager.userUnderscoreId: userId,
-      KeysManager.search: search,
-      KeysManager.minUnderscorePrice: minPrice,
-      KeysManager.maxUnderscorePrice: maxPrice,
-      KeysManager.cityUnderscoreId: cityId,
-      KeysManager.regionUnderscoreId: regionId,
-      KeysManager.typeUnderscoreId: typeId,
+      KeysManager.isCommercial:true,
+      if(categoryId != null)KeysManager.categoryUnderscoreId: categoryId,
+      if(userId != null)KeysManager.userUnderscoreId: userId,
+      if(search != null)KeysManager.search: search,
+      if(minPrice != null)KeysManager.minUnderscorePrice: minPrice,
+      if(maxPrice != null)KeysManager.maxUnderscorePrice: maxPrice,
+      if(cityId != null)KeysManager.cityUnderscoreId: cityId,
+      if(regionId != null)KeysManager.regionUnderscoreId: regionId,
+      if(typeId != null)KeysManager.typeUnderscoreId: typeId,
     };
 
     DioHelper.getData(
@@ -353,41 +356,14 @@ class MainCubit extends Cubit<MainCubitStates>{
   }
 
 
-  CommercialAdDataModel? myAdsDataModel;
-  int currentMyAdsPage = 1;
-  bool myAdsIsLoadingMore = false;
-  bool myAdsHasMore = true;
+  MyAdsDataModel? myAdsDataModel;
   void getMyAds({bool loadMore = false}){
-    if (loadMore) {
-      if (!myAdsHasMore || myAdsIsLoadingMore) return;
-      myAdsIsLoadingMore = true;
-      currentMyAdsPage++;
-      emit(MainGetMyAdsLoadingMoreState());
-    } else {
-      currentMyAdsPage = 1;
-      myAdsHasMore = true;
-      emit(MainGetMyAdsLoadingState());
-    }
-
-    final data = {
-      KeysManager.page: currentMyAdsPage,
-    };
-
+    emit(MainGetMyAdsLoadingState());
     DioHelper.getData(
       path: EndPoints.getMyAds,
-      data: data,
     ).then((value) {
-      final newData = CommercialAdDataModel.fromJson(value.data);
-
-      if (loadMore) {
-        commercialAdDataModel?.result?.commercialAdsItems?.addAll(newData.result?.commercialAdsItems ?? []);
-      } else {
-        commercialAdDataModel = newData;
-      }
-
-      commercialAdsHasMore = (newData.result?.pagination.currentPage ?? AppSizes.s0) < (newData.result?.pagination.lastPage ?? AppSizes.s0);
-
-      commercialAdsIsLoadingMore = false;
+      log(value.data.toString());
+      myAdsDataModel = MyAdsDataModel.fromJson(value.data);
       emit(MainGetMyAdsSuccessState());
     }).catchError((e){
       if (e is DioException) {
@@ -454,16 +430,32 @@ class MainCubit extends Cubit<MainCubitStates>{
     });
   }
 
-  void editProfile({required String name, required String phone, File? image}){
+  void editProfile({required String name, required String phone, File? image, String? bio, String? dateOfBirth, String? email}) async{
     emit(MainEditAccountLoadingState());
+
+    MultipartFile? file;
+    if(image != null){
+      file = await MultipartFile.fromFile(
+        image.path,
+        filename: image.path.split('/').last,
+        contentType: getAcceptedMediaType(image.path.split('/').last.split('.').last)
+      );
+    }
+
     DioHelper.postData(
-      url: EndPoints.createPassword,
+      url: EndPoints.editProfile,
+      options: Options(contentType: file != null?'multipart/form-data':'application/json'),
       data: {
         KeysManager.name: name,
         KeysManager.phone: phone,
-        KeysManager.image:image,
+        if(file != null)KeysManager.image:file,
+        if(bio != null)KeysManager.bio:bio,
+        if(dateOfBirth != null)KeysManager.dateOfBirth:dateOfBirth,
+        if(email != null)KeysManager.email:email,
+
       }
     ).then((value){
+      getProfile();
       emit(MainEditAccountSuccessState());
     });
   }
@@ -564,27 +556,78 @@ class MainCubit extends Cubit<MainCubitStates>{
     });
   }
 
-  void saveAd(int id){
-    emit(MainSaveAdLoadingState());
-    DioHelper.postData(
-      url: EndPoints.savedAds,
-      data: {KeysManager.id:id,}
-    ).then((value){
-      getSavedAds();
-      //savedAdsDataModel!.result!.add(SavedAd.fromJson(value.data['result']));
-      emit(MainSaveAdSuccessState());
+  SavedAdsDataModel? savedAdsDataModel;
+  void getSavedAds(){
+    emit(MainGetSavedAdsLoadingState());
+    DioHelper.getData(path: EndPoints.savedAds).then((value){
+      savedAdsDataModel = SavedAdsDataModel.fromJson(value.data);
+      emit(MainGetSavedAdsSuccessState());
     });
   }
 
-  void unSaveAd(int id){
+  void saveAd(int id){
+    emit(MainSaveAdLoadingState());
+    log(id.toString());
+    if(AppConstants.isAuthenticated){
+      DioHelper.postData(
+        url: EndPoints.savedAds,
+        data: {
+          KeysManager.adId:id,
+        }
+      ).then((value){
+        log(value.data.toString());
+        if(value.data['success']){
+          savedAdsDataModel!.result!.add(SavedAd.fromJson(value.data['result']));
+          emit(MainSaveAdSuccessState());
+        } else {
+          emit(MainSaveAdErrorState());
+          showToastMessage(
+            msg: value.data['msg'],
+            toastState: ToastState.error
+          );
+        }
+      });
+
+    } else {
+      emit(MainSaveAdErrorState());
+    }
+  }
+
+  void unSaveAd(int id, {bool isSaveScreen = false}){
     emit(MainUnSaveAdLoadingState());
-    DioHelper.postData(
-      url: EndPoints.savedAds,
-      data: {KeysManager.id:id,}
-    ).then((value){
-      getSavedAds();
-      emit(MainUnSaveAdSuccessState());
-    });
+    int? sendId;
+    if(!isSaveScreen){
+      for(var i in savedAdsDataModel!.result!){
+        log(i.id.toString());
+        log(i.adId.toString());
+        log(id.toString());
+        if(i.adId == id){
+          sendId = i.id;
+          break;
+        }
+      }
+    }
+
+    if((sendId != null && !isSaveScreen) || isSaveScreen){
+      DioHelper.deleteData(
+        url: '${EndPoints.savedAds}/${sendId??id}',
+      ).then((value){
+        savedAdsDataModel!.result!.removeWhere((e) {
+          log(e.adId.toString());
+          log(e.id.toString());
+          log(id.toString());
+          log('=====================');
+          if(isSaveScreen){
+            return e.id == id;
+          } else {
+            return e.adId == id;
+          }
+        });
+        emit(MainUnSaveAdSuccessState());
+      });
+    } else{
+      log('not found');
+    }
   }
 
   void postAd({
@@ -656,6 +699,86 @@ class MainCubit extends Cubit<MainCubitStates>{
       } else {
         log("Non-Dio Error: $e");
       }
+      emit(MainPostAdErrorState());
+    });
+  }
+
+  void editAd({
+    required int id,
+    required int categoryId,
+    required int typeId,
+    required String title,
+    required String description,
+    required String contactMethod,
+    int negotiable = 0,
+    startDate,
+    endDate,
+    File? mainImage,
+    List<File>? images,
+    required int cityId,
+    required int regionId,
+    price,
+    lowestAuction,
+    exchangeItem
+  }) async {
+    emit(MainEditAdLoadingState());
+
+    List<MultipartFile> partImages = [];
+    if(images != null){
+      for(var i in images) {
+        partImages.add(
+            await MultipartFile.fromFile(
+                i.path,
+                filename: i.path.split('/').last,
+                contentType: getAcceptedMediaType(mainImage!.path.split('/').last.split('.').last)
+            )
+        );
+      }
+    }
+
+    MultipartFile? partMainImage;
+    if(mainImage != null){
+      partMainImage = await MultipartFile.fromFile(
+          mainImage.path,
+          filename: mainImage.path.split('/').last,
+          contentType: getAcceptedMediaType(mainImage.path.split('/').last.split('.').last)
+      );
+    }
+
+    DioHelper.postData(
+        url: '${EndPoints.saveAd}/$id',
+        options: Options(contentType: 'multipart/form-data'),
+        data: {
+          KeysManager.categoryUnderscoreId: categoryId,
+          KeysManager.typeUnderscoreId: typeId,
+          KeysManager.title: title,
+          KeysManager.description: description,
+          KeysManager.contactUnderscoreMethod: contactMethod,
+          KeysManager.negotiable: negotiable,
+          KeysManager.startUnderscoreDate: startDate,
+          KeysManager.endUnderscoreDate: endDate,
+          if(partMainImage != null)KeysManager.mainImage: partMainImage,
+          if(partMainImage != null)KeysManager.images: partImages,
+          KeysManager.cityUnderscoreId: cityId,
+          KeysManager.regionUnderscoreId: regionId,
+          if(price != null)KeysManager.price: price,
+          if(lowestAuction != null)KeysManager.lowestAuctionPrice: lowestAuction,
+          if(exchangeItem != null)KeysManager.changeUnderscoreProduct: exchangeItem
+        }
+    ).then((value){
+      showToastMessage(msg: LocalizationService.translate(StringsManager.adAddedSuccessfully), toastState: ToastState.success);
+      emit(MainEditAdSuccessState());
+      changeBottomNavBarIndex(0);
+    }).catchError((e){
+      log(e.toString());
+      if (e is DioException) {
+        log("Dio Error: ${e.message}");
+        log("Status Code: ${e.response?.statusCode}");
+        log("data: ${e.response?.data}");
+      } else {
+        log("Non-Dio Error: $e");
+      }
+      emit(MainEditAdErrorState());
     });
   }
 
@@ -682,6 +805,7 @@ class MainCubit extends Cubit<MainCubitStates>{
 
   void addAddress({
     required int regionId,
+    required int cityId,
     required String blockNo,
     required String street,
     required String buildingNo,
@@ -704,6 +828,18 @@ class MainCubit extends Cubit<MainCubitStates>{
     ).then((value){
       log(value.data.toString());
       if(value.data[KeysManager.success]){
+        // late String city;
+        // for (var e in cities!.result) {
+        //   if(e.id == cityId){
+        //     city = e.name!;
+        //   }
+        // }
+        // late String region;
+        // for (var e in regions!.result) {
+        //   if(e.id == regionId){
+        //     region = e.name!;
+        //   }
+        // }
         Repo.profileDataModel!.result!.address.add(Address.fromJson(value.data));
         emit(MainAddAddressSuccessState());
       } else {
@@ -723,14 +859,14 @@ class MainCubit extends Cubit<MainCubitStates>{
   void editAddress({
     required int regionId,
     required int id,
-    int? blockNo,
-    String? street,
-    int? buildingNo,
-    int? floorNo,
-    int? flatNo,
-    String? notes,
+    required String blockNo,
+    required String street,
+    required String buildingNo,
+    required String floorNo,
+    required String flatNo,
+    required String notes,
   }){
-    emit(MainAddAddressLoadingState());
+    emit(MainEditAddressLoadingState());
     DioHelper.postData(
       url: EndPoints.editMyRegion,
       data: {
@@ -747,21 +883,13 @@ class MainCubit extends Cubit<MainCubitStates>{
       log(value.data.toString());
       if(value.data[KeysManager.success]){
         Repo.profileDataModel!.result!.address.add(Address.fromJson(value.data));
-        emit(MainAddAddressSuccessState());
+        emit(MainEditAddressSuccessState());
       } else {
-        emit(MainAddAddressErrorState());
+        emit(MainEditAddressErrorState());
       }
     });
   }
-  
-  SavedAdsDataModel? savedAdsDataModel;
-  void getSavedAds(){
-    emit(MainGetSavedAdsLoadingState());
-    DioHelper.getData(path: EndPoints.savedAds).then((value){
-      savedAdsDataModel = SavedAdsDataModel.fromJson(value.data);
-      emit(MainGetSavedAdsSuccessState());
-    });
-  }
+
 
   AuctionsDataModel? auctionsDataModel;
   void getAuctionsForAd(int adId){
@@ -801,7 +929,6 @@ class MainCubit extends Cubit<MainCubitStates>{
     DioHelper.postData(
       url: '${EndPoints.followAndUnfollow}/$userToFollowId',
     ).then((value){
-      log(value.data.toString());
       followingsDataModel.add(FollowingsDataModel.fromJson(value.data));
       emit(MainFollowSuccessState());
     });
@@ -812,7 +939,7 @@ class MainCubit extends Cubit<MainCubitStates>{
     DioHelper.deleteData(
       url: '${EndPoints.followAndUnfollow}/$userToUnfollowId',
     ).then((value){
-      followingsDataModel.removeAt(userToUnfollowId);
+      followingsDataModel.removeWhere((e) => e.id == userToUnfollowId);
       emit(MainUnfollowSuccessState());
     });
   }
@@ -836,12 +963,16 @@ class MainCubit extends Cubit<MainCubitStates>{
   ChatsDataModel? chatsDataModel;
   void getChats(){
     emit(MainGetChatsLoadingState());
-    DioHelper.getData(
-      path: EndPoints.chat
-    ).then((value){
-      chatsDataModel = ChatsDataModel.fromJson(value.data);
-      emit(MainGetChatsSuccessState());
-    });
+    if(AppConstants.isAuthenticated){
+      DioHelper.getData(
+        path: EndPoints.chat
+      ).then((value){
+        chatsDataModel = ChatsDataModel.fromJson(value.data);
+        emit(MainGetChatsSuccessState());
+      });
+    } else {
+      emit(MainGetChatsErrorState());
+    }
   }
 
   PlatformFile? pickedFiles;
@@ -859,21 +990,31 @@ class MainCubit extends Cubit<MainCubitStates>{
     emit(MainPickChatFilesSuccessState());
   }
 
-  void sendMessage(int receiverId, message, String messageType){
+  void sendMessage(int receiverId, message, String messageType) async{
     emit(MainSendMessageLoadingState());
-    log(AppConstants.baseUrl + EndPoints.chat);
-    log(receiverId.toString());
-    log(messageType);
-    log(message.toString());
+    MultipartFile? file;
+    if(messageType == 'file'){
+      file = await MultipartFile.fromFile(
+        pickedFiles!.path!,
+        filename: pickedFiles!.path!.split('/').last,
+        contentType: getAcceptedMediaType(pickedFiles!.name.split('.').last)
+      );
+    }
     DioHelper.postData(
       url: EndPoints.chat,
+      options: Options(
+        contentType: messageType == 'file' ? 'multipart/form-data' : 'application/json',
+        followRedirects: true,
+        validateStatus: (status) {
+          return status != null && status < 500;
+        },
+      ),
       data: {
         'receiver_id': receiverId,
-        'message': message,
+        'message': messageType == 'file'? file: message,
         'message_type': messageType,
       }
     ).then((value){
-      pickedFiles = null;
       emit(MainSendMessageSuccessState());
     }).catchError((e){
       if (e is DioException) {
@@ -889,10 +1030,7 @@ class MainCubit extends Cubit<MainCubitStates>{
   void deleteMessage(int messageId){
     emit(MainDeleteMessageLoadingState());
     DioHelper.deleteData(
-      url: EndPoints.chat,
-      data: {
-        'id': messageId,
-      }
+      url: '${EndPoints.chat}/$messageId}',
     ).then((value){
       emit(MainDeleteMessageSuccessState());
     }).catchError((e){
@@ -906,11 +1044,15 @@ class MainCubit extends Cubit<MainCubitStates>{
     });
   }
 
-  void addToRecentlyViewed(int id){
-    emit(MainAddToRecentlyViewedLoadingState());
-    // DioHelper.postData(url: EndPoints.)
+  RecentlyViewedDataModel? recentlyViewedDataModel;
+  void getRecentlyViewed(){
+    emit(MainGetRecentlyViewedLoadingState());
+    DioHelper.getData(
+      path: EndPoints.recentlyViewed,
+    ).then((value){
+      //TODO: add the data mapping after is added
+    });
   }
-
   void hideAd(int adId){
     emit(MainHideAdLoadingState());
     DioHelper.postData(url:
@@ -950,4 +1092,36 @@ class MainCubit extends Cubit<MainCubitStates>{
       emit(MainReportSuccessState());
     });
   }
+
+  final ImagePicker _profileImagePicker = ImagePicker();
+  File? profileImage;
+  void getProfilePhoto(){
+    emit(MainPickProfileImageLoadingState());
+    _profileImagePicker.pickImage(source: ImageSource.gallery).then((value) async {
+      if(value != null){
+        XFile image;
+        image = value;
+        int fileSizeInBytes = await image.length();
+        double fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+        if(fileSizeInMB <= 1){
+          for(var i in AppConstants.supportedImageFormats){
+            if(image.name.split('.').last == i){
+
+            }
+          }
+          profileImage = File(value.path);
+          emit(MainPickProfileImageSuccessState());
+        } else {
+          showToastMessage(
+            msg: 'The Picked Image is Exceeding the 1 MB limit',
+            toastState: ToastState.warning
+          );
+          emit(MainPickProfileImageErrorState());
+        }
+      }
+    }).catchError((e){
+      emit(MainPickProfileImageErrorState());
+    });
+  }
+
 }

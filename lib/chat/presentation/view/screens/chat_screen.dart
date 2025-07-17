@@ -70,7 +70,7 @@ class _ChatScreenState extends State<ChatScreen> {
           actions: [
             Padding(
               padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
-              child: Text(StringsManager.chat, style: Theme.of(context).textTheme.titleLarge,),
+              child: Text(LocalizationService.translate(StringsManager.chat), style: Theme.of(context).textTheme.titleLarge,),
             ),
           ],
         ),
@@ -208,20 +208,22 @@ class _DefaultChatFileState extends State<DefaultChatFile> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        Uri uri = Uri.parse(widget.file);
+        Uri uri = Uri.parse(AppConstants.baseUrl + widget.file);
         if(await canLaunchUrl(uri)) {
           launchUrl(uri);
         }
       },
       child: Container(
+        height: AppSizesDouble.s50,
         margin: EdgeInsets.symmetric(vertical: AppMargins.m5),
         padding: EdgeInsets.all(AppPaddings.p5),
+        alignment: AlignmentDirectional.centerStart,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppSizesDouble.s8),
           color: ColorsManager.loginButtonBackgroundColor,
           border: Border.all(color: ColorsManager.grey4)
         ),
-        child: Text(widget.file, maxLines: AppSizes.s1,overflow: TextOverflow.ellipsis,),
+        child: Text(widget.file, maxLines: AppSizes.s2,overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorsManager.black),),
       ),
     );
   }
@@ -294,6 +296,7 @@ class SenderChatCard extends StatelessWidget {
   final void Function(int) _onDelete;
   @override
   Widget build(BuildContext context) {
+    log(_message.message);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
       child: Row(
@@ -311,7 +314,7 @@ class SenderChatCard extends StatelessWidget {
                 child: IntrinsicWidth(
                   child: Container(
                     constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width - AppSizesDouble.s130,
+                      maxWidth: MediaQuery.of(context).size.width - AppSizesDouble.s100,
                       minWidth: AppSizesDouble.s20,
                     ),
                     padding: EdgeInsets.all(AppPaddings.p10),

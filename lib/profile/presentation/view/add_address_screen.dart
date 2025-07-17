@@ -24,6 +24,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   int? selectedCity;
   int? id;
   late bool isEdit;
+  AddAddressArguments? args;
+
+  bool _shouldLoadRegions = false;
 
   late GlobalKey<FormState> _formKey;
   late final TextEditingController _streetController;
@@ -47,21 +50,27 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
     }
     super.initState();
   }
+
   @override
   void didChangeDependencies() {
-    AddAddressArguments? args = ModalRoute.of(context)!.settings.arguments as AddAddressArguments?;
-    if(args != null){
-      isEdit = args.isEdit;
-      if(args.address != null){
-        id = args.address?.id;
-        _streetController.text =  args.address?.street??'';
-        selectedCity = args.address?.regionParent!.id;
-        selectedRegion = args.address?.region!.id;
-        _blockNoController.text = args.address?.blockNo??'';
-        _buildingNoController.text = args.address?.buildingNo??'';
-        _flatNoController.text = args.address?.flatNo??'';
-        _floorNoController.text = args.address?.floorNo??'';
-        _noteController.text = args.address?.notes??'';
+    args = ModalRoute.of(context)!.settings.arguments as AddAddressArguments?;
+    if(args != null) {
+      isEdit = args!.isEdit;
+      final address = args!.address;
+      if (address != null) {
+        id = address.id;
+        _streetController.text = address.street ?? '';
+        _blockNoController.text = address.blockNo ?? '';
+        _buildingNoController.text = address.buildingNo ?? '';
+        _flatNoController.text = address.flatNo ?? '';
+        _floorNoController.text = address.floorNo ?? '';
+        _noteController.text = address.notes ?? '';
+        selectedCity = address.regionParent?.id;
+        selectedRegion = address.region?.id;
+
+        if (selectedCity != null) {
+          _shouldLoadRegions = true;
+        }
       }
     }
     super.didChangeDependencies();
@@ -81,6 +90,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   @override
   Widget build(BuildContext context) {
     MainCubit cubit = MainCubit.get(context);
+    if (_shouldLoadRegions && cubit.cities != null) {
+      _shouldLoadRegions = false;
+      cubit.getRegions(selectedCity!);
+    }
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -92,153 +105,142 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       ),
       body: BlocConsumer<MainCubit, MainCubitStates>(
         listener: (context, state){
-          if(state is MainGetCitiesSuccessState && isEdit){
-            MainCubit.get(context).getRegions(selectedCity!);
+          if(state is MainAddAddressSuccessState){
+            Navigator.pop(context);
           }
         },
-        builder: (context, state) => SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: AppSizesDouble.s20),
-          child: Column(
-            children: [
-              cubit.cities != null?
-              DefaultPairDropDownMenu(
-                title: StringsManager.cities,
-                items: cubit.cities!.result,
-                selectedItem: selectedCity,
-                onChanged: (value){
-                  setState(() {
-                    selectedCity = value;
-                  });
-                  cubit.getRegions(selectedCity!);
-                }
-              ) :
-              Center(child: CircularProgressIndicator(),),
-              if(selectedCity != null)
-              SizedBox(height: AppSizesDouble.s10,),
-              if(selectedCity != null)
-                cubit.regions != null?
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: AppSizesDouble.s20),
+            child: Column(
+              children: [
+                cubit.cities != null && state is !MainGetCitiesLoadingState?
                 DefaultPairDropDownMenu(
-                  selectedItem: selectedRegion,
-                  items: cubit.regions!.result,
-                  title: StringsManager.region,
-                  onChanged: (value) {
+                  title: StringsManager.cities,
+                  items: cubit.cities!.result,
+                  selectedItem: selectedCity,
+                  onChanged: (value){
                     setState(() {
-                      selectedRegion = value;
+                      selectedCity = value;
+                      selectedRegion = null;
                     });
+                    cubit.getRegions(selectedCity!);
                   }
-                ): Center(child: CircularProgressIndicator(),),
-              SizedBox(height: AppSizesDouble.s10,),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    DefaultTextInputField(
-                      controller: _blockNoController,
-                      obscured: false,
-                      hintText: 'Block Number',
-                      borderColor: ColorsManager.grey3,
-                      isOutlined: true,
-                      keyboardType: TextInputType.number,
-                      validator: (value){
-                        if(value != null && value.isEmpty){
-                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: AppSizesDouble.s10,),
-                    DefaultTextInputField(
-                      controller: _streetController,
-                      obscured: false,
-                      hintText: 'Street',
-                      borderColor: ColorsManager.grey3,
-                      isOutlined: true,
-                      keyboardType: TextInputType.text,
-                      validator: (value){
-                        if(value != null && value.isEmpty){
-                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: AppSizesDouble.s10,),
-                    DefaultTextInputField(
-                      controller: _buildingNoController,
-                      obscured: false,
-                      hintText: 'Building Number',
-                      borderColor: ColorsManager.grey3,
-                      isOutlined: true,
-                      keyboardType: TextInputType.number,
-                      validator: (value){
-                        if(value != null && value.isEmpty){
-                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: AppSizesDouble.s10,),
-                    DefaultTextInputField(
-                      controller: _floorNoController,
-                      obscured: false,
-                      hintText: 'Floor Number',
-                      borderColor: ColorsManager.grey3,
-                      isOutlined: true,
-                      keyboardType: TextInputType.number,
-                      validator: (value){
-                        if(value != null && value.isEmpty){
-                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: AppSizesDouble.s10,),
-                    DefaultTextInputField(
-                      controller: _flatNoController,
-                      obscured: false,
-                      hintText: 'Flat Number',
-                      borderColor: ColorsManager.grey3,
-                      isOutlined: true,
-                      keyboardType: TextInputType.number,
-                      validator: (value){
-                        if(value != null && value.isEmpty){
-                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                )
-              ),
-              SizedBox(height: AppSizesDouble.s10,),
-              DefaultTextInputField(
-                controller: _noteController,
-                obscured: false,
-                maxLines: 5,
-                hintText: 'Notes',
-                borderColor: ColorsManager.grey3,
-                isOutlined: true,
-              ),
-              SizedBox(height: AppSizesDouble.s10,),
-              DefaultAuthButton(
-                onPressed: (){
-                  if(_formKey.currentState!.validate()){
-                    if(isEdit){
-                      cubit.editAddress(
-                        regionId: selectedRegion!,
-                        id: id!,
-                        blockNo: _blockNoController.text.isNotEmpty?int.parse(_blockNoController.text):null,
-                        buildingNo: _buildingNoController.text.isNotEmpty?int.parse(_buildingNoController.text):null,
-                        flatNo: _flatNoController.text.isNotEmpty?int.parse(_flatNoController.text):null,
-                        floorNo: _floorNoController.text.isNotEmpty?int.parse(_floorNoController.text):null,
-                        street: _streetController.text,
-                        notes: _noteController.text
-                      );
-                    } else{
-                      if(selectedCity != null && selectedRegion != null){
-                        log(selectedRegion.toString());
-                        cubit.addAddress(
+                ) : Center(child: CircularProgressIndicator(),),
+                if(selectedCity != null)
+                SizedBox(height: AppSizesDouble.s10,),
+                if(selectedCity != null)
+                  cubit.regions != null?
+                  DefaultPairDropDownMenu(
+                    selectedItem: selectedRegion,
+                    items: cubit.regions!.result,
+                    title: StringsManager.region,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedRegion = value;
+                      });
+                    }
+                  ): Center(child: CircularProgressIndicator(),),
+                SizedBox(height: AppSizesDouble.s10,),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      DefaultTextInputField(
+                        controller: _blockNoController,
+                        obscured: false,
+                        hintText: StringsManager.blockNumber,
+                        borderColor: ColorsManager.grey3,
+                        isOutlined: true,
+                        keyboardType: TextInputType.number,
+                        validator: (value){
+                          if(value != null && value.isEmpty){
+                            return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: AppSizesDouble.s10,),
+                      DefaultTextInputField(
+                        controller: _streetController,
+                        obscured: false,
+                        hintText: StringsManager.street,
+                        borderColor: ColorsManager.grey3,
+                        isOutlined: true,
+                        keyboardType: TextInputType.text,
+                        validator: (value){
+                          if(value != null && value.isEmpty){
+                            return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: AppSizesDouble.s10,),
+                      DefaultTextInputField(
+                        controller: _buildingNoController,
+                        obscured: false,
+                        hintText: StringsManager.buildingNumber,
+                        borderColor: ColorsManager.grey3,
+                        isOutlined: true,
+                        keyboardType: TextInputType.number,
+                        validator: (value){
+                          if(value != null && value.isEmpty){
+                            return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: AppSizesDouble.s10,),
+                      DefaultTextInputField(
+                        controller: _floorNoController,
+                        obscured: false,
+                        hintText: StringsManager.floorNumber,
+                        borderColor: ColorsManager.grey3,
+                        isOutlined: true,
+                        keyboardType: TextInputType.number,
+                        validator: (value){
+                          if(value != null && value.isEmpty){
+                            return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: AppSizesDouble.s10,),
+                      DefaultTextInputField(
+                        controller: _flatNoController,
+                        obscured: false,
+                        hintText: StringsManager.flatNumber,
+                        borderColor: ColorsManager.grey3,
+                        isOutlined: true,
+                        keyboardType: TextInputType.number,
+                        validator: (value){
+                          if(value != null && value.isEmpty){
+                            return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  )
+                ),
+                SizedBox(height: AppSizesDouble.s10,),
+                DefaultTextInputField(
+                  controller: _noteController,
+                  obscured: false,
+                  maxLines: 5,
+                  hintText: StringsManager.notes,
+                  borderColor: ColorsManager.grey3,
+                  isOutlined: true,
+                ),
+                SizedBox(height: AppSizesDouble.s10,),
+                DefaultAuthButton(
+                  onPressed: (){
+                    if(_formKey.currentState!.validate()){
+                      if(isEdit){
+                        cubit.editAddress(
                           regionId: selectedRegion!,
-                          blockNo:_blockNoController.text.trim(),
+                          id: id!,
+                          blockNo: _blockNoController.text.trim(),
                           buildingNo: _buildingNoController.text.trim(),
                           flatNo: _flatNoController.text.trim(),
                           floorNo: _floorNoController.text.trim(),
@@ -246,24 +248,38 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           notes: _noteController.text.trim()
                         );
                       } else{
-                        if(selectedCity == null){
-                          showToastMessage(msg: 'select a city first', toastState: ToastState.warning);
-                        } else {
-                          showToastMessage(msg: 'select a region first', toastState: ToastState.warning);
+                        if(selectedCity != null && selectedRegion != null){
+                          log(selectedRegion.toString());
+                          cubit.addAddress(
+                            regionId: selectedRegion!,
+                            cityId: selectedCity!,
+                            blockNo:_blockNoController.text.trim(),
+                            buildingNo: _buildingNoController.text.trim(),
+                            flatNo: _flatNoController.text.trim(),
+                            floorNo: _floorNoController.text.trim(),
+                            street: _streetController.text.trim(),
+                            notes: _noteController.text.trim()
+                          );
+                        } else{
+                          if(selectedCity == null){
+                            showToastMessage(msg: 'select a city first', toastState: ToastState.warning);
+                          } else {
+                            showToastMessage(msg: 'select a region first', toastState: ToastState.warning);
+                          }
                         }
                       }
                     }
-                  }
-                },
-                title: 'Save Address',
-                hasBorder: false,
-                backgroundColor: ColorsManager.primaryColor,
-                foregroundColor: ColorsManager.white,
-                height: AppSizesDouble.s60,
-              )
-            ],
-          ),
-        ),
+                  },
+                  title: 'Save Address',
+                  hasBorder: false,
+                  backgroundColor: ColorsManager.primaryColor,
+                  foregroundColor: ColorsManager.white,
+                  height: AppSizesDouble.s60,
+                )
+              ],
+            ),
+          );
+        },
       ),
     );
   }

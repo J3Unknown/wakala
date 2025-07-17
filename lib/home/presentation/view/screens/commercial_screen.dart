@@ -4,6 +4,7 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
+import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
 import '../../../../utilities/resources/components.dart';
@@ -15,16 +16,24 @@ class CommercialScreen extends StatefulWidget {
   State<CommercialScreen> createState() => _CommercialScreenState();
 }
 
-class _CommercialScreenState extends State<CommercialScreen> {
+class _CommercialScreenState extends State<CommercialScreen> with AutomaticKeepAliveClientMixin{
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
+    if(context.read<MainCubit>().commercialAdDataModel == null){
+      context.read<MainCubit>().getCommercialAds();
+    }
     _scrollController.addListener(scrollListener);
     super.initState();
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
@@ -36,11 +45,12 @@ class _CommercialScreenState extends State<CommercialScreen> {
   }
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocBuilder(
       bloc: MainCubit.get(context),
       builder: (context, state) {
         return ConditionalBuilder(
-          condition: MainCubit.get(context).commercialAdDataModel != null,
+          condition: MainCubit.get(context).commercialAdDataModel != null && state is !MainGetCommercialAdLoadingState,
           fallback: (context) => Center(child: CircularProgressIndicator(),),
           builder: (context) {
             return Column(
@@ -51,9 +61,7 @@ class _CommercialScreenState extends State<CommercialScreen> {
                     padding: EdgeInsets.all(AppPaddings.p10),
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: AppSizes.s2),
-                    itemBuilder: (context, index) {
-                      return DefaultCommercialGridItem(item: MainCubit.get(context).commercialAdDataModel!.result!.commercialAdsItems![index]);
-                    },
+                    itemBuilder: (context, index) => DefaultCommercialGridItem(item: MainCubit.get(context).commercialAdDataModel!.result!.commercialAdsItems![index]),
                     controller: _scrollController,
                   ),
                 ),
