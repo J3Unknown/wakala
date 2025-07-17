@@ -160,6 +160,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                       Spacer(),
                       TextButton(
                         onPressed: () async{
+                          MainCubit.get(context).changeBottomNavBarIndex(0);
                           await MainCubit.get(context).logOut();
                           navigateToAuthLayout(context);
                         },
@@ -184,6 +185,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                   );
                 }
               ),
+              if(widget.item != null)
               Text(LocalizationService.translate(StringsManager.editWarning), style: Theme.of(context).textTheme.labelSmall!.copyWith(color: ColorsManager.deepRed),),
               SizedBox(height: AppSizesDouble.s20,),
               IntrinsicHeight(
@@ -204,6 +206,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                         SvgPicture.asset(AssetsManager.addImage),
                         Text(LocalizationService.translate(StringsManager.imagePickingWarning), textAlign: TextAlign.center, style: TextStyle(color: ColorsManager.grey2),),
                         SizedBox(height: AppSizesDouble.s15,),
+                        if(widget.item != null)
                         Text(LocalizationService.translate(StringsManager.editWarning), style: Theme.of(context).textTheme.labelSmall!.copyWith(color: ColorsManager.deepRed), textAlign: TextAlign.center,),
                         ElevatedButton.icon(
                           icon: Icon(IconsManager.addIcon, color: ColorsManager.white,),
@@ -349,6 +352,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                 ),
               ),
               if(selectedAddress == null)
+              if(widget.item != null)
               Text(LocalizationService.translate(StringsManager.editWarning), style: Theme.of(context).textTheme.labelSmall!.copyWith(color: ColorsManager.deepRed), textAlign: TextAlign.center,),
               if(selectedAddress != null)
               Row(
@@ -485,8 +489,9 @@ class _PostScreenContentState extends State<PostScreenContent> {
                     }
                   } else {
                     if(widget.item == null){
+                      log('is posting');
                       cubit.postAd(
-                        categoryId: selections.last!,
+                        categoryId: selections.last==null?selections[selections.length - 2]!:selections.last!,
                         typeId: typeSelectedItem!,
                         title: _titleController.text,
                         description: _descriptionController.text,
@@ -497,13 +502,12 @@ class _PostScreenContentState extends State<PostScreenContent> {
                         regionId: selectedAddress!.region!.id??14,
                         endDate: DateTime.now().toString(),
                         startDate: DateTime.now().toString(),
-                        exchangeItem: typeSelectedItem == 0?_priceController.text:null,
-                        lowestAuction: typeSelectedItem == 1?_priceController.text:null,
+                        exchangeItem: typeSelectedItem == 1?_priceController.text:null,
+                        lowestAuction: typeSelectedItem == 2?_priceController.text:null,
                         negotiable: negotiable?1:0,
-                        price: typeSelectedItem == 2?_priceController.text:null
+                        price: typeSelectedItem == 3?_priceController.text:null
                       );
                     } else {
-                      log(widget.item!.id.toString());
                       cubit.editAd(
                         id: widget.item!.id,
                         categoryId: selections.last??widget.item!.categoryId,

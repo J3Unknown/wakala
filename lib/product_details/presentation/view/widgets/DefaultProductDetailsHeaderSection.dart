@@ -9,6 +9,7 @@ import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
+import 'package:wakala/utilities/resources/repo.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 
 import '../../../../home/data/specific_ad_data_model.dart';
@@ -91,7 +92,7 @@ class _DefaultProductDetailsHeaderSectionState extends State<DefaultProductDetai
                         child: Text(LocalizationService.translate(widget.typeData.type)),
                       ),
                     ),
-                    if(!isSaved)
+                    if(!isSaved && widget.ad.userId != Repo.profileDataModel!.result!.id)
                     IconButton.filled(
                       onPressed: () {
                         MainCubit.get(context).saveAd(widget.ad.id!);
@@ -101,7 +102,7 @@ class _DefaultProductDetailsHeaderSectionState extends State<DefaultProductDetai
                         backgroundColor: ColorsManager.white,
                       ),
                     ),
-                    if(isSaved)
+                    if(isSaved && widget.ad.userId != Repo.profileDataModel!.result!.id)
                     IconButton.filled(
                       onPressed: () => MainCubit.get(context).unSaveAd(widget.ad.id!),
                       icon: SvgPicture.asset(AssetsManager.savedFilled, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),),

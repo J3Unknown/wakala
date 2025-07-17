@@ -35,6 +35,8 @@ class StringsManager{
   static const String putAuctionPrice = 'Put Auction Price';
   static const String auctionPriceWarning = 'The Price Can not be lower than the Lowest Auction Price';
   static const String canNotLaunch = 'can not launch';
+  static const String isOnWikala = 'is on Wikala!!';
+  static const String only = 'only:';
   static const String errorOccurred = 'An Error occurred, please try again later';
   static const String couldNotLogin = "Couldn't login:";
   static const String errorInCredentials = "An Error occurred, Check you credentials again!!";
@@ -65,6 +67,8 @@ class StringsManager{
   static const String floorNumber = 'Floor Number';
   static const String flatNumber = 'Flat Number';
   static const String notes = 'Notes';
+  static const String citySelectionWarning = 'Select a city first';
+  static const String regionSelectionWarning = 'Select a region first';
 
   //*searching
   static const String searchHint = 'what are you looking for?';
@@ -176,6 +180,7 @@ class StringsManager{
   static const String bio = 'Bio';
   static const String dateOfBirth = 'Date of birth';
   static const String email = 'Email';
+  static const String emailPlaceholder = 'user@example.com';
   static const String deleteAccount = 'Delete Account';
   static const String deleteMyAccount = 'Delete My Account';
   static const String deleteAccountWarning = 'Do You want to DELETE your account?';
@@ -184,6 +189,7 @@ class StringsManager{
   static const String addressInformation = 'Address Information';
   static const String createPassword = 'Create Password';
   static const String passwordUpdatedSuccessfully = 'Password Updated Successfully';
+  static const String emailFormatWarning = 'Email Must Follow this format: ';
 
 }
 

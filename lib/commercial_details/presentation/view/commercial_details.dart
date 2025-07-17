@@ -176,7 +176,7 @@ class _CommercialDetailsState extends State<CommercialDetails> {
                     ),
                     DefaultTitledIconButton(
                       title: StringsManager.share,
-                      onPressed: () => shareButton('${AppConstants.baseUrl + EndPoints.getCommercialAd}/${_specificAdDataModel!.result!.ad!.id}', LocalizationService.translate(StringsManager.checkThisOut)),
+                      onPressed: () => shareAd(AppConstants.baseImageUrl + _specificAdDataModel!.result!.ad!.mainImage!, _specificAdDataModel!.result!.ad!.title!, _specificAdDataModel!.result!.ad!.price!, _specificAdDataModel!.result!.ad!.description!),
                       imagePath: AssetsManager.share,
                     ),
                   ],

@@ -5,6 +5,7 @@ import 'package:wakala/auth/presentation/cubit/auth_cubit.dart';
 import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
@@ -28,6 +29,7 @@ class LoginScreen extends StatelessWidget {
     return BlocConsumer<AuthCubit, AuthStates>(
       listener: (context, state){
         if(state is AuthLoginSuccessState){
+          context.read<MainCubit>().getProfile();
           Navigator.pushAndRemoveUntil(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.home)), (route) => false);
         }
       },

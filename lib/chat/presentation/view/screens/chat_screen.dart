@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -133,7 +134,7 @@ class _DefaultChatSendButtonState extends State<DefaultChatSendButton> {
               id:isValid?widget.chat.messages.last.id+AppSizes.s1:AppSizes.s0,
               senderId: Repo.profileDataModel!.result!.id,
               receiverId: widget.receiverId,
-              message: MainCubit.get(context).pickedFiles != null?MainCubit.get(context).pickedFiles!.name:_messageController.text,
+              message: MainCubit.get(context).pickedFiles != null?MainCubit.get(context).pickedFiles!.path!:_messageController.text,
               messageType: MainCubit.get(context).pickedFiles == null?KeysManager.text:KeysManager.file,
               createdAt: DateTime.now().toString(),
               updatedAt: DateTime.now().toString(),
@@ -208,9 +209,9 @@ class _DefaultChatFileState extends State<DefaultChatFile> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        Uri uri = Uri.parse(AppConstants.baseUrl + widget.file);
+        Uri uri = Uri.parse(AppConstants.baseImageUrl + widget.file);
         if(await canLaunchUrl(uri)) {
-          launchUrl(uri);
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
         }
       },
       child: Container(
@@ -223,7 +224,7 @@ class _DefaultChatFileState extends State<DefaultChatFile> {
           color: ColorsManager.loginButtonBackgroundColor,
           border: Border.all(color: ColorsManager.grey4)
         ),
-        child: Text(widget.file, maxLines: AppSizes.s2,overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorsManager.black),),
+        child: Text(widget.file.split('/').last, maxLines: AppSizes.s2,overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: ColorsManager.black),),
       ),
     );
   }
@@ -296,7 +297,6 @@ class SenderChatCard extends StatelessWidget {
   final void Function(int) _onDelete;
   @override
   Widget build(BuildContext context) {
-    log(_message.message);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15),
       child: Row(

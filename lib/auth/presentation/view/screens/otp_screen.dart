@@ -10,6 +10,7 @@ import 'package:wakala/auth/presentation/cubit/auth_cubit.dart';
 import 'package:wakala/auth/presentation/cubit/auth_states.dart';
 import 'package:wakala/auth/presentation/view/widgets/AuthSection.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/components.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
@@ -66,6 +67,7 @@ class _OtpScreenState extends State<OtpScreen> {
     return BlocConsumer<AuthCubit, AuthStates>(
       listener: (context, state){
         if(state is AuthSignUpSuccessState){
+          context.read<MainCubit>().getProfile();
           showToastMessage(msg: LocalizationService.translate(StringsManager.loginSuccess), toastState: ToastState.success);
           Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.home)));
         }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/profile/presentation/view/widgets/profile_screen_arguments.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
 
 import '../../../../auth/presentation/view/widgets/DefaultAuthButton.dart';
 import '../../../../auth/presentation/view/widgets/DefaultMoreTile.dart';
@@ -30,7 +31,7 @@ class DefaultAuthenticatedMoreScreen extends StatelessWidget {
             onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.profile, arguments: ProfileScreenArguments(isOthers: false, profileDataModel: Repo.profileDataModel!)))) ,
             child: ClipOval(
               child: Repo.profileDataModel!.result!.image != null?
-              Image.network(Repo.profileDataModel!.result!.image!, fit: BoxFit.cover,):
+              Image.network(AppConstants.baseImageUrl + Repo.profileDataModel!.result!.image!, fit: BoxFit.cover,):
               SvgPicture.asset(AssetsManager.defaultAvatar, fit: BoxFit.cover,),
             ),
           ),

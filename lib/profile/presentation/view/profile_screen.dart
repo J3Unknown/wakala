@@ -149,8 +149,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             imagePath: AssetsManager.add,
                           ),
                           DefaultTitledIconButton(
-                            title: LocalizationService.translate(StringsManager.share),
-                            onPressed: () => shareButton('${AppConstants.baseUrl}${EndPoints.getOtherProfile}/${_profileDataModel!.result!.id}', 'Check ${_profileDataModel!.result!.name}\'s profile on Wikala!!'),
+                            title: StringsManager.share,
+                            onPressed: () {
+                              shareProfile(_profileDataModel!.result!.name, _profileDataModel!.result!.image != null?(AppConstants.baseImageUrl):'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg');
+                            },
                             imagePath: AssetsManager.share,
                           ),
                         ]
@@ -278,7 +280,7 @@ class ImageHeaderSection extends StatelessWidget {
                         backgroundColor: ColorsManager.white,
                       ),
                       onPressed: () {
-                        shareButton('${AppConstants.baseUrl}${EndPoints.getOtherProfile}/${Repo.profileDataModel!.result!.id}', 'Check this profile!!');
+                        shareProfile(Repo.profileDataModel!.result!.name, Repo.profileDataModel!.result!.image != null? (AppConstants.baseImageUrl + Repo.profileDataModel!.result!.image!):'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg');
                       },
                       icon: SvgPicture.asset(AssetsManager.share, colorFilter: ColorFilter.mode(ColorsManager.black, BlendMode.srcIn),)
                     ),
@@ -296,7 +298,7 @@ class ImageHeaderSection extends StatelessWidget {
         if(profileDataModel.result!.address.isNotEmpty)
         Padding(
           padding: EdgeInsets.symmetric(horizontal: AppPaddings.p15,),
-          child: Text('${profileDataModel.result!.address[0]!.region!.name} ${profileDataModel.result!.address[0]!.street??' '}', style: Theme.of(context).textTheme.bodyLarge, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+          child: Text('${profileDataModel.result!.address.first!.region!.name} ${profileDataModel.result!.address.first!.street??' '}', style: Theme.of(context).textTheme.bodyLarge, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
         ),
       ],
     );

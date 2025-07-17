@@ -25,6 +25,7 @@ class AppConstants{
   static String token = '';
 
   static const List<String> supportedImageFormats = ['jpg', 'jpeg', 'png', 'webp'];
+  static RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
   static List<PairOfIdAndName> paymentOptions = [PairOfIdAndName.fromJson({'id':1,'name':LocalizationService.translate(StringsManager.cash)})];
 

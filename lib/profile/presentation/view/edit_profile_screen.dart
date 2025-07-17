@@ -7,9 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
+import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/alerts.dart';
 import 'package:wakala/utilities/resources/assets_manager.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/icons_manager.dart';
 import 'package:wakala/utilities/resources/repo.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
@@ -32,6 +34,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _phoneController;
   late final TextEditingController _emailController;
   late final GlobalKey<FormState> _formKey;
+  bool isInserted = false;
   @override
   void initState() {
     _formKey = GlobalKey();
@@ -45,12 +48,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void didChangeDependencies() {
     final ProfileDataModel? args = ModalRoute.of(context)!.settings.arguments! as ProfileDataModel?;
-    if(args != null){
+    if(args != null && !isInserted){
       _fullNameController.text = args.result!.name;
       _bioController.text =  args.result!.bio??'';
-      _dateOfBirth =  args.result!.dateOfBirth;
+      _dateOfBirth =  DateFormat('yyyy-MM-dd').format(DateTime.parse(args.result!.dateOfBirth??''));
       _phoneController.text = args.result!.phone;
       _emailController.text = args.result!.email??'';
+      isInserted = true;
     }
     super.didChangeDependencies();
   }
@@ -75,8 +79,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BlocBuilder(
-                bloc: MainCubit.get(context),
+              BlocConsumer<MainCubit, MainCubitStates>(
+                listener: (context, state){
+                  if(state is MainEditAccountSuccessState){
+                    Navigator.pop(context);
+                  }
+                },
                 builder: (context, state) => Center(
                   child: InkWell(
                     splashColor: ColorsManager.transparent,
@@ -91,7 +99,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           height: AppSizesDouble.s100,
                           child: ClipOval(
                             child: Repo.profileDataModel!.result!.image != null || MainCubit.get(context).profileImage != null?
-                            (Repo.profileDataModel!.result!.image != null?Image.network(Repo.profileDataModel!.result!.image!, fit: BoxFit.cover,):Image.file(MainCubit.get(context).profileImage!, fit: BoxFit.cover,)):
+                            (Repo.profileDataModel!.result!.image != null?Image.network(AppConstants.baseImageUrl + Repo.profileDataModel!.result!.image!, fit: BoxFit.cover,):Image.file(MainCubit.get(context).profileImage!, fit: BoxFit.cover,)):
                             SvgPicture.asset(AssetsManager.defaultAvatar)
                           ),
                         ),
@@ -134,6 +142,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       obscured: false,
                       controller: _bioController,
                       hintText: StringsManager.bio,
+                      validator: (value){
+                        return null;
+                      },
                     ),
                     SizedBox(height: AppSizesDouble.s20,),
                     InkWell(
@@ -147,7 +158,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           if(value != null){
                             setState(() {
                               _dateOfBirth = '';
-                              _dateOfBirth = DateFormat(StringsManager.dateFormat).format(value);
+                              _dateOfBirth = DateFormat('yyyy-MM-dd').format(value);
                             });
                           }
                         });
@@ -163,7 +174,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         child: Text(
                           _dateOfBirth??LocalizationService.translate(StringsManager.dateOfBirth),
-                          style: TextStyle(color: ColorsManager.grey2),
+                          style: TextStyle(color: _dateOfBirth == null?ColorsManager.grey2:ColorsManager.black),
                         ),
                       ),
                     ),
@@ -174,6 +185,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       keyboardType: TextInputType.phone,
                       hintText: StringsManager.hintText,
                       validator: (String? value){
+                        if(value == null || value.isEmpty){
+                          return LocalizationService.translate(StringsManager.emptyFieldMessage);
+                        }
                         return null;
                       },
                     ),
@@ -182,7 +196,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       obscured: false,
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      hintText: StringsManager.email,
+                      hintText: StringsManager.emailPlaceholder,
+                      validator: (value){
+                        if(value != null && !value.contains(AppConstants.emailRegex)){
+                          return '${LocalizationService.translate(StringsManager.emailFormatWarning)} ${StringsManager.emailPlaceholder}';
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
@@ -204,6 +224,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     MainCubit.get(context).editProfile(
                       name: _fullNameController.text,
                       phone: _phoneController.text,
+                      email: _emailController.text,
+                      image: MainCubit.get(context).profileImage,
+                      bio: _bioController.text,
+                      dateOfBirth: _dateOfBirth!
                     );
                   }
                 },

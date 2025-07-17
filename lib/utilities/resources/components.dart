@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
@@ -526,7 +529,9 @@ class _HorizontalProductCardState extends State<HorizontalProductCard> {
                     if(widget.commercialItem.description != null)
                     SizedBox(height: AppSizesDouble.s10,),
                     Text('${widget.commercialItem.price} ${LocalizationService.translate(StringsManager.egp)}', style: Theme.of(context).textTheme.titleLarge!.copyWith(color: ColorsManager.primaryColor, fontWeight: FontWeight.w600), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                    if(widget.commercialItem.city != null && widget.commercialItem.region != null)
                     SizedBox(height: AppSizesDouble.s10,),
+                    if(widget.commercialItem.city != null && widget.commercialItem.region != null)
                     Text('${widget.commercialItem.city!.name}, ${widget.commercialItem.region!.name}', style: Theme.of(context).textTheme.titleMedium, maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
                     SizedBox(height: AppSizesDouble.s5,),
                     Text(DateFormat(StringsManager.dateFormat).format(DateTime.parse(widget.commercialItem.createdAt!)), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
@@ -777,7 +782,7 @@ class _DefaultSwitchState extends State<DefaultSwitch> {
             ),
             child: Row(
               children: [
-                Text(LocalizationService.translate(widget.title), maxLines: 2, overflow: TextOverflow.ellipsis,),
+                Text(LocalizationService.translate(widget.title), maxLines: AppSizes.s2, overflow: TextOverflow.ellipsis,),
                 Spacer(),
                 Switch(
                   value: widget.isActivated,
@@ -1147,26 +1152,49 @@ class _DefaultPairDropDownMenuState extends State<DefaultPairDropDownMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: ColorsManager.loginButtonBackgroundColor,
-        borderRadius: BorderRadius.circular(AppSizesDouble.s8),
-        border: Border.all(color: widget.borderColor)
-      ),
-      padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
-      child: DropdownButton(
-        isExpanded: widget.isExpanded,
-        underline: SizedBox(),
-        hint: Text(LocalizationService.translate(widget.title)),
-        value: widget.selectedItem,
-        dropdownColor: ColorsManager.white,
-        items: widget.items.map((e) => DropdownMenuItem(value: e.id,child: Text(e.name??''),)).toList(),
-        onChanged: (value) => widget.onChanged(value)
+    return BlocBuilder(
+      bloc: MainCubit.get(context),
+      builder: (context, state) => Container(
+        decoration: BoxDecoration(
+          color: ColorsManager.loginButtonBackgroundColor,
+          borderRadius: BorderRadius.circular(AppSizesDouble.s8),
+          border: Border.all(color: widget.borderColor)
+        ),
+        padding: EdgeInsets.symmetric(horizontal: AppPaddings.p10),
+        child: DropdownButton(
+          isExpanded: widget.isExpanded,
+          underline: SizedBox(),
+          hint: Text(LocalizationService.translate(widget.title)),
+          value: widget.selectedItem,
+          dropdownColor: ColorsManager.white,
+          items: widget.items.map((e) => DropdownMenuItem(value: e.id,child: Text(e.name??''),)).toList(),
+          onChanged: (value) => widget.onChanged(value)
+        ),
       ),
     );
   }
 }
 
-Future<void> shareButton(String destination, String message) async{
-  await Share.share('$message\n\n$destination');
+Future<void> shareAd(String imageUrl, String title, int price, String description) async{
+  XFile image = await _downloadImageFromUrl(imageUrl);
+  await Share.shareXFiles([image],text: '$title\n$description\n ${LocalizationService.translate(StringsManager.only)} $price ${LocalizationService.translate(StringsManager.egp)}!! \n${LocalizationService.translate(StringsManager.checkThisOut)}');
+}
+
+Future<void> shareProfile(String username, String imageUrl) async{
+
+  XFile image = await _downloadImageFromUrl(imageUrl);
+  await Share.shareXFiles([image],text: '${username.toUpperCase()}, ${LocalizationService.translate(StringsManager.isOnWikala)}');
+}
+
+_downloadImageFromUrl(String imageUrl) async{
+  final response = await get(Uri.parse(imageUrl));
+  if (response.statusCode != 200) throw Exception("Image download failed");
+
+  final tempDir = await getTemporaryDirectory();
+  final filePath = '${tempDir.path}/shared_profile_image.jpg';
+
+  final imageFile = File(filePath);
+  await imageFile.writeAsBytes(response.bodyBytes);
+
+  return XFile(imageFile.path);
 }

@@ -25,11 +25,10 @@ class DefaultAddressListElement extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text('${address.regionParent!.name??''} ${address.region!.name??''} ${address.blockNo??''} ${address.street??''}'),
-          Spacer(),
+          Expanded(child: Text('${address.regionParent!.name??''} ${address.region!.name??''} ${address.blockNo??''} ${address.street??''}', maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),),
           if(canEdit)
           IconButton(
-            onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.addAddress, arguments: AddAddressArguments(address: address)))),
+            onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.addAddress, arguments: AddAddressArguments(address: address, isEdit: true)))),
             icon: SvgPicture.asset(
               AssetsManager.edit,
               colorFilter: ColorFilter.mode(ColorsManager.black, BlendMode.srcIn),

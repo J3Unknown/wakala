@@ -1,7 +1,7 @@
 import 'package:wakala/home/data/commercial_ad_data_model.dart';
 
 class ProfileDataModel {
-  late bool success;
+  bool? success;
   Result? result;
   String? msg;
 

@@ -31,6 +31,7 @@ class DioHelper{
    required String url,
    Map<String, dynamic>? query,
    required Map<String, dynamic> data,
+  Options? options,
   }) async{
 
     dio.options.headers = {
@@ -39,7 +40,7 @@ class DioHelper{
       'Authorization': 'Bearer ${AppConstants.token}'
     };
 
-    return dio.put(url, queryParameters: query??{}, data: data,);
+    return dio.put(url, queryParameters: query??{}, data: data, options: options);
   }
 
   static Future<Response> postData(

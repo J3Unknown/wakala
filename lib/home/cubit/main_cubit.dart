@@ -430,7 +430,7 @@ class MainCubit extends Cubit<MainCubitStates>{
     });
   }
 
-  void editProfile({required String name, required String phone, File? image, String? bio, String? dateOfBirth, String? email}) async{
+  void editProfile({required String name, required String phone, File? image, required String bio, required String dateOfBirth, required String email}) async{
     emit(MainEditAccountLoadingState());
 
     MultipartFile? file;
@@ -442,21 +442,27 @@ class MainCubit extends Cubit<MainCubitStates>{
       );
     }
 
+    log(phone);
     DioHelper.postData(
       url: EndPoints.editProfile,
-      options: Options(contentType: file != null?'multipart/form-data':'application/json'),
+      options: Options(contentType:file != null?'multipart/form-data':'application/json'),
       data: {
-        KeysManager.name: name,
         KeysManager.phone: phone,
+        KeysManager.name: name,
         if(file != null)KeysManager.image:file,
-        if(bio != null)KeysManager.bio:bio,
-        if(dateOfBirth != null)KeysManager.dateOfBirth:dateOfBirth,
-        if(email != null)KeysManager.email:email,
+        KeysManager.bio:bio,
+        KeysManager.dateOfBirth:dateOfBirth,
+        KeysManager.email:email,
 
       }
     ).then((value){
-      getProfile();
-      emit(MainEditAccountSuccessState());
+      log(value.data.toString());
+      if(value.data['success']){
+        emit(MainEditAccountSuccessState());
+        getProfile();
+      } else {
+        emit(MainEditAccountErrorState());
+      }
     });
   }
   
@@ -487,9 +493,10 @@ class MainCubit extends Cubit<MainCubitStates>{
 
   CitiesAndRegionsDataModel? regions;
   void getRegions(int id){
+    regions = null;
     emit(MainGetRegionsLoadingState());
     DioHelper.getData(
-      path: EndPoints.cities,
+      path: EndPoints.regions,
       query: {KeysManager.id:id}
     ).then((value){
       regions = CitiesAndRegionsDataModel.fromJson(value.data);
@@ -661,35 +668,53 @@ class MainCubit extends Cubit<MainCubitStates>{
     }
 
     MultipartFile partMainImage = await MultipartFile.fromFile(
-        mainImage.path,
-        filename: mainImage.path.split('/').last,
-        contentType: getAcceptedMediaType(mainImage.path.split('/').last.split('.').last)
+      mainImage.path,
+      filename: mainImage.path.split('/').last,
+      contentType: getAcceptedMediaType(mainImage.path.split('/').last.split('.').last)
     );
-    
+
+    log('category_id: $categoryId');
+    log('type_id: $typeId');
+    log('title: $title');
+    log('description: $description');
+    log('contact_method: $contactMethod');
+    log('negotiable: $negotiable');
+    log('start_date: $startDate');
+    log('end_date: $endDate');
+    log('main_image: $cityId');
+    log('region_id: $regionId');
+    log('price: $price');
     DioHelper.postData(
       url: EndPoints.saveAd,
       options: Options(contentType: 'multipart/form-data'),
       data: {
-        KeysManager.categoryUnderscoreId: categoryId,
-        KeysManager.typeUnderscoreId: typeId,
-        KeysManager.title: title,
-        KeysManager.description: description,
-        KeysManager.contactUnderscoreMethod: contactMethod,
-        KeysManager.negotiable: negotiable,
-        KeysManager.startUnderscoreDate: startDate,
-        KeysManager.endUnderscoreDate: endDate,
-        KeysManager.mainImage: partMainImage,
-        KeysManager.images: partImages,
-        KeysManager.cityUnderscoreId: cityId,
-        KeysManager.regionUnderscoreId: regionId,
-        KeysManager.price: price,
-        KeysManager.lowestAuctionPrice: lowestAuction,
-        KeysManager.changeUnderscoreProduct: exchangeItem
+        'category_id': categoryId,
+        'type_id': typeId,
+        'title': title,
+        'description': description,
+        'contact_method': contactMethod,
+        'negotiable': negotiable,
+        'start_date': startDate,
+        'end_date': endDate,
+        'main_image': partMainImage,
+        'images': partImages,
+        'city_id': cityId,
+        'region_id': regionId,
+        if(price !=null)'price': price,
+        if(lowestAuction != null)KeysManager.lowestAuctionPrice: lowestAuction,
+        if(exchangeItem != null)KeysManager.changeUnderscoreProduct: exchangeItem
       }
     ).then((value){
-      showToastMessage(msg: LocalizationService.translate(StringsManager.adAddedSuccessfully), toastState: ToastState.success);
-      emit(MainPostAdSuccessState());
-      changeBottomNavBarIndex(0);
+      if(value.data['success']){
+        showToastMessage(msg: LocalizationService.translate(StringsManager.adAddedSuccessfully), toastState: ToastState.success);
+        emit(MainPostAdSuccessState());
+        changeBottomNavBarIndex(0);
+      } else{
+        emit(MainPostAdErrorState());
+        log(value.data.toString());
+        log(value.statusCode.toString());
+        log(value.statusMessage.toString());
+      }
     }).catchError((e){
       log(e.toString());
       if (e is DioException) {
@@ -746,29 +771,32 @@ class MainCubit extends Cubit<MainCubitStates>{
     }
 
     DioHelper.postData(
-        url: '${EndPoints.saveAd}/$id',
-        options: Options(contentType: 'multipart/form-data'),
-        data: {
-          KeysManager.categoryUnderscoreId: categoryId,
-          KeysManager.typeUnderscoreId: typeId,
-          KeysManager.title: title,
-          KeysManager.description: description,
-          KeysManager.contactUnderscoreMethod: contactMethod,
-          KeysManager.negotiable: negotiable,
-          KeysManager.startUnderscoreDate: startDate,
-          KeysManager.endUnderscoreDate: endDate,
-          if(partMainImage != null)KeysManager.mainImage: partMainImage,
-          if(partMainImage != null)KeysManager.images: partImages,
-          KeysManager.cityUnderscoreId: cityId,
-          KeysManager.regionUnderscoreId: regionId,
-          if(price != null)KeysManager.price: price,
-          if(lowestAuction != null)KeysManager.lowestAuctionPrice: lowestAuction,
-          if(exchangeItem != null)KeysManager.changeUnderscoreProduct: exchangeItem
-        }
+      url: '${EndPoints.saveAd}/$id',
+      options: Options(contentType: 'multipart/form-data'),
+      data: {
+        KeysManager.categoryUnderscoreId: categoryId,
+        KeysManager.typeUnderscoreId: typeId,
+        KeysManager.title: title,
+        KeysManager.description: description,
+        KeysManager.contactUnderscoreMethod: contactMethod,
+        KeysManager.negotiable: negotiable,
+        KeysManager.startUnderscoreDate: startDate,
+        KeysManager.endUnderscoreDate: endDate,
+        if(partMainImage != null)KeysManager.mainImage: partMainImage,
+        if(partMainImage != null)KeysManager.images: partImages,
+        KeysManager.cityUnderscoreId: cityId,
+        KeysManager.regionUnderscoreId: regionId,
+        if(price != null)KeysManager.price: price,
+        if(lowestAuction != null)KeysManager.lowestAuctionPrice: lowestAuction,
+        if(exchangeItem != null)KeysManager.changeUnderscoreProduct: exchangeItem
+      }
     ).then((value){
-      showToastMessage(msg: LocalizationService.translate(StringsManager.adAddedSuccessfully), toastState: ToastState.success);
-      emit(MainEditAdSuccessState());
-      changeBottomNavBarIndex(0);
+      if(value.data['success']){
+        showToastMessage(msg: LocalizationService.translate('the ad was edited successfully'), toastState: ToastState.success);
+        emit(MainEditAdSuccessState());
+        //changeBottomNavBarIndex(0);
+      }
+      log(value.data.toString());
     }).catchError((e){
       log(e.toString());
       if (e is DioException) {
@@ -803,6 +831,23 @@ class MainCubit extends Cubit<MainCubitStates>{
     return mediaType;
   }
 
+  Map<String, dynamic> _getCityAndRegionNameById(int id, bool isCity){
+    if(isCity){
+      for (var e in cities!.result) {
+        if(e.id == id){
+          return {'id':id, 'name':e.name};
+        }
+      }
+    } else{
+      for (var e in regions!.result) {
+        if(e.id == id){
+          return {'id':id, 'name':e.name};
+        }
+      }
+    }
+
+    return {};
+  }
   void addAddress({
     required int regionId,
     required int cityId,
@@ -828,37 +873,31 @@ class MainCubit extends Cubit<MainCubitStates>{
     ).then((value){
       log(value.data.toString());
       if(value.data[KeysManager.success]){
-        // late String city;
-        // for (var e in cities!.result) {
-        //   if(e.id == cityId){
-        //     city = e.name!;
-        //   }
-        // }
-        // late String region;
-        // for (var e in regions!.result) {
-        //   if(e.id == regionId){
-        //     region = e.name!;
-        //   }
-        // }
-        Repo.profileDataModel!.result!.address.add(Address.fromJson(value.data));
+        Map<String, dynamic> data = value.data[KeysManager.result];
+        data['region'] = _getCityAndRegionNameById(regionId, false);
+        data['region_parent'] = _getCityAndRegionNameById(cityId, true);
+        Repo.profileDataModel!.result!.address.add(Address.fromJson(data));
         emit(MainAddAddressSuccessState());
       } else {
         emit(MainAddAddressErrorState());
       }
-    }).catchError((e){
-      log(e.toString());
-      if (e is DioException) {
-        log("Dio Error: ${e.message}");
-        log("Status Code: ${e.response?.statusCode}");
-      } else {
-        log("Non-Dio Error: $e");
-      }
-    });
+    })
+    //     .catchError((e){
+    //   log(e.toString());
+    //   if (e is DioException) {
+    //     log("Dio Error: ${e.message}");
+    //     log("Status Code: ${e.response?.statusCode}");
+    //   } else {
+    //     log("Non-Dio Error: $e");
+    //   }
+    // })
+    ;
   }
 
   void editAddress({
     required int regionId,
     required int id,
+    required int cityId,
     required String blockNo,
     required String street,
     required String buildingNo,
@@ -882,10 +921,28 @@ class MainCubit extends Cubit<MainCubitStates>{
     ).then((value){
       log(value.data.toString());
       if(value.data[KeysManager.success]){
-        Repo.profileDataModel!.result!.address.add(Address.fromJson(value.data));
+        Repo.profileDataModel!.result!.address.removeWhere((e) => e!.id == id);
+        Repo.profileDataModel!.result!.address.add(Address.fromJson({
+          'id':id,
+          'floor_no':floorNo,
+          'flat_no':flatNo,
+          'building_no':buildingNo,
+          'block_no':blockNo,
+          'street':street,
+          'notes':notes,
+          'region': _getCityAndRegionNameById(regionId, false),
+          'region_parent': _getCityAndRegionNameById(cityId, true)
+        }));
         emit(MainEditAddressSuccessState());
       } else {
         emit(MainEditAddressErrorState());
+      }
+    }).catchError((e){
+      emit(MainEditAddressErrorState());
+      if(e is DioException){
+        log('Dio Error:');
+        log(e.response.toString());
+        log(e.message.toString());
       }
     });
   }
@@ -912,7 +969,11 @@ class MainCubit extends Cubit<MainCubitStates>{
       }
     ).then((value){
       if(value.data['success']){
-        auctionsDataModel!.result.add(value.data['result']);
+        if(auctionsDataModel == null){
+          getAuctionsForAd(adId);
+        } else {
+          auctionsDataModel!.result.add(value.data['result']);
+        }
         emit(MainSaveAuctionSuccessState());
       } else {
         showToastMessage(
@@ -995,19 +1056,15 @@ class MainCubit extends Cubit<MainCubitStates>{
     MultipartFile? file;
     if(messageType == 'file'){
       file = await MultipartFile.fromFile(
-        pickedFiles!.path!,
-        filename: pickedFiles!.path!.split('/').last,
-        contentType: getAcceptedMediaType(pickedFiles!.name.split('.').last)
+        message.path!,
+        filename: message.path!.split('/').last,
       );
     }
+
     DioHelper.postData(
       url: EndPoints.chat,
       options: Options(
         contentType: messageType == 'file' ? 'multipart/form-data' : 'application/json',
-        followRedirects: true,
-        validateStatus: (status) {
-          return status != null && status < 500;
-        },
       ),
       data: {
         'receiver_id': receiverId,
@@ -1015,6 +1072,7 @@ class MainCubit extends Cubit<MainCubitStates>{
         'message_type': messageType,
       }
     ).then((value){
+      log(value.data.toString());
       emit(MainSendMessageSuccessState());
     }).catchError((e){
       if (e is DioException) {
@@ -1050,7 +1108,8 @@ class MainCubit extends Cubit<MainCubitStates>{
     DioHelper.getData(
       path: EndPoints.recentlyViewed,
     ).then((value){
-      //TODO: add the data mapping after is added
+      recentlyViewedDataModel = RecentlyViewedDataModel.fromJson(value.data);
+      emit(MainGetRecentlyViewedSuccessState());
     });
   }
   void hideAd(int adId){

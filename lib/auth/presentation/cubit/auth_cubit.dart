@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wakala/auth/data/profile_data_model.dart';
 import 'package:wakala/auth/presentation/cubit/auth_states.dart';
-import 'package:wakala/utilities/local/locale_changer.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/local/shared_preferences.dart';
 import 'package:wakala/utilities/network/dio.dart';

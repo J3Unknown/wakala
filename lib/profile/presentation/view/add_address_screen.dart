@@ -25,8 +25,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   int? id;
   late bool isEdit;
   AddAddressArguments? args;
-
-  bool _shouldLoadRegions = false;
+  bool isInserted = false;
 
   late GlobalKey<FormState> _formKey;
   late final TextEditingController _streetController;
@@ -54,7 +53,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   @override
   void didChangeDependencies() {
     args = ModalRoute.of(context)!.settings.arguments as AddAddressArguments?;
-    if(args != null) {
+    if(args != null && !isInserted) {
       isEdit = args!.isEdit;
       final address = args!.address;
       if (address != null) {
@@ -67,11 +66,13 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         _noteController.text = address.notes ?? '';
         selectedCity = address.regionParent?.id;
         selectedRegion = address.region?.id;
-
-        if (selectedCity != null) {
-          _shouldLoadRegions = true;
+        if(context.read<MainCubit>().cities != null){
+          Future.microtask(() {
+            context.read<MainCubit>().getRegions(selectedCity!);
+          });
         }
       }
+      isInserted = true;
     }
     super.didChangeDependencies();
   }
@@ -90,10 +91,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   @override
   Widget build(BuildContext context) {
     MainCubit cubit = MainCubit.get(context);
-    if (_shouldLoadRegions && cubit.cities != null) {
-      _shouldLoadRegions = false;
-      cubit.getRegions(selectedCity!);
-    }
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -105,8 +102,14 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       ),
       body: BlocConsumer<MainCubit, MainCubitStates>(
         listener: (context, state){
-          if(state is MainAddAddressSuccessState){
+          if(state is MainAddAddressSuccessState || state is MainEditAddressSuccessState){
             Navigator.pop(context);
+          }
+          if(state is MainGetCitiesSuccessState && isEdit && cubit.regions == null){
+            cubit.getRegions(selectedCity!);
+          }
+          if(state is MainGetRegionsSuccessState && isEdit){
+            setState(() {});
           }
         },
         builder: (context, state) {
@@ -123,6 +126,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     setState(() {
                       selectedCity = value;
                       selectedRegion = null;
+                      log(selectedRegion.toString());
+                      log(selectedCity.toString());
                     });
                     cubit.getRegions(selectedCity!);
                   }
@@ -138,6 +143,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     onChanged: (value) {
                       setState(() {
                         selectedRegion = value;
+                        log(selectedRegion.toString());
                       });
                     }
                   ): Center(child: CircularProgressIndicator(),),
@@ -238,8 +244,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     if(_formKey.currentState!.validate()){
                       if(isEdit){
                         cubit.editAddress(
-                          regionId: selectedRegion!,
                           id: id!,
+                          regionId: selectedRegion!,
+                          cityId: selectedCity!,
                           blockNo: _blockNoController.text.trim(),
                           buildingNo: _buildingNoController.text.trim(),
                           flatNo: _flatNoController.text.trim(),
@@ -262,9 +269,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           );
                         } else{
                           if(selectedCity == null){
-                            showToastMessage(msg: 'select a city first', toastState: ToastState.warning);
+                            showToastMessage(msg: LocalizationService.translate(StringsManager.citySelectionWarning), toastState: ToastState.warning);
                           } else {
-                            showToastMessage(msg: 'select a region first', toastState: ToastState.warning);
+                            showToastMessage(msg: LocalizationService.translate(StringsManager.regionSelectionWarning), toastState: ToastState.warning);
                           }
                         }
                       }

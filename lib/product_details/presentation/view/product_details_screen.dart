@@ -23,6 +23,7 @@ import 'package:wakala/utilities/resources/assets_manager.dart';
 import 'package:wakala/utilities/resources/colors_manager.dart';
 import 'package:wakala/utilities/resources/components.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
+import 'package:wakala/utilities/resources/repo.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
@@ -53,8 +54,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         centerTitle: true,
         title: Text(LocalizationService.translate(StringsManager.productDetails)),
         actions: [
+          if(dataModel!=null)
           IconButton(
-            onPressed: () => shareButton('${AppConstants.baseUrl + EndPoints.getCommercialAd}/${widget.id}', 'Check this out on Wikala!!'),
+            onPressed: () => shareAd(AppConstants.baseImageUrl + dataModel!.result!.ad!.mainImage!, dataModel!.result!.ad!.title!, dataModel!.result!.ad!.price!, dataModel!.result!.ad!.description!),
             icon: SvgPicture.asset(AssetsManager.share, colorFilter: ColorFilter.mode(ColorsManager.primaryColor, BlendMode.srcIn),)
           )
         ],
@@ -138,7 +140,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       //   ],
                       //   fullContent: []
                       // ),
-                      if(dataModel!.result!.ad!.user!=null)
+                      if(dataModel!.result!.ad!.user!=null && dataModel!.result!.ad!.userId != Repo.profileDataModel!.result!.id)
                       ExpandableList(
                         isExpandable: false,
                         title: StringsManager.advertiser,
@@ -165,7 +167,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                 ),
               ),
-              if(typeData.type != 'Auction')
+              if(typeData.type != 'Auction' && dataModel!.result!.ad!.userId != Repo.profileDataModel!.result!.id)
               Padding(
                 padding: EdgeInsets.only(bottom: AppPaddings.p20, left: AppPaddings.p15, right: AppPaddings.p15),
                 child: SizedBox(
@@ -175,7 +177,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       if(dataModel!.result!.ad!.contactMethod == 'chat')
                       Expanded(
                         child: DefaultAuthButton(
-                          onPressed: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.chat, arguments: dataModel!.result!.ad!.user!.id))),
+                          onPressed: () {
+                            if(AppConstants.isAuthenticated){
+                              Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.chat, arguments: dataModel!.result!.ad!.user!.id)));
+                            }  else{
+                              showDialog(context: context, builder: (context) => AlertDialog());
+                            }
+                          },
                           title: StringsManager.message,
                           icon: AssetsManager.chatsIcon,
                           iconColor: ColorsManager.white,
@@ -189,7 +197,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       if(dataModel!.result!.ad!.contactMethod == 'phone')
                       Expanded(
                         child: DefaultAuthButton(
-                          onPressed: () async => await FlutterPhoneDirectCaller.callNumber(dataModel!.result!.ad!.user!.phone!.toString()),
+                          onPressed: () async {
+                            if(AppConstants.isAuthenticated){
+                              await FlutterPhoneDirectCaller.callNumber(dataModel!.result!.ad!.user!.phone!.toString());
+                            } else{
+                              showDialog(context: context, builder: (context) => AlertDialog());
+                            }
+                          },
                           title: StringsManager.call,
                           icon: AssetsManager.call,
                           iconColor: ColorsManager.white,
@@ -203,7 +217,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                 ),
               ),
-              if(typeData.type == 'Auction')
+              if(typeData.type == 'Auction' && dataModel!.result!.ad!.userId != Repo.profileDataModel!.result!.id)
               Padding(
                 padding: EdgeInsets.only(bottom: AppPaddings.p20, left: AppPaddings.p15, right: AppPaddings.p15),
                 child: SizedBox(
