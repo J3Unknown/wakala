@@ -881,17 +881,15 @@ class MainCubit extends Cubit<MainCubitStates>{
       } else {
         emit(MainAddAddressErrorState());
       }
-    })
-    //     .catchError((e){
-    //   log(e.toString());
-    //   if (e is DioException) {
-    //     log("Dio Error: ${e.message}");
-    //     log("Status Code: ${e.response?.statusCode}");
-    //   } else {
-    //     log("Non-Dio Error: $e");
-    //   }
-    // })
-    ;
+    }).catchError((e){
+      log(e.toString());
+      if (e is DioException) {
+        log("Dio Error: ${e.message}");
+        log("Status Code: ${e.response?.statusCode}");
+      } else {
+        log("Non-Dio Error: $e");
+      }
+    });
   }
 
   void editAddress({
@@ -1056,15 +1054,27 @@ class MainCubit extends Cubit<MainCubitStates>{
     MultipartFile? file;
     if(messageType == 'file'){
       file = await MultipartFile.fromFile(
-        message.path!,
-        filename: message.path!.split('/').last,
+        pickedFiles!.path!,
+        filename: pickedFiles!.name,
+        contentType: getAcceptedMediaType(pickedFiles!.name.split('.').last)
       );
     }
+
+    // log(file!.contentType.toString());
+    // log(file.filename.toString());
+    // log(pickedFiles!.path.toString());
+    // log(pickedFiles!.name.toString());
+    // log('message: $message');
+    // log('message Type: $messageType');
+    // log('receiver Id: $receiverId');
+    // log(pickedFiles!.name.toString());
+    log(file.toString());
 
     DioHelper.postData(
       url: EndPoints.chat,
       options: Options(
         contentType: messageType == 'file' ? 'multipart/form-data' : 'application/json',
+        followRedirects: true,
       ),
       data: {
         'receiver_id': receiverId,

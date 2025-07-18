@@ -46,11 +46,13 @@ class ChatCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(chat.receiver!.name, style: Theme.of(context).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold), maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,),
+                      if(chat.messages.isNotEmpty)
                       Text(chat.messages.last.message, style: Theme.of(context).textTheme.titleSmall!.copyWith(color: ColorsManager.grey),  maxLines: AppSizes.s1, overflow: TextOverflow.ellipsis,)
                     ],
                   )
                 ),
-                Text(DateFormat(' hh:mm \n dd - MM').format(DateTime.parse(chat.messages.first.createdAt)), style: Theme.of(context).textTheme.labelLarge!.copyWith(color: ColorsManager.grey2),)
+                if(chat.messages.isNotEmpty)
+                Text(DateFormat(' hh:mm \n dd - MM').format(DateTime.parse(chat.messages.last.createdAt)), style: Theme.of(context).textTheme.labelLarge!.copyWith(color: ColorsManager.grey2),)
               ],
             ),
           ),

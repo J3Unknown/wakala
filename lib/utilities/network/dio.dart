@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
 
@@ -52,7 +54,7 @@ class DioHelper{
     }) async
   {
     dio.options.headers = {
-      'Content-Type':'application/json',
+      'Content-Type':'multipart/form-data',
       'lang':AppConstants.locale,
       'Authorization':'Bearer ${AppConstants.token}',
     };
