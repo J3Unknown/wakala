@@ -168,7 +168,6 @@ class AuthCubit extends Cubit<AuthStates>{
         emit(AuthLoginErrorState());
       }
     }).catchError((e){
-      log(e.toString());
         showToastMessage(msg: LocalizationService.translate(StringsManager.errorInCredentials), toastState: ToastState.error);
         emit(AuthLoginErrorState());
     });

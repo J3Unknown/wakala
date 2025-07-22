@@ -87,6 +87,7 @@ class LoginScreen extends StatelessWidget {
                               backgroundColor: ColorsManager.primaryColor,
                               foregroundColor: ColorsManager.white,
                               hasBorder: false,
+                              pressCondition: state is AuthLoginLoadingState,
                             ),
                             SizedBox(height: AppSizesDouble.s30,),
                             TextButton(

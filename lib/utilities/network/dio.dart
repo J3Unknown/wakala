@@ -1,18 +1,33 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
 
 class DioHelper{
   static Dio dio = Dio();
 
   static void init() {
-    dio = Dio(
-      BaseOptions(
-        baseUrl: AppConstants.baseUrl,
-        receiveDataWhenStatusError: true,
-      ),
+    BaseOptions options = BaseOptions(
+      baseUrl: AppConstants.baseUrl,
+      headers: {
+        'Accept': 'application/json',
+      },
+      receiveDataWhenStatusError: true,
+      followRedirects: false,
+      validateStatus: (status) => status! < 500,
     );
+
+    dio = Dio(options)..interceptors.add(PrettyDioLogger(
+      requestHeader: true,
+      requestBody: true,
+      responseBody: true,
+      responseHeader: false,
+      error: true,
+      compact: true,
+      maxWidth: 90,
+    ));
   }
 
   static Future<Response> getData({
@@ -54,11 +69,12 @@ class DioHelper{
     }) async
   {
     dio.options.headers = {
-      'Content-Type':'multipart/form-data',
+      'Content-Type':'application/json',
       'lang':AppConstants.locale,
       'Authorization':'Bearer ${AppConstants.token}',
     };
-    return dio.post(url, queryParameters: query, data: data??{}, options: options);
+    var response = dio.post(url, queryParameters: query, data: data??{}, options: options);
+    return response;
   }
 
   static Future<Response> deleteData({

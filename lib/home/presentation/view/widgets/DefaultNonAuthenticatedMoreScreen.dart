@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 
 import '../../../../auth/presentation/view/widgets/DefaultAuthButton.dart';
@@ -34,6 +35,7 @@ class DefaultNonAuthenticatedMoreScreen extends StatelessWidget {
           width: deviceSize(context).width/AppSizes.s2,
           child: DefaultAuthButton(
             onPressed: () {
+              MainCubit.get(context).changeBottomNavBarIndex(0);
               navigateToAuthLayout(context);
             },
             title: StringsManager.login,

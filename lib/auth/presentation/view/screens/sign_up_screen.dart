@@ -88,6 +88,7 @@ class SignUpScreen extends StatelessWidget {
                             hasBorder: false,
                             foregroundColor: ColorsManager.white,
                             backgroundColor: ColorsManager.primaryColor,
+                            pressCondition: state is AuthSendingOtpCodeLoadingState,
                           ),
                           SizedBox(height: AppSizesDouble.s15,),
                           Row(

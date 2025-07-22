@@ -78,6 +78,7 @@ class StringsManager{
   static const String condition = 'Condition';
   static const String category = 'Category';
   static const String showAll = 'show all';
+  static const String cantLoadProducts = "Can't load products";
 
   //*post Screen
   static const String addType = 'Add Type';
@@ -108,6 +109,7 @@ class StringsManager{
   static const String advertiser = 'Advertiser';
   static const String relatedAds = 'Related Ads';
   static const String clickOnImageToDelete = 'Click on the image to delete';
+  static const String adEditedSuccessfully = 'The ad was edited successfully';
   static const String editWarning = "Don't change unless you want to change it, otherwise the Original Content will be used";
   static const String changeAccount = 'Change\nAccount';
   static const String imagePickingWarning = 'The maximum file size accepted is 1MB, \nand the accepted formats are JPG, PNG, and WEBP.\n\nNote: the first image is the Main Preview Image.';

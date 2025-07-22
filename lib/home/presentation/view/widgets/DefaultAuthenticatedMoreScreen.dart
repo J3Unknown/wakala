@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/profile/presentation/view/widgets/profile_screen_arguments.dart';
+import 'package:wakala/utilities/resources/components.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
 
 import '../../../../auth/presentation/view/widgets/DefaultAuthButton.dart';
@@ -86,7 +87,10 @@ class DefaultAuthenticatedMoreScreen extends StatelessWidget {
           alignment: AlignmentDirectional.centerStart,
           child: IntrinsicWidth(
             child: DefaultAuthButton(
-              onPressed: () async => await MainCubit.get(context).logOut(),
+              onPressed: () async {
+                await MainCubit.get(context).logOut();
+                navigateToAuthLayout(context);
+              },
               title: StringsManager.logout,
               backgroundColor: ColorsManager.transparent,
               icon: AssetsManager.logout,

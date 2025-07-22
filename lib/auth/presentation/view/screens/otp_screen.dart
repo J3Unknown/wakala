@@ -157,6 +157,7 @@ class _OtpScreenState extends State<OtpScreen> {
                             hasBorder: false,
                             foregroundColor: ColorsManager.white,
                             backgroundColor: ColorsManager.primaryColor,
+                            pressCondition: state is AuthSignUpLoadingState || state is AuthResetPasswordLoadingState,
                           )
                         ]
                       ),

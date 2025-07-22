@@ -18,6 +18,7 @@ import 'package:wakala/home/data/home_screen_data_model.dart';
 import 'package:wakala/home/data/search_screen_arguments.dart';
 import 'package:wakala/saved/data/saved_ads_data_model.dart';
 import 'package:wakala/utilities/local/localization_services.dart';
+import 'package:wakala/utilities/resources/alerts.dart';
 import 'package:wakala/utilities/resources/routes_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -332,7 +333,13 @@ class TopSectionsElement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.commercialDetails, arguments: _ad.id))),
+      onTap: () {
+        if(AppConstants.isAuthenticated){
+          Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.commercialDetails, arguments: _ad.id)));
+        } else {
+          showDialog(context: context, builder: (context) => LoginAlert());
+        }
+      },
       child: Container(
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppSizesDouble.s15)),
         clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -393,7 +400,16 @@ class _VerticalProductCardState extends State<VerticalProductCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: widget.commercialAdType.id))),
+      onTap: () {
+        if(AppConstants.isAuthenticated){
+          Navigator.push(context, RoutesGenerator.getRoute(RouteSettings(name: Routes.productDetails, arguments: widget.commercialAdType.id)));
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) => LoginAlert()
+          );
+        }
+      },
       child: Container(
         height: AppSizesDouble.s370,
         width: AppSizesDouble.s230,

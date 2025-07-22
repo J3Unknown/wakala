@@ -155,6 +155,8 @@
   "Min": "الاقل",
   "Max": "الاعلى",
   "only:": "فقط:",
+  "Can't load products": "لا يمكن عرض المنتجات",
+  "The ad was edited successfully": "تم تعديل الاعلان بنجاح",
   "Please select an option first": "برجاء اختيار نوع البلاغ اولا",
   "Select a city first": "اختر المدينة اولا",
   "Select a region first": "اختر المنطقة اولا",

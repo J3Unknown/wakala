@@ -7,7 +7,9 @@ import 'package:wakala/home/cubit/main_cubit.dart';
 import 'package:wakala/home/cubit/main_cubit_states.dart';
 import 'package:wakala/home/data/categories_data_model.dart';
 import 'package:wakala/home/data/search_screen_arguments.dart';
+import 'package:wakala/utilities/local/localization_services.dart';
 import 'package:wakala/utilities/resources/components.dart';
+import 'package:wakala/utilities/resources/constants_manager.dart';
 import 'package:wakala/utilities/resources/strings_manager.dart';
 import 'package:wakala/utilities/resources/values_manager.dart';
 
@@ -108,12 +110,14 @@ class _SearchScreenState extends State<SearchScreen> with AutomaticKeepAliveClie
                 AdsBannerSection(slider: MainCubit.get(context).homePageDataModel!.result!.sliders!.first),
                 Expanded(
                   child: ConditionalBuilder(
-                    condition: MainCubit.get(context).searchScreenAdsDataModel != null && state is !MainGetCommercialAdLoadingState,
+                    condition: MainCubit.get(context).searchScreenAdsDataModel != null && state is !MainGetCommercialAdLoadingState && AppConstants.isAuthenticated,
                     fallback: (context) {
                       if(state is MainGetCommercialAdLoadingState){
-                        return Center(child: Text('Can\'t load products'),);
+                        return Center(child: CircularProgressIndicator(),);
+                      } else if(!AppConstants.isAuthenticated){
+                        return Center(child: Text(LocalizationService.translate(StringsManager.loginMessage)),);
                       }
-                      return Center(child: CircularProgressIndicator(),);
+                        return Center(child: Text(LocalizationService.translate(StringsManager.cantLoadProducts)),);
                     },
                     builder: (context) => VerticalProductsList(
                       scrollController: _scrollController,

@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart' as svg_provider;
 import 'package:wakala/auth/presentation/view/widgets/DefaultAuthButton.dart';
 import 'package:wakala/home/data/commercial_ad_data_model.dart';
+import 'package:wakala/home/data/iterable_category_pair.dart';
 import 'package:wakala/home/presentation/view/widgets/select_address_dialog.dart';
 import 'package:wakala/profile/presentation/view/widgets/default_address_list_element.dart';
 import 'package:wakala/utilities/resources/constants_manager.dart';
@@ -52,8 +53,50 @@ class _PostScreenContentState extends State<PostScreenContent> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
 
+
+  List<IterableCategoryPair> levels = [];
+
+  _stillHaveMoreLevels(){
+    while(levels.isNotEmpty){
+      setState(() {
+        subCategoryLevels.add(levels.first.categories);
+        selections.add(levels.first.id);
+      });
+      levels.remove(levels.first);
+    }
+
+  }
+  _getLevels(int id, List<Categories> categories){
+    if(_checkIfExists(id, categories)){
+      levels.add(IterableCategoryPair(id, categories));
+      _stillHaveMoreLevels();
+      return true;
+    } else {
+      for(var i in categories){
+        if(i.subCategories != null){
+          levels.add(IterableCategoryPair(i.id!, categories));
+          bool found = _getLevels(id, i.subCategories!);
+          if (found) return true;
+          levels.removeLast();
+        }
+      }
+    }
+    return false;
+  }
+
+  _checkIfExists(int id, List<Categories> categories){
+    for(var i in categories){
+      if(i.id == id) return true;
+    }
+    return false;
+  }
+
   @override
   void initState() {
+    selections = [];
+    subCategoryLevels = [];
+    cubit = MainCubit.get(context);
+    cubit.adImagesList = [];
     if(widget.item != null){
       _titleController.text = widget.item!.title;
       _descriptionController.text = widget.item!.description!;
@@ -61,19 +104,17 @@ class _PostScreenContentState extends State<PostScreenContent> {
       negotiable = widget.item!.negotiable == 1;
       isPhoneContact = widget.item!.contactMethod == 'phone'?0:1;
       typeSelectedItem = widget.item!.adsType!.id;
-
+      _getLevels(widget.item!.categoryId, cubit.categoriesDataModel!.result!.categories);
     }
-    selections = [];
-    subCategoryLevels = [];
-    cubit = MainCubit.get(context);
-    cubit.adImagesList = [];
-    if(context.read<MainCubit>().categoriesDataModel == null){
-      context.read<MainCubit>().getCategories();
-    } else {
-      setState(() {
-        selections.add(null);
-        subCategoryLevels.add(cubit.categoriesDataModel!.result!.categories);
-      });
+    if(widget.item == null){
+      if(context.read<MainCubit>().categoriesDataModel == null){
+        context.read<MainCubit>().getCategories();
+      } else {
+        setState(() {
+          selections.add(null);
+          subCategoryLevels.add(cubit.categoriesDataModel!.result!.categories);
+        });
+      }
     }
     super.initState();
   }
@@ -88,6 +129,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
       });
     }
   }
+
   void _onCategorySelected(int level, int? categoryId) async {
     setState(() {
       subCategoryLevels = subCategoryLevels.sublist(0, level + 1);
@@ -99,12 +141,6 @@ class _PostScreenContentState extends State<PostScreenContent> {
     if (categoryId != null) {
       await _fetchSubCategories(categoryId);
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-
-    super.didChangeDependencies();
   }
 
   @override
@@ -145,7 +181,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                     children: [
                       CircleAvatar(
                         radius: AppSizesDouble.s25,
-                        backgroundImage: Repo.profileDataModel!.result!.image != null?NetworkImage(Repo.profileDataModel!.result!.image!): svg_provider.Svg(AssetsManager.defaultAvatar),
+                        backgroundImage: Repo.profileDataModel!.result!.image != null?NetworkImage(AppConstants.baseImageUrl + Repo.profileDataModel!.result!.image!): svg_provider.Svg(AssetsManager.defaultAvatar),
                       ),
                       SizedBox(width: AppSizesDouble.s5,),
                       Column(
@@ -159,8 +195,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                       ),
                       Spacer(),
                       TextButton(
-                        onPressed: () async{
-                          MainCubit.get(context).changeBottomNavBarIndex(0);
+                        onPressed: () async {
                           await MainCubit.get(context).logOut();
                           navigateToAuthLayout(context);
                         },
@@ -185,8 +220,6 @@ class _PostScreenContentState extends State<PostScreenContent> {
                   );
                 }
               ),
-              if(widget.item != null)
-              Text(LocalizationService.translate(StringsManager.editWarning), style: Theme.of(context).textTheme.labelSmall!.copyWith(color: ColorsManager.deepRed),),
               SizedBox(height: AppSizesDouble.s20,),
               IntrinsicHeight(
                 child: DottedBorder(
@@ -489,7 +522,6 @@ class _PostScreenContentState extends State<PostScreenContent> {
                     }
                   } else {
                     if(widget.item == null){
-                      log('is posting');
                       cubit.postAd(
                         categoryId: selections.last==null?selections[selections.length - 2]!:selections.last!,
                         typeId: typeSelectedItem!,
@@ -500,7 +532,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                         images: cubit.adImagesList.sublist(1),
                         cityId: selectedAddress!.regionParent!.id??13,
                         regionId: selectedAddress!.region!.id??14,
-                        endDate: DateTime.now().toString(),
+                        endDate: DateTime.now().add(Duration(days: 365)).toString(),
                         startDate: DateTime.now().toString(),
                         exchangeItem: typeSelectedItem == 1?_priceController.text:null,
                         lowestAuction: typeSelectedItem == 2?_priceController.text:null,
@@ -510,7 +542,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                     } else {
                       cubit.editAd(
                         id: widget.item!.id,
-                        categoryId: selections.last??widget.item!.categoryId,
+                        categoryId: selections.last==null?selections[selections.length - 2]!:selections.last!,
                         typeId: typeSelectedItem!,
                         title: _titleController.text,
                         description: _descriptionController.text,
@@ -534,7 +566,7 @@ class _PostScreenContentState extends State<PostScreenContent> {
                 backgroundColor: ColorsManager.primaryColor,
                 foregroundColor: ColorsManager.white,
                 height: AppSizesDouble.s60,
-                pressCondition: state is MainPostAdLoadingState,
+                pressCondition: state is MainPostAdLoadingState || state is MainEditAdLoadingState,
               )
             ],
           ),
